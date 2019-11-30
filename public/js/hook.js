@@ -8,6 +8,10 @@ elementsArr.forEach(element => {
     element.parentElement.style.display = 'flex';
     element.parentElement.style.flexFlow = 'column';
     element.parentElement.style.width = 'inherit';
+    let helperDiv = null;
+    const getHelperDiv = () => {
+        helperDiv = document.getElementsByClassName('helperDiv')[0] ? document.getElementsByClassName('helperDiv')[0] : null;
+    }
     const eventHandler = event => {
         writingHelper(element);
     }
@@ -22,9 +26,24 @@ elementsArr.forEach(element => {
             writingHelper(element);
         }
     }
+    const onBlurEventHandler = event => {
+        getHelperDiv();
+        console.log(helperDiv);
+        document.body.removeChild(helperDiv);
+        helperDiv = null;
+    }
+    const focusInputHandler = event => {
+        event.stopPropagation();
+        element.removeEventListener('blur', onBlurEventHandler);
+        element.removeEventListener('mouseup', eventHandler);
+        element.focus();
+    };
+    getHelperDiv();
     element.addEventListener('mouseup', eventHandler);
     element.addEventListener('input', eventHandler);
     element.addEventListener('keyup', arrowKeyEventHandler);
+    if (helperDiv) helperDiv.addEventListener('mousedown', focusInputHandler);
+    element.addEventListener('blur', onBlurEventHandler);
 });
 
 const writingHelper = (element, ) => {

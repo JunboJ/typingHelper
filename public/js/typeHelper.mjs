@@ -51,6 +51,7 @@ export const getCursorXY = (input) => {
         let newString = inputString.slice(0, cursorStart) + char + inputString.slice(cursorEnd);
         input.value = newString;
         document.body.removeChild(helperDiv);
+        helperDiv = null;
         document.body.removeEventListener('keyup', keyupEventHandler);
         document.body.removeEventListener('keydown', keydownEventHandler);
       };
@@ -135,6 +136,7 @@ export const getCursorXY = (input) => {
 
     // create helper box
     if (helperDiv === null) {
+      console.log('new helper!');
       helperDiv = document.createElement('div');
       helperDiv.className = 'helperDiv';
       document.body.appendChild(helperDiv);
@@ -156,19 +158,14 @@ export const getCursorXY = (input) => {
   } else {
     if (helperDiv !== null) {
       document.body.removeChild(helperDiv);
+      helperDiv = null;
     }
   };
 
   // remove the helper onblur
   if (helperDiv !== null) {
-    const focusInputHandler = event => {
-      input.removeEventListener('blur', onBlurEventHandler);
-    };
-    const onBlurEventHandler = event => {
-      console.log(event.cancelable);
-      document.body.removeChild(helperDiv);
-    }
-    helperDiv.addEventListener('mousedown', focusInputHandler)
-    input.addEventListener('blur', onBlurEventHandler);
+    // console.log(helperDiv);
+
+    
   }
 };
