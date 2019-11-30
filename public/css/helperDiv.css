@@ -1,0 +1,57 @@
+.helperDiv {
+    position: fixed;
+    /* border: 1px solid rgb(0, 0, 0, 0.4); */
+    border: none;
+    border-radius: 0.7rem 0.7rem 0.7rem 0;
+    box-shadow: 0px 0px 4px 2px rgb(0, 0, 0, 0.4);
+    padding: 0;
+    margin-left: -0.4rem;
+    width: auto;
+    height: 1.8rem;
+    text-align: center;
+    background-color: white;
+    transition: left 0.2s;
+    -webkit-transition: left 0.2s;
+}
+
+.helperContent {
+    height: 100%;
+}
+
+.helperOption {
+    background-color: white;
+    border: none;
+    border-radius: 0.7rem 0.7rem 0.7rem 0;
+    width: auto;
+    min-width: 1.8rem;
+}
+
+.helperOptions, .helperOption {
+    height: 100%;
+}
+
+.helperOptions {
+    background-color: white;
+    border: none;
+    width: auto;
+    min-width: 1.8rem;
+}
+
+.helperOptions:nth-child(1) {
+    background-color: white;
+    border: none;
+    border-radius: 0.7rem 0 0 0;
+    width: auto;
+}
+
+.helperOptions:nth-last-child(1) {
+    background-color: white;
+    border: none;
+    border-radius: 0 0.7rem 0.7rem 0;
+    width: auto;
+}
+
+.helperOptions:hover, .helperOption:hover {
+    cursor: pointer;
+    background-color: rgb(78, 161, 216);
+}
