@@ -30,18 +30,6 @@ elementsArr.forEach(element => {
             if (div) document.body.removeChild(div);
         }
     }
-    const onBlurEventHandler = event => {
-        getHelperDiv();
-        console.log(helperDiv);
-        document.body.removeChild(helperDiv);
-        helperDiv = null;
-    }
-    const focusInputHandler = event => {
-        event.stopPropagation();
-        element.removeEventListener('blur', onBlurEventHandler);
-        element.removeEventListener('mouseup', eventHandler);
-        element.focus();
-    };
     element.addEventListener('mouseup', eventHandler);
     element.addEventListener('input', eventHandler);
     element.addEventListener('keyup', arrowKeyEventHandler);

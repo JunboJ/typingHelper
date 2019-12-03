@@ -20,6 +20,8 @@ export const getCursorXY = (input) => {
   const options = currentCharacter.length == 1 ? getHelperLibrary(currentCharacter) : null;
 
 
+  let helperDiv = document.getElementsByClassName('helperDiv')[0] ? document.getElementsByClassName('helperDiv')[0] : null;
+
   // helper content creating function
 
   const createOptions = helperDiv => {
@@ -64,23 +66,23 @@ export const getCursorXY = (input) => {
     });
 
     // closeBtn event listener
-    const closeBtnClicked = event => {
+    const closeBtnClickedHandler = event => {
       document.body.removeChild(helperDiv);
     };
 
-    const escBtnPressed = event => {
+    const escBtnPressedHandler = event => {
       // if (event.which = 27) {
       //   closeBtn.click();
-        console.log(event.which);
+      console.log(event.which);
       // }
     };
-    
+
     const closeBtn = document.createElement('button');
     closeBtn.className = 'helperCloseBtn';
     closeBtn.innerHTML = '&times;';
     helperContent.appendChild(closeBtn);
-    closeBtn.addEventListener('click', closeBtnClicked);
-    input.addEventListener('keypress', escBtnPressed);
+    closeBtn.addEventListener('click', closeBtnClickedHandler);
+    input.addEventListener('keypress', escBtnPressedHandler);
     helperDiv.appendChild(helperContent);
 
     // add key press event listener to document
@@ -102,10 +104,6 @@ export const getCursorXY = (input) => {
     document.body.addEventListener('keyup', keyupEventHandler);
     document.body.addEventListener('keydown', keydownEventHandler);
   };
-
-
-  let helperDiv = document.getElementsByClassName('helperDiv')[0] ? document.getElementsByClassName('helperDiv')[0] : null;
-
 
   // display writing helper
 
@@ -164,6 +162,7 @@ export const getCursorXY = (input) => {
       helperDiv = document.createElement('div');
       helperDiv.className = 'helperDiv';
       document.body.appendChild(helperDiv);
+
     }
     createOptions(helperDiv);
 
@@ -185,11 +184,4 @@ export const getCursorXY = (input) => {
       helperDiv = null;
     }
   };
-
-  // remove the helper onblur
-  if (helperDiv !== null) {
-    // console.log(helperDiv);
-
-    
-  }
 };
