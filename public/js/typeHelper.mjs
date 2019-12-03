@@ -51,6 +51,7 @@ export const getCursorXY = (input) => {
       let tip = document.createElement('small');
       tip.className = 'tips_windows';
       tip.innerHTML = (index + 1);
+      
       helperOptions.prepend(tip);
       // add click event listener
       const clickEventHandler = event => {

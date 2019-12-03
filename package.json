@@ -5,7 +5,8 @@
   "main": "app.js",
   "dependencies": {
     "express": "^4.17.1",
-    "nodemon": "^2.0.1"
+    "nodemon": "^2.0.1",
+    "pinyinlite": "^1.2.1"
   },
   "devDependencies": {},
   "scripts": {
