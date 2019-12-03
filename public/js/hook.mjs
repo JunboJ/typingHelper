@@ -8,9 +8,9 @@ elementsArr.forEach(element => {
     element.parentElement.style.display = 'flex';
     element.parentElement.style.flexFlow = 'column';
     element.parentElement.style.width = 'inherit';
-    let helperDiv = null;
+
     const getHelperDiv = () => {
-        helperDiv = document.getElementsByClassName('helperDiv')[0] ? document.getElementsByClassName('helperDiv')[0] : null;
+        return document.getElementsByClassName('helperDiv')[0] ? document.getElementsByClassName('helperDiv')[0] : null;
     }
     const eventHandler = event => {
         writingHelper(element);
@@ -25,6 +25,10 @@ elementsArr.forEach(element => {
         ) {
             writingHelper(element);
         }
+        if (event.which == 27) {
+            const div = getHelperDiv();
+            if (div) document.body.removeChild(div);
+        }
     }
     const onBlurEventHandler = event => {
         getHelperDiv();
@@ -38,14 +42,11 @@ elementsArr.forEach(element => {
         element.removeEventListener('mouseup', eventHandler);
         element.focus();
     };
-    getHelperDiv();
     element.addEventListener('mouseup', eventHandler);
     element.addEventListener('input', eventHandler);
     element.addEventListener('keyup', arrowKeyEventHandler);
-    if (helperDiv) helperDiv.addEventListener('mousedown', focusInputHandler);
-    element.addEventListener('blur', onBlurEventHandler);
 });
 
-const writingHelper = (element, ) => {
+const writingHelper = (element) => {
     getCursorXY(element);
 }

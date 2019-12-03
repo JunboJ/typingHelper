@@ -40,11 +40,16 @@ export const getCursorXY = (input) => {
       let helperOptions = document.createElement('button');
       helperOptions.className = className;
       helperOptions.id = key;
-      helperOptions.style.fontSize = '0.9rem';
+      helperOptions.style.fontSize = '1rem';
+      // helperOptions.style.fontWeight = 'bold';
       let text = document.createTextNode(char);
       helperOptions.appendChild(text);
       helperContent.appendChild(helperOptions);
-
+      // create tip spans
+      let tip = document.createElement('small');
+      tip.className = 'tips_windows';
+      tip.innerHTML = (index + 1);
+      helperOptions.prepend(tip);
       // add click event listener
       const clickEventHandler = event => {
         input.focus();
@@ -57,6 +62,25 @@ export const getCursorXY = (input) => {
       };
       helperOptions.addEventListener('click', clickEventHandler);
     });
+
+    // closeBtn event listener
+    const closeBtnClicked = event => {
+      document.body.removeChild(helperDiv);
+    };
+
+    const escBtnPressed = event => {
+      // if (event.which = 27) {
+      //   closeBtn.click();
+        console.log(event.which);
+      // }
+    };
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'helperCloseBtn';
+    closeBtn.innerHTML = '&times;';
+    helperContent.appendChild(closeBtn);
+    closeBtn.addEventListener('click', closeBtnClicked);
+    input.addEventListener('keypress', escBtnPressed);
     helperDiv.appendChild(helperContent);
 
     // add key press event listener to document
@@ -148,8 +172,8 @@ export const getCursorXY = (input) => {
       offsetHeight: helperHeight
     } = helperDiv;
 
-    const leftPosition = (inputX + spanX);
-    const topPosition = (inputY - helperHeight + cloneFieldHeight - spanHeight);
+    const leftPosition = (inputX + spanX - 5);
+    const topPosition = (inputY - helperHeight + cloneFieldHeight - spanHeight - 10);
 
     helperDiv.style.left = `${leftPosition}px`;
     helperDiv.style.top = `${topPosition}px`;
