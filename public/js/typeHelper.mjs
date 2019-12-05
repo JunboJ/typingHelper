@@ -72,10 +72,7 @@ export const getCursorXY = (input) => {
     };
 
     const escBtnPressedHandler = event => {
-      // if (event.which = 27) {
-      //   closeBtn.click();
       console.log(event.which);
-      // }
     };
 
     const closeBtn = document.createElement('button');
@@ -83,7 +80,7 @@ export const getCursorXY = (input) => {
     closeBtn.innerHTML = '&times;';
     helperContent.appendChild(closeBtn);
     closeBtn.addEventListener('click', closeBtnClickedHandler);
-    input.addEventListener('keypress', escBtnPressedHandler);
+    // input.addEventListener('keypress', escBtnPressedHandler);
     helperDiv.appendChild(helperContent);
 
     // add key press event listener to document
