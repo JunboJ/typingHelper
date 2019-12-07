@@ -51,6 +51,9 @@
 
 .helperContent {
     height: 100%;
+    line-height: 1rem;
+    display: flex;
+    align-items: center;
 }
 
 .tips_windows {
@@ -64,17 +67,18 @@
     border: none;
     border-radius: 0.7rem 0.7rem 0.7rem 0;
     width: auto;
+    height: 100%;
     min-width: 1.8rem;
 }
 
 .helperCloseBtn {
     color: gray;
-    font-size: 0.8rem;
+    font-size: 0.6rem;
     font-weight: bold;
 }
 
 .helperOptions, .helperOption, .helperCloseBtn {
-    height: 100%;
+    height: inherit;
 }
 
 .helperOptions, .helperCloseBtn {
