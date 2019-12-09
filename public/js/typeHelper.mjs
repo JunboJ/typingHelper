@@ -1,4 +1,4 @@
-import { getHelperLibrary } from './helperLibrary.mjs';
+import { getHelperLibrary } from './lang/frLib.mjs';
 
 export const getCursorXY = (input) => {
   const inputHtml = input[0];
