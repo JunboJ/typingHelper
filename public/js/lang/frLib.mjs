@@ -1,4 +1,4 @@
-export const getHelperLibrary = character => {
+export const get_fr = character => {
     const fr = {
         a: ['à', 'â', 'æ'],
         A: ['À', 'Â', 'Æ'],

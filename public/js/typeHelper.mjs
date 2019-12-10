@@ -1,7 +1,8 @@
-import { getHelperLibrary } from './lang/frLib.mjs';
+import { get_fr } from './lang/frLib.mjs';
 
 export const getCursorXY = (input) => {
   const inputHtml = input[0];
+  const inputParent = input.parent();
   
   const caretPosition = {
     cursorStart: inputHtml.selectionStart,
@@ -14,16 +15,13 @@ export const getCursorXY = (input) => {
 
   // get the character under caret
   if (cursorStart == cursorEnd) cursorStart = cursorEnd == 0 ? 0 : (cursorStart - 1);
-  // console.log('cursorStart:' + cursorStart + ' cursorEnd:' + cursorEnd);
   const inputString = inputHtml.value;
   const currentCharacter = inputString.slice(cursorStart, cursorEnd);
-  // console.log(currentCharacter);
 
   // get options from library
-  const options = currentCharacter.length == 1 ? getHelperLibrary(currentCharacter) : null;
-  // console.log(options);
+  const options = currentCharacter.length == 1 ? get_fr(currentCharacter) : null;
 
-  let helperDiv = document.getElementsByClassName('helperDiv')[0] ? document.getElementsByClassName('helperDiv')[0] : null;
+  let helperDiv = $('.helperDiv')[0] ? $('.helperDiv')[0] : null;
 
   // closeBtn event handler
   const closeBtnClickedHandler = helperDiv => {
@@ -42,7 +40,6 @@ export const getCursorXY = (input) => {
   const keyupEventHandler = event => {
     if (document.getElementById(event.which)) {
       event.preventDefault();
-      // document.getElementById(event.which).onmouseup();
       console.log($(event.which));
       console.log(`#${event.which}`);
       $(`#${event.which}`).mouseup();
@@ -73,7 +70,6 @@ export const getCursorXY = (input) => {
     helperContent.className = 'helperContent';
 
     let className = 'helperOptions';
-    if (options.length == 1) className = 'helperOption';
 
     // map options to buttons
     options.map((char, index) => {
@@ -98,7 +94,7 @@ export const getCursorXY = (input) => {
         event.stopPropagation();
         input.off('blur');
       };
-      
+
       const mouseUpHandler = event => {
         let newString = inputString.slice(0, cursorStart) + char + inputString.slice(cursorEnd);
         inputHtml.value = newString;
@@ -116,7 +112,6 @@ export const getCursorXY = (input) => {
     helperContent.appendChild(closeBtn);
     closeBtn.addEventListener('click', () => closeBtnClickedHandler(helperDiv));
     helperDiv.appendChild(helperContent);
-    // console.log(helperDiv);
 
   };
 
@@ -169,7 +164,13 @@ export const getCursorXY = (input) => {
       offsetHeight: inputHeight
     } = inputHtml;
 
-    // parent.removeChild(cloneField);
+    const {
+      offsetLeft: ipX,
+      offsetTop: ipY,
+      offsetWidth: ipWidth,
+      offsetHeight: ipHeight
+    } = inputParent[0];
+
     cloneField.remove();
 
     // create helper box
@@ -177,7 +178,7 @@ export const getCursorXY = (input) => {
       console.log('new helper!');
       helperDiv = document.createElement('div');
       helperDiv.className = 'helperDiv';
-      document.body.appendChild(helperDiv);
+      inputParent.append(helperDiv);
     }
     createOptions(helperDiv);
 
@@ -187,12 +188,24 @@ export const getCursorXY = (input) => {
     } = helperDiv;
 
     const windowWidth = window.innerWidth;
-    // console.log('windowWidth: ' + windowWidth);
     const windowHeight = window.innerHeight;
-    let leftPosition = (inputX + spanX + 3);
-    let spanW = inputX + spanX + helperWidth;
-    // console.log('spanW: ' + spanW);
-    const topPosition = (inputY - helperHeight + cloneFieldHeight - spanHeight - 10);
+
+    let leftPosition = ipX + spanX - 16;
+    let spanW = ipX + spanX + helperWidth;
+    let topPosition = (0 + cloneFieldHeight - helperHeight - spanHeight - 10);
+
+    if (ipY <= helperHeight) {
+      topPosition = (helperHeight - 5);
+      $('.helperDiv').removeClass('helperDiv-bottom');
+      $('.helperOptions').removeClass('helperOptions-bottom');
+      $('.helperDiv').addClass('helperDiv-top');
+      $('.helperOptions').addClass('helperOptions-top');
+    } else {
+      $('.helperDiv').addClass('helperDiv-bottom');
+      $('.helperOptions').addClass('helperOptions-bottom');
+      $('.helperDiv').removeClass('helperDiv-top');
+      $('.helperOptions').removeClass('helperOptions-top');
+    }
 
     if (inputHtml.tagName === 'INPUT') {
       if ((spanW - helperWidth) >= inputWidth && (inputWidth + helperWidth) < windowWidth) {
@@ -205,18 +218,17 @@ export const getCursorXY = (input) => {
 
     if (inputHtml.tagName === 'TEXTAREA') {
       if (spanW >= windowWidth) {
-        leftPosition = windowWidth - helperWidth + 3;
+        leftPosition = windowWidth - helperWidth - ipX;
       }
     }
 
     helperDiv.style.left = `${leftPosition}px`;
     helperDiv.style.top = `${topPosition}px`;
-    // console.log('inputX: ' + inputX + '  spanX: ' + spanX + '  cloneFieldHeight: ' + cloneFieldHeight);
 
     // add key press event listener
     input.on('keyup', keyupEventHandler);
     input.on('keydown', keydownEventHandler);
-    // input.one("blur", () => onBlurHandler(helperDiv));
+    input.one("blur", () => onBlurHandler(helperDiv));
   } else {
     if (helperDiv !== null) {
       removeHelper(helperDiv);

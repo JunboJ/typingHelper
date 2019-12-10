@@ -13,7 +13,7 @@ $(document).ready(function () {
         const element = $(this);
         console.log(element[0]);
         
-        element.parent().css({ 'display': 'flex', 'flex-flow': 'column', 'width': 'inherit' });
+        element.parent().css({ 'display': 'flex', 'flex-flow': 'column', 'width': 'inherit', 'position': 'relative', 'margin-left': '20px' });
         // element.parentElement.style.display = 'flex';
         // element.parentElement.style.flexFlow = 'column';
         // element.parentElement.style.width = 'inherit';
