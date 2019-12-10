@@ -193,9 +193,12 @@ export const getCursorXY = (input) => {
     let leftPosition = ipX + spanX - 16;
     let spanW = ipX + spanX + helperWidth;
     let topPosition = (0 + cloneFieldHeight - helperHeight - spanHeight - 10);
+    let topToWindow = cloneFieldHeight - ipY;
+console.log(cloneFieldHeight);
+console.log(spanHeight);
 
-    if (ipY <= helperHeight) {
-      topPosition = (helperHeight - 5);
+    if (topToWindow <= helperHeight) {
+      topPosition = (cloneFieldHeight);
       $('.helperDiv').removeClass('helperDiv-bottom');
       $('.helperOptions').removeClass('helperOptions-bottom');
       $('.helperDiv').addClass('helperDiv-top');
