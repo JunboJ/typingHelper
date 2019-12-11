@@ -70,14 +70,14 @@ export const getCursorXY = (input) => {
       helperY = parseInt(helperY);
       $('.settingMenuWrapper').css({ 'display': 'flex' });
       const currentY = position ? helperY : helperY - menuHeight;
-      $('.helperDiv').css({'top': currentY});
+      $('.helperDiv').css({ 'top': currentY });
     }
     if (display == 'flex') {
       const menuHeight = $('.settingMenuWrapper').outerHeight();
       let helperY = $('.helperDiv').css('top').slice(0, -2);
       helperY = parseInt(helperY);
       const currentY = position ? helperY : helperY + menuHeight;
-      $('.helperDiv').css({'top': currentY});
+      $('.helperDiv').css({ 'top': currentY });
       $('.settingMenuWrapper').css({ 'display': 'none' });
     };
   }
@@ -211,31 +211,34 @@ export const getCursorXY = (input) => {
       helperDiv.className = 'helperDiv';
       inputParent.append(helperDiv);
 
+
       // option container
       helperContent = document.createElement('div');
       helperContent.className = 'helperContent';
-      helperDiv.append(helperContent);
+      // helperDiv.append(helperContent);
 
       // button set container
       const btnSet = document.createElement('div');
       btnSet.className = 'btnSet';
-      helperDiv.append(btnSet);
+      // helperDiv.append(btnSet);
 
-      // setting menu container
-      const settingMenuWrapper = document.createElement('div');
-      settingMenuWrapper.className = 'settingMenuWrapper';
-      const menuContent = createDropdown();
-      settingMenuWrapper.appendChild(menuContent);
-      helperDiv.append(settingMenuWrapper);
+      // first row wrapper
+      const firstRowWrapper = document.createElement('div');
+      $(firstRowWrapper).css({ 'margin': '0', 'padding': '0', 'border': 'none', 'display': 'inline-flex', 'justify-content': 'space-between' });
+      firstRowWrapper.append(helperContent);
+      firstRowWrapper.append(btnSet);
+      helperDiv.append(firstRowWrapper);
+      
 
+      
       // setting button
       const settingBtn = document.createElement('button');
       settingBtn.className = 'setttingBtn';
       settingBtn.innerHTML = '<i class="fas fa-cog"></i>';
       btnSet.appendChild(settingBtn);
       $(settingBtn).on('mousedown', settingBtnClickedHandler);
-
-
+      
+      
       // closeBtn 
       const closeBtn = document.createElement('button');
       closeBtn.className = 'helperCloseBtn';
@@ -243,7 +246,13 @@ export const getCursorXY = (input) => {
       btnSet.appendChild(closeBtn);
       closeBtn.addEventListener('mousedown', closeBtnMouseDownHandler);
       closeBtn.addEventListener('mouseup', () => closeBtnClickedHandler(helperDiv));
-
+      
+      // setting menu container
+      const settingMenuWrapper = document.createElement('div');
+      settingMenuWrapper.className = 'settingMenuWrapper';
+      const menuContent = createDropdown();
+      settingMenuWrapper.appendChild(menuContent);
+      helperDiv.append(settingMenuWrapper);
     }
     createOptions(helperDiv, helperContent);
 
@@ -297,7 +306,7 @@ export const getCursorXY = (input) => {
     // add key press event listener
     input.on('keyup', keyupEventHandler);
     input.on('keydown', keydownEventHandler);
-    input.one("blur", () => onBlurHandler(helperDiv));
+    // input.one("blur", () => onBlurHandler(helperDiv));
   } else {
     if (helperDiv !== null) {
       removeHelper(helperDiv);
