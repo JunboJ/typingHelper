@@ -297,7 +297,7 @@ export const getCursorXY = (input) => {
     // add key press event listener
     input.on('keyup', keyupEventHandler);
     input.on('keydown', keydownEventHandler);
-    // input.one("blur", () => onBlurHandler(helperDiv));
+    input.one("blur", () => onBlurHandler(helperDiv));
   } else {
     if (helperDiv !== null) {
       removeHelper(helperDiv);
