@@ -2,7 +2,7 @@ import { get_fr } from './lang/frLib.mjs';
 import { get_zh } from './lang/zhLib.mjs';
 
 let language = 'zh';
-const mode = 'test';
+const mode = '';
 
 // get options from library
 const getOptions = (str) => {
