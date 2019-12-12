@@ -34,7 +34,7 @@
     -webkit-transition: width 0.2s;
 }
 
-.helperContent, .btnSet {
+.helperContent, .btnSet, .pageCtrl {
     height: 1.8rem;
     display: flex;
     flex: 0 0 auto;
@@ -70,12 +70,23 @@
     height: 100%;
     padding-top: 3px;
     margin: 0;
-    background-color: white;
-    border: none;
-    width: auto;
     min-width: 1.8rem;
     color: gray;
     font-size: 0.6rem;
+    transition: background-color 0.1s, color 0.4s;
+    -webkit-transition: background-color 0.1s, color 0.4s;
+}
+
+.pageCtrl {
+    background-color: white;
+    border: none;
+    width: auto;
+    height: 100%;
+    min-width: 1.2rem;
+    color: gray;
+    font-size: 0.6rem;
+    display: flex;
+    justify-content: center;
     transition: background-color 0.1s, color 0.4s;
     -webkit-transition: background-color 0.1s, color 0.4s;
 }
@@ -123,9 +134,23 @@
 .setttingBtn:hover {
     cursor: pointer;
     color: #343a40;
+    background-color: #ececec;
 }
 
 .setttingBtn:focus {
+    cursor: pointer;
+    color: #343a40;
+    outline: none;
+    background-color: #ececec;
+}
+
+.pageCtrl:hover {
+    cursor: pointer;
+    color: #343a40;
+    background-color: #ececec;
+}
+
+.pageCtrl:focus {
     cursor: pointer;
     color: #343a40;
     outline: none;

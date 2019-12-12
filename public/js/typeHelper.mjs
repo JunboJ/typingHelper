@@ -408,6 +408,16 @@ export const getCursorXY = input => {
       helperDiv.append(firstRowWrapper);
 
       // page up button
+      const pageUp = document.createElement('button');
+      pageUp.className = 'pageCtrl';
+      pageUp.innerHTML = '<i class="fas fa-caret-left"></i>';
+      pageCtrl.append(pageUp);
+
+      // page down button
+      const pageDown = document.createElement('button');
+      pageDown.className = 'pageCtrl';
+      pageDown.innerHTML = '<i class="fas fa-caret-right"></i>';
+      pageCtrl.append(pageDown);
 
       // setting button
       const settingBtn = document.createElement('button');
