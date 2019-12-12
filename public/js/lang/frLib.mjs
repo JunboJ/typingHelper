@@ -54,6 +54,6 @@ export const get_fr = character => {
     return {
         resultString: character,
         partEnd: 1,
-        result: Array.from(letterSet(character))
+        result: letterSet(character) ? Array.from(letterSet(character)) : null
     }
 };

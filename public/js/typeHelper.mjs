@@ -15,7 +15,7 @@ const getOptions = (str) => {
         if (get_zh(str)) {
           result = get_zh(str) || null;
         }
-        return result
+        return result;
       default:
         return null;
     }
@@ -38,7 +38,6 @@ const closeBtnClickedHandler = event => {
 const keyupEventHandler = event => {
   if (document.getElementById(event.which)) {
     event.preventDefault();
-    console.log($(event.which));
     console.log(`#${event.which}`);
     $(`#${event.which}`).mouseup();
   }
@@ -113,8 +112,6 @@ const createOptions = (
   const inputString = inputHtml.value;
   let className = 'helperOptions';
   // map options to buttons
-  console.log('testtest: ' + typeof options.result);
-
   if (options.result !== null) {
     mapOptionToBtn(
       helperDiv,
@@ -141,9 +138,13 @@ const mapOptionToBtn = (
   helperContent,
   input
 ) => {
-  const inputHtml = input[0];
   const start = pages[pageNum][0];
-  const end = pages[pageNum][1];
+  const end = pages[pageNum][1] + 1;
+  console.log(pages);
+  console.log('start: ' + start);
+  console.log('end: ' + end);
+
+
   options.result.slice(start, end).map((char, index) => {
     let key = (index + 49);
 
@@ -165,24 +166,50 @@ const mapOptionToBtn = (
 
     helperOptions.prepend(tip);
 
-    // add click event listener
-    const mouseDownHandler = event => {
-      event.stopPropagation();
-      input.off('blur');
-    };
-
-    const mouseUpHandler = event => {
-      let newString = inputString.slice(0, cursorStart) + char + inputString.slice(cursorEnd);
-      inputHtml.value = newString;
-      removeHelper(helperDiv, input);
-      inputHtml.focus();
-    }
-
-    $(helperOptions).on('mousedown', mouseDownHandler);
-    $(helperOptions).on('mouseup', mouseUpHandler);
+    $(helperOptions).on('mousedown', () => {
+      event.muAssets = {
+        input: input
+      }
+      mouseDownHandler(event);
+    });
+    $(helperOptions).on('mouseup', (event) => {
+      event.muAssets = {
+        helperDiv: helperDiv,
+        cursorStart: cursorStart,
+        cursorEnd: cursorEnd,
+        input: input,
+        options: options,
+        inputString: inputString,
+        char: char
+      }
+      mouseUpHandler(event);
+    });
 
   });
 };
+
+// add click event listener
+const mouseDownHandler = event => {
+  event.stopPropagation();
+  event.muAssets.input.off('blur');
+};
+
+const mouseUpHandler = event => {
+  const inputHtml = event.muAssets.input[0];
+  let wordStart, wordEnd, newString;
+  if (event.muAssets.cursorStart == event.muAssets.cursorEnd) {
+    wordStart = event.muAssets.cursorStart - event.muAssets.options.strL;
+    wordEnd = event.muAssets.cursorStart - event.muAssets.options.strL + event.muAssets.options.partEnd;
+    newString = event.muAssets.inputString.slice(0, wordStart) + event.muAssets.char + event.muAssets.inputString.slice(wordEnd);
+  } else {
+    let selectedString = event.muAssets.inputString.slice(event.muAssets.cursorStart, event.muAssets.cursorEnd);
+    let modifiedSelectedString = selectedString.replace(event.muAssets.options.resultString, event.muAssets.char);
+    newString = event.muAssets.inputString.slice(0, event.muAssets.cursorStart) + modifiedSelectedString + event.muAssets.inputString.slice(event.muAssets.cursorEnd);
+  }
+  inputHtml.value = newString;
+  removeHelper(event.muAssets.helperDiv, event.muAssets.input);
+  inputHtml.click();
+}
 
 const getInputSL = inputHtml => {
   let { cursorStart, cursorEnd } = {
@@ -193,6 +220,7 @@ const getInputSL = inputHtml => {
   if (cursorStart == cursorEnd) cursorStart = cursorEnd == 0 ? 0 : (cursorStart - 1);
   const inputString = inputHtml.value;
   const currentCharacter = inputString.slice(cursorStart, cursorEnd);
+  console.log(currentCharacter);
 
   return {
     currentCharacter: currentCharacter,
@@ -206,9 +234,44 @@ const getInputML = inputHtml => {
     cursorStart: inputHtml.selectionStart,
     cursorEnd: inputHtml.selectionEnd
   }
-  const inputString = inputHtml.value;
-  const charArray = inputString.match(/(\w+)/gi);
-  const currentCharacter = charArray[charArray.length - 1];
+  let start, end;
+  if (cursorStart == cursorEnd) {
+    start = 0;
+    end = cursorEnd;
+  } else {
+    start = cursorStart;
+    end = cursorEnd;
+  }
+  const inputString = inputHtml.value.slice(start, end);
+  console.log(inputString);
+
+  // const patt = new RegExp('([a-zA-Z]*)', 'g');
+  const patt = /([a-zA-Z]+)/gi;
+  console.log(patt);
+  let temp;
+  let charArray = [];
+  do {
+    temp = patt.exec(inputString);
+    if (temp) {
+      console.log(temp[0] + ':' + patt.lastIndex);
+      const infoObj = {
+        string: temp[0],
+        index: patt.lastIndex
+      }
+      charArray.push(infoObj);
+    }
+  } while (temp);
+  
+  let currentCharacter = null;
+  if (charArray.length > 0) {
+    console.log(charArray);
+    if (charArray[charArray.length - 1].index !== inputString.length) {
+      currentCharacter = null;
+    } else {
+      currentCharacter = charArray[charArray.length - 1].string;
+    }
+  }
+
   return {
     currentCharacter: currentCharacter,
     cursorStart: cursorStart,
@@ -230,42 +293,29 @@ export const getCursorXY = input => {
     var { currentCharacter, cursorStart, cursorEnd } = getCurrentCharacter();
   }
   // get options from library
-  console.log(currentCharacter);
   let options = null;
   let pages = [];
   if (currentCharacter) {
     options = getOptions(currentCharacter);
     if (options && options.result) {
+      console.log(options);
+
       let index = 0;
       let pageStart = 0;
       for (let i = 0; i < options.result.length; i++) {
         let a = 0;
         if (i != 0) a = 1;
-        if (i + 6 <= options.result.length) {
-          if (i % 6 == 0) {
-            if (pageStart + 6 + a < options.result.length) {
-              console.log('here');
-              pages[index] = [pageStart + a, pageStart + 6 + a];
-              index++;
-              pageStart = pageStart + 6 + a;
-            } else {
-              console.log(pageStart + a);
-
-              if (pageStart + a == options.result.length) {
-                break;
-              } else {
-                console.log('here');
-                pages[index] = [pageStart + a, options.result.length - 1];
-              }
-            }
+        if (i % 6 == 0) {
+          if (pageStart + 6 + a < options.result.length) {
+            pages[index] = [pageStart + a, pageStart + 6 + a];
+            pageStart = pageStart + 6 + a;
+            index++;
+          } else {
+            pages[index] = [pageStart + a, options.result.length - 1];
           }
-        } else {
-          console.log('here' + (i + 6));
-          pages[index] = [pageStart + a, options.result.length - 1];
-          break;
         }
       }
-      console.log(pages);
+
     }
   };
 
@@ -273,8 +323,6 @@ export const getCursorXY = input => {
 
   // display writing helper
   if (options !== null && options.result !== null) {
-    console.log(options.result);
-
     // create the clone and configure the style
     const parent = inputHtml.parentElement;
     const cloneField = document.createElement('div');
@@ -358,6 +406,8 @@ export const getCursorXY = input => {
       firstRowWrapper.append(pageCtrl);
       firstRowWrapper.append(btnSet);
       helperDiv.append(firstRowWrapper);
+
+      // page up button
 
       // setting button
       const settingBtn = document.createElement('button');
