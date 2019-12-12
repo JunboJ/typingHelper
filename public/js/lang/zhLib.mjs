@@ -462,11 +462,13 @@ export const get_zh = str => {
           return {
             resultString: newString,
             partEnd: i,
-            result: pinyin_dict_notone[newString]
+            result: Array.from(pinyin_dict_notone[newString])
           }
         }
+        return null;
       }
     }
+    return null;
   }
   return findit(str);
 }

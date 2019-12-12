@@ -1,155 +1,280 @@
 import { get_fr } from './lang/frLib.mjs';
-// import { get_zh } from './lang/zhLib.mjs';
+import { get_zh } from './lang/zhLib.mjs';
 
-export const getCursorXY = (input) => {
+let language = 'zh';
+const mode = 'test';
+
+// get options from library
+const getOptions = (str) => {
+  if (str.length != 0) {
+    switch (language) {
+      case 'fr':
+        return get_fr(str) || null;
+      case 'zh':
+        let result = null;
+        if (get_zh(str)) {
+          result = get_zh(str) || null;
+        }
+        return result
+      default:
+        return null;
+    }
+  }
+  return null;
+}
+
+// closeBtn event handler
+const closeBtnMouseDownHandler = event => {
+  event.stopPropagation();
+  event.elements.input.off('blur');
+}
+const closeBtnClickedHandler = event => {
+  event.elements.helperDiv.remove();
+  event.elements.input.off('keyup', keyupEventHandler);
+  event.elements.input.off('keydown', keydownEventHandler);
+};
+
+// add key press event handler
+const keyupEventHandler = event => {
+  if (document.getElementById(event.which)) {
+    event.preventDefault();
+    console.log($(event.which));
+    console.log(`#${event.which}`);
+    $(`#${event.which}`).mouseup();
+  }
+};
+const keydownEventHandler = event => {
+  if (document.getElementById(event.which)) {
+    event.preventDefault();
+    // document.getElementById(event.which).style.backgroundColor = 'rgb(78, 161, 216)';
+    $('#' + event.which).css({ 'background-color': 'rgb(78, 161, 216)' });
+  }
+};
+
+// cog onclick handler
+const settingBtnClickedHandler = event => {
+  event.stopPropagation();
+  event.elements.input.off('blur');
+  let display = $('.settingMenuWrapper').css('display');
+  const position = $('.helperDiv')[0].classList.contains('helperDiv-bottom');
+
+  if (display == 'none') {
+    const menuHeight = $('.settingMenuWrapper').outerHeight();
+    let helperY = $('.helperDiv').css('top').slice(0, -2);
+    helperY = parseInt(helperY);
+    $('.settingMenuWrapper').css({ 'display': 'flex' });
+    const currentY = position ? helperY : helperY - menuHeight;
+    $('.helperDiv').css({ 'top': currentY });
+  }
+  if (display == 'flex') {
+    const menuHeight = $('.settingMenuWrapper').outerHeight();
+    let helperY = $('.helperDiv').css('top').slice(0, -2);
+    helperY = parseInt(helperY);
+    const currentY = position ? helperY : helperY + menuHeight;
+    $('.helperDiv').css({ 'top': currentY });
+    $('.settingMenuWrapper').css({ 'display': 'none' });
+  };
+}
+
+// remove helperDiv function
+const removeHelper = (helperDiv, input) => {
+  helperDiv.remove();
+  input.off('keyup', keyupEventHandler);
+  input.off('keydown', keydownEventHandler);
+};
+
+// setting drop down list active function
+const createDropdown = () => {
+  const menu = document.createElement('div');
+  const mc = document.createElement('span');
+  const mctext = document.createTextNode('More coming');
+  mc.appendChild(mctext);
+  menu.appendChild(mc);
+  menu.className = 'dropdown-menu';
+  return menu;
+}
+
+let pageNum = 0;
+
+// helper content creating function
+const createOptions = (
+  helperDiv,
+  helperContent,
+  options,
+  input,
+  cursorStart,
+  cursorEnd,
+  pages,
+  mode = 'new'
+) => {
+  $(helperContent).empty();
+  if (mode == 'new') pageNum = 0;
   const inputHtml = input[0];
-  const inputParent = input.parent();
+  const inputString = inputHtml.value;
+  let className = 'helperOptions';
+  // map options to buttons
+  console.log('testtest: ' + typeof options.result);
 
-  const caretPosition = {
+  if (options.result !== null) {
+    mapOptionToBtn(
+      helperDiv,
+      cursorStart,
+      cursorEnd,
+      pages,
+      className,
+      inputString,
+      options,
+      helperContent,
+      input
+    );
+  }
+};
+
+const mapOptionToBtn = (
+  helperDiv,
+  cursorStart,
+  cursorEnd,
+  pages,
+  className,
+  inputString,
+  options,
+  helperContent,
+  input
+) => {
+  const inputHtml = input[0];
+  const start = pages[pageNum][0];
+  const end = pages[pageNum][1];
+  options.result.slice(start, end).map((char, index) => {
+    let key = (index + 49);
+
+    // create options as buttons
+    let helperOptions = document.createElement('button');
+    helperOptions.className = className;
+    helperOptions.id = key;
+    helperOptions.style.fontSize = '1rem';
+
+    // helperOptions.style.fontWeight = 'bold';
+    let text = document.createTextNode(char);
+    helperOptions.appendChild(text);
+    helperContent.appendChild(helperOptions);
+
+    // create tip spans
+    let tip = document.createElement('small');
+    tip.className = 'tips_windows';
+    tip.innerHTML = (index + 1);
+
+    helperOptions.prepend(tip);
+
+    // add click event listener
+    const mouseDownHandler = event => {
+      event.stopPropagation();
+      input.off('blur');
+    };
+
+    const mouseUpHandler = event => {
+      let newString = inputString.slice(0, cursorStart) + char + inputString.slice(cursorEnd);
+      inputHtml.value = newString;
+      removeHelper(helperDiv, input);
+      inputHtml.focus();
+    }
+
+    $(helperOptions).on('mousedown', mouseDownHandler);
+    $(helperOptions).on('mouseup', mouseUpHandler);
+
+  });
+};
+
+const getInputSL = inputHtml => {
+  let { cursorStart, cursorEnd } = {
     cursorStart: inputHtml.selectionStart,
     cursorEnd: inputHtml.selectionEnd
   }
-  // initiate the selectionpoint
-  let cursorStart = caretPosition.cursorStart;
-  let cursorEnd = caretPosition.cursorEnd;
-  let selectionPoint = cursorStart == cursorEnd ? cursorStart : Math.ceil((cursorStart + cursorEnd) / 2);
-
   // get the character under caret
   if (cursorStart == cursorEnd) cursorStart = cursorEnd == 0 ? 0 : (cursorStart - 1);
   const inputString = inputHtml.value;
   const currentCharacter = inputString.slice(cursorStart, cursorEnd);
 
+  return {
+    currentCharacter: currentCharacter,
+    cursorStart: cursorStart,
+    cursorEnd: cursorEnd
+  };
+};
+
+const getInputML = inputHtml => {
+  let { cursorStart, cursorEnd } = {
+    cursorStart: inputHtml.selectionStart,
+    cursorEnd: inputHtml.selectionEnd
+  }
+  const inputString = inputHtml.value;
+  const charArray = inputString.match(/(\w+)/gi);
+  const currentCharacter = charArray[charArray.length - 1];
+  return {
+    currentCharacter: currentCharacter,
+    cursorStart: cursorStart,
+    cursorEnd: cursorEnd
+  };
+};
+
+// default export function
+export const getCursorXY = input => {
+  const inputHtml = input[0];
+  const inputParent = input.parent();
+  let getCurrentCharacter;
+  if (language === 'zh') {
+    getCurrentCharacter = () => getInputML(inputHtml);
+  } else {
+    getCurrentCharacter = () => getInputSL(inputHtml);
+  }
+  if (inputHtml.value) {
+    var { currentCharacter, cursorStart, cursorEnd } = getCurrentCharacter();
+  }
   // get options from library
-  const options = currentCharacter.length == 1 ? get_fr(currentCharacter) : null;
+  console.log(currentCharacter);
+  let options = null;
+  let pages = [];
+  if (currentCharacter) {
+    options = getOptions(currentCharacter);
+    if (options && options.result) {
+      let index = 0;
+      let pageStart = 0;
+      for (let i = 0; i < options.result.length; i++) {
+        let a = 0;
+        if (i != 0) a = 1;
+        if (i + 6 <= options.result.length) {
+          if (i % 6 == 0) {
+            if (pageStart + 6 + a < options.result.length) {
+              console.log('here');
+              pages[index] = [pageStart + a, pageStart + 6 + a];
+              index++;
+              pageStart = pageStart + 6 + a;
+            } else {
+              console.log(pageStart + a);
+
+              if (pageStart + a == options.result.length) {
+                break;
+              } else {
+                console.log('here');
+                pages[index] = [pageStart + a, options.result.length - 1];
+              }
+            }
+          }
+        } else {
+          console.log('here' + (i + 6));
+          pages[index] = [pageStart + a, options.result.length - 1];
+          break;
+        }
+      }
+      console.log(pages);
+    }
+  };
 
   let helperDiv = $('.helperDiv')[0] ? $('.helperDiv')[0] : null;
 
-  // closeBtn event handler
-  const closeBtnMouseDownHandler = event => {
-    event.stopPropagation();
-    input.off('blur');
-  }
-  const closeBtnClickedHandler = helperDiv => {
-    helperDiv.remove();
-    input.off('keyup', keyupEventHandler);
-    input.off('keydown', keydownEventHandler);
-  };
-
-  // onblur event handler
-  const onBlurHandler = helperDiv => {
-    closeBtnClickedHandler(helperDiv);
-    console.log('blur');
-  };
-
-  // add key press event handler
-  const keyupEventHandler = event => {
-    if (document.getElementById(event.which)) {
-      event.preventDefault();
-      console.log($(event.which));
-      console.log(`#${event.which}`);
-      $(`#${event.which}`).mouseup();
-    }
-  };
-
-  const keydownEventHandler = event => {
-    if (document.getElementById(event.which)) {
-      event.preventDefault();
-      document.getElementById(event.which).style.backgroundColor = 'rgb(78, 161, 216)';
-    }
-  };
-
-  // cog onclick handler
-  const settingBtnClickedHandler = event => {
-    event.stopPropagation();
-    input.off('blur');
-    let display = $('.settingMenuWrapper').css('display');
-    const position = $('.helperDiv')[0].classList.contains('helperDiv-bottom');
-    console.log(position);
-    if (display == 'none') {
-      const menuHeight = $('.settingMenuWrapper').outerHeight();
-      let helperY = $('.helperDiv').css('top').slice(0, -2);
-      helperY = parseInt(helperY);
-      $('.settingMenuWrapper').css({ 'display': 'flex' });
-      const currentY = position ? helperY : helperY - menuHeight;
-      $('.helperDiv').css({ 'top': currentY });
-    }
-    if (display == 'flex') {
-      const menuHeight = $('.settingMenuWrapper').outerHeight();
-      let helperY = $('.helperDiv').css('top').slice(0, -2);
-      helperY = parseInt(helperY);
-      const currentY = position ? helperY : helperY + menuHeight;
-      $('.helperDiv').css({ 'top': currentY });
-      $('.settingMenuWrapper').css({ 'display': 'none' });
-    };
-  }
-
-  // remove helperDiv function
-  const removeHelper = (helperDiv) => {
-    helperDiv.remove();
-    input.off('keyup', keyupEventHandler);
-    input.off('keydown', keydownEventHandler);
-  };
-
-  // setting drop down list active function
-  const createDropdown = () => {
-    const menu = document.createElement('div');
-    const mc = document.createElement('span');
-    const mctext = document.createTextNode('More coming');
-    mc.appendChild(mctext);
-    menu.appendChild(mc);
-    menu.className = 'dropdown-menu';
-    return menu;
-  }
-
-  // helper content creating function
-  const createOptions = (helperDiv, helperContent) => {
-    $(helperContent).empty();
-
-    let className = 'helperOptions';
-    // map options to buttons
-    options.map((char, index) => {
-      let key = (index + 49);
-
-      // create options as buttons
-      let helperOptions = document.createElement('button');
-      helperOptions.className = className;
-      helperOptions.id = key;
-      helperOptions.style.fontSize = '1rem';
-
-      // helperOptions.style.fontWeight = 'bold';
-      let text = document.createTextNode(char);
-      helperOptions.appendChild(text);
-      helperContent.appendChild(helperOptions);
-
-      // create tip spans
-      let tip = document.createElement('small');
-      tip.className = 'tips_windows';
-      tip.innerHTML = (index + 1);
-
-      helperOptions.prepend(tip);
-
-      // add click event listener
-      const mouseDownHandler = event => {
-        event.stopPropagation();
-        input.off('blur');
-      };
-
-      const mouseUpHandler = event => {
-        let newString = inputString.slice(0, cursorStart) + char + inputString.slice(cursorEnd);
-        inputHtml.value = newString;
-        removeHelper(helperDiv);
-        inputHtml.focus();
-      }
-
-      $(helperOptions).on('mousedown', mouseDownHandler);
-      $(helperOptions).on('mouseup', mouseUpHandler);
-
-    });
-  };
-
   // display writing helper
+  if (options !== null && options.result !== null) {
+    console.log(options.result);
 
-  if (options !== null) {
     // create the clone and configure the style
     const parent = inputHtml.parentElement;
     const cloneField = document.createElement('div');
@@ -163,11 +288,11 @@ export const getCursorXY = (input) => {
     // replace spaces in the textcontent
     const swap = '.';
     const inputValue = inputHtml.tagName === 'INPUT' ? inputHtml.value.replace(/ /g, swap) : inputHtml.value;
-    const textContent = inputValue.substr(0, selectionPoint).slice(0, -1);
+    const textContent = inputValue.substr(0, cursorEnd).slice(0, -1);
 
     // assign content
-    span.textContent = inputValue.substr(selectionPoint) + '.' || '.';
     cloneField.textContent = textContent;
+    span.textContent = inputValue.substr(cursorEnd) + '.' || '.';
 
     cloneField.appendChild(span);
     parent.appendChild(cloneField);
@@ -196,6 +321,7 @@ export const getCursorXY = (input) => {
       offsetHeight: inputHeight
     } = inputHtml;
 
+    // get position of the parent element of input fields
     const {
       offsetLeft: ipX,
       offsetTop: ipY,
@@ -203,6 +329,7 @@ export const getCursorXY = (input) => {
       offsetHeight: ipHeight
     } = inputParent[0];
 
+    // remove clone
     cloneField.remove();
 
     // create helper box
@@ -212,50 +339,82 @@ export const getCursorXY = (input) => {
       helperDiv.className = 'helperDiv';
       inputParent.append(helperDiv);
 
-
       // option container
       helperContent = document.createElement('div');
       helperContent.className = 'helperContent';
-      // helperDiv.append(helperContent);
 
       // button set container
       const btnSet = document.createElement('div');
       btnSet.className = 'btnSet';
-      // helperDiv.append(btnSet);
+
+      // page controller container
+      const pageCtrl = document.createElement('div');
+      pageCtrl.className = 'pageCtrl';
 
       // first row wrapper
       const firstRowWrapper = document.createElement('div');
       $(firstRowWrapper).css({ 'margin': '0', 'padding': '0', 'border': 'none', 'display': 'inline-flex', 'justify-content': 'space-between' });
       firstRowWrapper.append(helperContent);
+      firstRowWrapper.append(pageCtrl);
       firstRowWrapper.append(btnSet);
       helperDiv.append(firstRowWrapper);
-      
 
-      
       // setting button
       const settingBtn = document.createElement('button');
       settingBtn.className = 'setttingBtn';
       settingBtn.innerHTML = '<i class="fas fa-cog"></i>';
       btnSet.appendChild(settingBtn);
-      $(settingBtn).on('mousedown', settingBtnClickedHandler);
-      
-      
+      $(settingBtn).on('mousedown', (event) => {
+        event.elements = { input: input };
+        settingBtnClickedHandler(event)
+      });
+
       // closeBtn 
       const closeBtn = document.createElement('button');
       closeBtn.className = 'helperCloseBtn';
       closeBtn.innerHTML = '<i class="fas fa-times"></i>';
       btnSet.appendChild(closeBtn);
-      closeBtn.addEventListener('mousedown', closeBtnMouseDownHandler);
-      closeBtn.addEventListener('mouseup', () => closeBtnClickedHandler(helperDiv));
-      
+      closeBtn.addEventListener('mousedown', (event) => {
+        event.elements = { input: input };
+        closeBtnMouseDownHandler(event);
+      });
+      closeBtn.addEventListener('mouseup', (event) => {
+        event.elements = {
+          input: input,
+          helperDiv: helperDiv
+        };
+        closeBtnClickedHandler(event);
+      });
+
       // setting menu container
       const settingMenuWrapper = document.createElement('div');
       settingMenuWrapper.className = 'settingMenuWrapper';
       const menuContent = createDropdown();
       settingMenuWrapper.appendChild(menuContent);
       helperDiv.append(settingMenuWrapper);
+
+      // add key press event listener
+      input.on('keyup', keyupEventHandler);
+      input.on('keydown', keydownEventHandler);
+      if (mode !== 'test') {
+        input.one("blur", event => {
+          event.elements = {
+            input: input,
+            helperDiv: helperDiv
+          };
+          closeBtnClickedHandler(event);
+        });
+      }
     }
-    createOptions(helperDiv, helperContent);
+    createOptions(
+      helperDiv,
+      helperContent,
+      options,
+      input,
+      cursorStart,
+      cursorEnd,
+      pages
+    );
 
     const {
       offsetWidth: helperWidth,
@@ -265,7 +424,7 @@ export const getCursorXY = (input) => {
     const windowWidth = window.innerWidth;
     const windowHeight = window.innerHeight;
 
-    // styling
+    // styling and positioning
     let leftPosition = ipX + spanX - 16;
     let spanW = ipX + spanX + helperWidth;
     let topPosition = (cloneFieldHeight - helperHeight - spanHeight - 10);
@@ -287,15 +446,18 @@ export const getCursorXY = (input) => {
     }
 
     if (inputHtml.tagName === 'INPUT') {
+      // input field with full length string
       if ((spanW - helperWidth) >= inputWidth && (inputWidth + helperWidth) < windowWidth) {
-        leftPosition = ipX + inputWidth;
+        leftPosition = inputWidth;
       }
+      // full width input field
       if (spanW >= windowWidth && (inputWidth + helperWidth) > windowWidth) {
         leftPosition = windowWidth - helperWidth - ipX;
       }
     }
 
     if (inputHtml.tagName === 'TEXTAREA') {
+      // full width text area
       if (spanW >= windowWidth) {
         leftPosition = windowWidth - helperWidth - ipX;
       }
@@ -304,13 +466,9 @@ export const getCursorXY = (input) => {
     helperDiv.style.left = `${leftPosition}px`;
     helperDiv.style.top = `${topPosition}px`;
 
-    // add key press event listener
-    input.on('keyup', keyupEventHandler);
-    input.on('keydown', keydownEventHandler);
-    // input.one("blur", () => onBlurHandler(helperDiv));
   } else {
     if (helperDiv !== null) {
-      removeHelper(helperDiv);
+      removeHelper(helperDiv, input);
     }
   };
 };

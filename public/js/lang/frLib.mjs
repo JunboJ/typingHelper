@@ -16,36 +16,44 @@ export const get_fr = character => {
         Y: ['Ÿ']
     }
 
-    switch (character) {
-        case 'a':
-            return fr.a;
-        case 'A':
-            return fr.A;
-        case 'c':
-            return fr.c;
-        case 'C':
-            return fr.C;
-        case 'e':
-            return fr.e;
-        case 'E':
-            return fr.E;
-        case 'i':
-            return fr.i;
-        case 'I':
-            return fr.I;
-        case 'o':
-            return fr.o;
-        case 'O':
-            return fr.O;
-        case 'u':
-            return fr.u;
-        case 'U':
-            return fr.U;
-        case 'y':
-            return fr.y;
-        case 'Y':
-            return fr.Y;
-        default:
-            return null;
+    const letterSet = character => {
+        switch (character) {
+            case 'a':
+                return fr.a;
+            case 'A':
+                return fr.A;
+            case 'c':
+                return fr.c;
+            case 'C':
+                return fr.C;
+            case 'e':
+                return fr.e;
+            case 'E':
+                return fr.E;
+            case 'i':
+                return fr.i;
+            case 'I':
+                return fr.I;
+            case 'o':
+                return fr.o;
+            case 'O':
+                return fr.O;
+            case 'u':
+                return fr.u;
+            case 'U':
+                return fr.U;
+            case 'y':
+                return fr.y;
+            case 'Y':
+                return fr.Y;
+            default:
+                return null;
+        }
+    };
+
+    return {
+        resultString: character,
+        partEnd: 1,
+        result: Array.from(letterSet(character))
     }
 };
