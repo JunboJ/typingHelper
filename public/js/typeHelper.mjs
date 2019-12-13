@@ -1,7 +1,7 @@
 import { get_fr } from './lang/frLib.mjs';
 import { get_zh } from './lang/zhLib.mjs';
 
-let language = 'zh';
+let language = 'fr';
 const mode = 'test';
 let helperDiv = $('.helperDiv')[0] ? $('.helperDiv')[0] : null;
 // get options from library
@@ -9,7 +9,9 @@ const getOptions = (str, callback) => {
   if (str.length != 0) {
     switch (language) {
       case 'fr':
-        return get_fr(str) || null;
+        callback(get_fr(str) || null);
+        // return get_fr(str) || null;
+        break;
       case 'zh':
         // if (get_zh(str)) {
         //   result = get_zh(str) || null;
@@ -27,6 +29,7 @@ const getOptions = (str, callback) => {
             return null;
           }
         });
+        break;
       default:
         return null;
     }
@@ -286,13 +289,17 @@ const getInputML = inputHtml => {
 };
 
 // default export function
-export const writingHelper = input => {
+export const writingHelper = (input, lang) => {
+  language = lang;
+  console.log(language);
+
   helperDiv = $('.helperDiv')[0] ? $('.helperDiv')[0] : null;
 
   const inputHtml = input[0];
   const inputParent = input.parent();
 
   let getCurrentCharacter;
+
   if (language === 'zh') {
     getCurrentCharacter = () => getInputML(inputHtml);
   } else {

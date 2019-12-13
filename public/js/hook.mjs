@@ -1,10 +1,12 @@
 import { writingHelper } from './typeHelper.mjs';
-
+let language = null;
 $(document).ready(function () {
     // const elements = $('.writingHelper');
     // document.getElementsByClassName('writingHelper');
     // let elementsArr = Array.from(elements);
 
+    language = $('.tempLangSwitch:checked + .langCode').val();
+    console.log(language);
     $('.writingHelper').each(function (index, object) {
         // elementsArr.forEach(element => {
         const element = $(this);
@@ -18,7 +20,7 @@ $(document).ready(function () {
         const eventHandler = event => {
             console.log('input event');
             setTimeout(() => {
-                writingHelper(element);
+                writingHelper(element, language);
             }, 100);
         };
 
@@ -31,7 +33,7 @@ $(document).ready(function () {
             ) {
                 console.log(event.which);
                 setTimeout(() => {
-                    writingHelper(element);
+                    writingHelper(element, language);
                 }, 100);
             }
             if (event.which == 27) {
@@ -44,5 +46,10 @@ $(document).ready(function () {
         element.on('click', eventHandler);
         element.on('input', eventHandler);
         element.on('keyup', arrowKeyEventHandler);
+    });
+
+    $('.tempLangSwitch').on('change', event => {
+        language = $('.tempLangSwitch:checked + .langCode').val();
+        console.log(language);
     });
 });
