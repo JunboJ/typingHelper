@@ -1,43 +1,45 @@
-import { getCursorXY } from './typeHelper.mjs';
+import { writingHelper } from './typeHelper.mjs';
 
 $(document).ready(function () {
     // const elements = $('.writingHelper');
     // document.getElementsByClassName('writingHelper');
     // let elementsArr = Array.from(elements);
-    const writingHelper = (element) => {
-        getCursorXY(element);
-    }
 
     $('.writingHelper').each(function (index, object) {
         // elementsArr.forEach(element => {
         const element = $(this);
-        
+
         element.parent().css({ 'display': 'flex', 'flex-flow': 'column', 'width': 'inherit', 'position': 'relative', 'margin-left': '20px' });
 
         const getHelperDiv = () => {
             return $('.helperDiv')[0] || null;
-        }
+        };
 
         const eventHandler = event => {
-            writingHelper(element);
-        }
+            console.log('input event');
+            setTimeout(() => {
+                writingHelper(element);
+            }, 100);
+        };
 
         const arrowKeyEventHandler = event => {
-            // console.log(event.which);
             if (
                 event.which == 37 ||
                 event.which == 38 ||
                 event.which == 39 ||
                 event.which == 40
             ) {
-                writingHelper(element);
+                console.log(event.which);
+                setTimeout(() => {
+                    writingHelper(element);
+                }, 100);
             }
             if (event.which == 27) {
                 console.log('key 27');
                 const div = getHelperDiv();
                 if (div) div.remove();
             }
-        }
+        };
 
         element.on('click', eventHandler);
         element.on('input', eventHandler);

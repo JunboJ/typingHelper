@@ -2,20 +2,31 @@ import { get_fr } from './lang/frLib.mjs';
 import { get_zh } from './lang/zhLib.mjs';
 
 let language = 'zh';
-const mode = '';
-
+const mode = 'test';
+let helperDiv = $('.helperDiv')[0] ? $('.helperDiv')[0] : null;
 // get options from library
-const getOptions = (str) => {
+const getOptions = (str, callback) => {
   if (str.length != 0) {
     switch (language) {
       case 'fr':
         return get_fr(str) || null;
       case 'zh':
-        let result = null;
-        if (get_zh(str)) {
-          result = get_zh(str) || null;
-        }
-        return result;
+        // if (get_zh(str)) {
+        //   result = get_zh(str) || null;
+        // }
+        $.get("https://www.google.com/inputtools/request?ime=pinyin&ie=utf-8&oe=utf-8&app=translate&num=10&text=" + str, function (data, status) {
+          if (data[0] === "SUCCESS") {
+            const result = {
+              resultString: str,
+              partEnd: str.length,
+              result: data[1][0][1],
+              strL: str.length
+            }
+            callback(result);
+          } else {
+            return null;
+          }
+        });
       default:
         return null;
     }
@@ -140,10 +151,7 @@ const mapOptionToBtn = (
 ) => {
   const start = pages[pageNum][0];
   const end = pages[pageNum][1] + 1;
-  console.log(pages);
-  console.log('start: ' + start);
-  console.log('end: ' + end);
-
+  console.log('pages: ' + pages);
 
   options.result.slice(start, end).map((char, index) => {
     let key = (index + 49);
@@ -243,17 +251,14 @@ const getInputML = inputHtml => {
     end = cursorEnd;
   }
   const inputString = inputHtml.value.slice(start, end);
-  console.log(inputString);
 
   // const patt = new RegExp('([a-zA-Z]*)', 'g');
   const patt = /([a-zA-Z]+)/gi;
-  console.log(patt);
   let temp;
   let charArray = [];
   do {
     temp = patt.exec(inputString);
     if (temp) {
-      console.log(temp[0] + ':' + patt.lastIndex);
       const infoObj = {
         string: temp[0],
         index: patt.lastIndex
@@ -261,15 +266,16 @@ const getInputML = inputHtml => {
       charArray.push(infoObj);
     }
   } while (temp);
-  
-  let currentCharacter = null;
+
+  let currentCharacter;
   if (charArray.length > 0) {
-    console.log(charArray);
     if (charArray[charArray.length - 1].index !== inputString.length) {
       currentCharacter = null;
     } else {
       currentCharacter = charArray[charArray.length - 1].string;
     }
+  } else {
+    currentCharacter = null;
   }
 
   return {
@@ -280,9 +286,12 @@ const getInputML = inputHtml => {
 };
 
 // default export function
-export const getCursorXY = input => {
+export const writingHelper = input => {
+  helperDiv = $('.helperDiv')[0] ? $('.helperDiv')[0] : null;
+
   const inputHtml = input[0];
   const inputParent = input.parent();
+
   let getCurrentCharacter;
   if (language === 'zh') {
     getCurrentCharacter = () => getInputML(inputHtml);
@@ -291,243 +300,241 @@ export const getCursorXY = input => {
   }
   if (inputHtml.value) {
     var { currentCharacter, cursorStart, cursorEnd } = getCurrentCharacter();
+  } else {
+    var currentCharacter = null;
   }
   // get options from library
-  let options = null;
   let pages = [];
-  if (currentCharacter) {
-    options = getOptions(currentCharacter);
-    if (options && options.result) {
+  console.log(currentCharacter);
+  if (currentCharacter !== null) {
+    getOptions(currentCharacter, (options) => {
       console.log(options);
-
       let index = 0;
       let pageStart = 0;
-      for (let i = 0; i < options.result.length; i++) {
-        let a = 0;
-        if (i != 0) a = 1;
-        if (i % 6 == 0) {
-          if (pageStart + 6 + a < options.result.length) {
-            pages[index] = [pageStart + a, pageStart + 6 + a];
-            pageStart = pageStart + 6 + a;
-            index++;
-          } else {
-            pages[index] = [pageStart + a, options.result.length - 1];
+      // display writing helper
+      if (options !== null && options.result !== null) {
+        for (let i = 0; i < options.result.length; i++) {
+          let a = 0;
+          if (i != 0) a = 1;
+          if (i % 6 == 0) {
+            if (pageStart + 6 + a < options.result.length) {
+              pages[index] = [pageStart + a, pageStart + 6 + a];
+              pageStart = pageStart + 6 + a;
+              index++;
+            } else {
+              pages[index] = [pageStart + a, options.result.length - 1];
+            }
           }
         }
-      }
 
-    }
-  };
+        // create the clone and configure the style
+        const parent = inputHtml.parentElement;
+        const cloneField = document.createElement('div');
+        const copyStyle = getComputedStyle(inputHtml);
+        for (const prop of copyStyle) { cloneField.style[prop] = copyStyle[prop]; }
+        if (inputHtml.tagName === 'TEXTAREA') cloneField.style.height = 'auto';
+        if (inputHtml.tagName === 'INPUT') cloneField.style.width = 'auto';
+        // create span for locating caret on screen
+        const span = document.createElement('span');
 
-  let helperDiv = $('.helperDiv')[0] ? $('.helperDiv')[0] : null;
+        // replace spaces in the textcontent
+        const swap = '.';
+        const inputValue = inputHtml.tagName === 'INPUT' ? inputHtml.value.replace(/ /g, swap) : inputHtml.value;
+        const textContent = inputValue.substr(0, cursorEnd).slice(0, -1);
 
-  // display writing helper
-  if (options !== null && options.result !== null) {
-    // create the clone and configure the style
-    const parent = inputHtml.parentElement;
-    const cloneField = document.createElement('div');
-    const copyStyle = getComputedStyle(inputHtml);
-    for (const prop of copyStyle) { cloneField.style[prop] = copyStyle[prop]; }
-    if (inputHtml.tagName === 'TEXTAREA') cloneField.style.height = 'auto';
-    if (inputHtml.tagName === 'INPUT') cloneField.style.width = 'auto';
-    // create span for locating caret on screen
-    const span = document.createElement('span');
+        // assign content
+        cloneField.textContent = textContent;
+        span.textContent = inputValue.substr(cursorEnd) + '.' || '.';
 
-    // replace spaces in the textcontent
-    const swap = '.';
-    const inputValue = inputHtml.tagName === 'INPUT' ? inputHtml.value.replace(/ /g, swap) : inputHtml.value;
-    const textContent = inputValue.substr(0, cursorEnd).slice(0, -1);
+        cloneField.appendChild(span);
+        parent.appendChild(cloneField);
 
-    // assign content
-    cloneField.textContent = textContent;
-    span.textContent = inputValue.substr(cursorEnd) + '.' || '.';
+        // get position of wrapper of the rest of cloned content
+        const {
+          offsetLeft: spanX,
+          offsetTop: spanY,
+          offsetWidth: spanWidth,
+          offsetHeight: spanHeight
+        } = span;
 
-    cloneField.appendChild(span);
-    parent.appendChild(cloneField);
+        // get position of clone div
+        const {
+          offsetLeft: cloneFieldX,
+          offsetTop: cloneFieldY,
+          offsetWidth: cloneFieldWidth,
+          offsetHeight: cloneFieldHeight
+        } = cloneField;
 
-    // get position of wrapper of the rest of cloned content
-    const {
-      offsetLeft: spanX,
-      offsetTop: spanY,
-      offsetWidth: spanWidth,
-      offsetHeight: spanHeight
-    } = span;
+        // get position of input fields
+        const {
+          offsetLeft: inputX,
+          offsetTop: inputY,
+          offsetWidth: inputWidth,
+          offsetHeight: inputHeight
+        } = inputHtml;
 
-    // get position of clone div
-    const {
-      offsetLeft: cloneFieldX,
-      offsetTop: cloneFieldY,
-      offsetWidth: cloneFieldWidth,
-      offsetHeight: cloneFieldHeight
-    } = cloneField;
+        // get position of the parent element of input fields
+        const {
+          offsetLeft: ipX,
+          offsetTop: ipY,
+          offsetWidth: ipWidth,
+          offsetHeight: ipHeight
+        } = inputParent[0];
 
-    // get position of input fields
-    const {
-      offsetLeft: inputX,
-      offsetTop: inputY,
-      offsetWidth: inputWidth,
-      offsetHeight: inputHeight
-    } = inputHtml;
+        // remove clone
+        cloneField.remove();
 
-    // get position of the parent element of input fields
-    const {
-      offsetLeft: ipX,
-      offsetTop: ipY,
-      offsetWidth: ipWidth,
-      offsetHeight: ipHeight
-    } = inputParent[0];
+        // create helper box
+        let helperContent = $('.helperContent')[0] || null;
+        console.log('helperContent' + helperContent);
 
-    // remove clone
-    cloneField.remove();
+        if (helperDiv === null) {
+          helperDiv = document.createElement('div');
+          helperDiv.className = 'helperDiv';
+          inputParent.append(helperDiv);
 
-    // create helper box
-    let helperContent = $('.helperContent')[0] || null;
-    if (helperDiv === null) {
-      helperDiv = document.createElement('div');
-      helperDiv.className = 'helperDiv';
-      inputParent.append(helperDiv);
+          // option container
+          helperContent = document.createElement('div');
+          helperContent.className = 'helperContent';
 
-      // option container
-      helperContent = document.createElement('div');
-      helperContent.className = 'helperContent';
+          // button set container
+          const btnSet = document.createElement('div');
+          btnSet.className = 'btnSet';
 
-      // button set container
-      const btnSet = document.createElement('div');
-      btnSet.className = 'btnSet';
+          // page controller container
+          const pageCtrl = document.createElement('div');
+          pageCtrl.className = 'pageCtrl';
 
-      // page controller container
-      const pageCtrl = document.createElement('div');
-      pageCtrl.className = 'pageCtrl';
+          // first row wrapper
+          const firstRowWrapper = document.createElement('div');
+          $(firstRowWrapper).css({ 'margin': '0', 'padding': '0', 'border': 'none', 'display': 'inline-flex', 'justify-content': 'space-between' });
+          firstRowWrapper.append(helperContent);
+          firstRowWrapper.append(pageCtrl);
+          firstRowWrapper.append(btnSet);
+          helperDiv.append(firstRowWrapper);
 
-      // first row wrapper
-      const firstRowWrapper = document.createElement('div');
-      $(firstRowWrapper).css({ 'margin': '0', 'padding': '0', 'border': 'none', 'display': 'inline-flex', 'justify-content': 'space-between' });
-      firstRowWrapper.append(helperContent);
-      firstRowWrapper.append(pageCtrl);
-      firstRowWrapper.append(btnSet);
-      helperDiv.append(firstRowWrapper);
+          // page up button
+          const pageUp = document.createElement('button');
+          pageUp.className = 'pageCtrl';
+          pageUp.innerHTML = '<i class="fas fa-caret-left"></i>';
+          pageCtrl.append(pageUp);
 
-      // page up button
-      const pageUp = document.createElement('button');
-      pageUp.className = 'pageCtrl';
-      pageUp.innerHTML = '<i class="fas fa-caret-left"></i>';
-      pageCtrl.append(pageUp);
+          // page down button
+          const pageDown = document.createElement('button');
+          pageDown.className = 'pageCtrl';
+          pageDown.innerHTML = '<i class="fas fa-caret-right"></i>';
+          pageCtrl.append(pageDown);
 
-      // page down button
-      const pageDown = document.createElement('button');
-      pageDown.className = 'pageCtrl';
-      pageDown.innerHTML = '<i class="fas fa-caret-right"></i>';
-      pageCtrl.append(pageDown);
+          // setting button
+          const settingBtn = document.createElement('button');
+          settingBtn.className = 'setttingBtn';
+          settingBtn.innerHTML = '<i class="fas fa-cog"></i>';
+          btnSet.appendChild(settingBtn);
+          $(settingBtn).on('mousedown', (event) => {
+            event.elements = { input: input };
+            settingBtnClickedHandler(event)
+          });
 
-      // setting button
-      const settingBtn = document.createElement('button');
-      settingBtn.className = 'setttingBtn';
-      settingBtn.innerHTML = '<i class="fas fa-cog"></i>';
-      btnSet.appendChild(settingBtn);
-      $(settingBtn).on('mousedown', (event) => {
-        event.elements = { input: input };
-        settingBtnClickedHandler(event)
-      });
+          // closeBtn 
+          const closeBtn = document.createElement('button');
+          closeBtn.className = 'helperCloseBtn';
+          closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+          btnSet.appendChild(closeBtn);
+          closeBtn.addEventListener('mousedown', (event) => {
+            event.elements = { input: input };
+            closeBtnMouseDownHandler(event);
+          });
+          closeBtn.addEventListener('mouseup', (event) => {
+            event.elements = {
+              input: input,
+              helperDiv: helperDiv
+            };
+            closeBtnClickedHandler(event);
+          });
 
-      // closeBtn 
-      const closeBtn = document.createElement('button');
-      closeBtn.className = 'helperCloseBtn';
-      closeBtn.innerHTML = '<i class="fas fa-times"></i>';
-      btnSet.appendChild(closeBtn);
-      closeBtn.addEventListener('mousedown', (event) => {
-        event.elements = { input: input };
-        closeBtnMouseDownHandler(event);
-      });
-      closeBtn.addEventListener('mouseup', (event) => {
-        event.elements = {
-          input: input,
-          helperDiv: helperDiv
-        };
-        closeBtnClickedHandler(event);
-      });
+          // setting menu container
+          const settingMenuWrapper = document.createElement('div');
+          settingMenuWrapper.className = 'settingMenuWrapper';
+          const menuContent = createDropdown();
+          settingMenuWrapper.appendChild(menuContent);
+          helperDiv.append(settingMenuWrapper);
 
-      // setting menu container
-      const settingMenuWrapper = document.createElement('div');
-      settingMenuWrapper.className = 'settingMenuWrapper';
-      const menuContent = createDropdown();
-      settingMenuWrapper.appendChild(menuContent);
-      helperDiv.append(settingMenuWrapper);
+          // add key press event listener
+          input.on('keyup', keyupEventHandler);
+          input.on('keydown', keydownEventHandler);
+          if (mode !== 'test') {
+            input.one("blur", event => {
+              event.elements = {
+                input: input,
+                helperDiv: helperDiv
+              };
+              closeBtnClickedHandler(event);
+            });
+          }
+        } else {
 
-      // add key press event listener
-      input.on('keyup', keyupEventHandler);
-      input.on('keydown', keydownEventHandler);
-      if (mode !== 'test') {
-        input.one("blur", event => {
-          event.elements = {
-            input: input,
-            helperDiv: helperDiv
-          };
-          closeBtnClickedHandler(event);
-        });
-      }
-    }
-    createOptions(
-      helperDiv,
-      helperContent,
-      options,
-      input,
-      cursorStart,
-      cursorEnd,
-      pages
-    );
+        }
+        createOptions(helperDiv, helperContent, options, input, cursorStart, cursorEnd, pages);
 
-    const {
-      offsetWidth: helperWidth,
-      offsetHeight: helperHeight
-    } = helperDiv;
+        const {
+          offsetWidth: helperWidth,
+          offsetHeight: helperHeight
+        } = helperDiv;
 
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
 
-    // styling and positioning
-    let leftPosition = ipX + spanX - 16;
-    let spanW = ipX + spanX + helperWidth;
-    let topPosition = (cloneFieldHeight - helperHeight - spanHeight - 10);
-    let topToWindow = Math.abs(spanY - inputHeight - ipY);
-    if (span.textContent !== '.') {
-      topToWindow = Math.abs(spanHeight - ipY);
-    }
-    if (topToWindow <= helperHeight) {
-      topPosition = (cloneFieldHeight);
-      $('.helperDiv').addClass('helperDiv-bottom');
-      $('.helperOptions').addClass('helperOptions-bottom');
-      $('.helperDiv').removeClass('helperDiv-top');
-      $('.helperOptions').removeClass('helperOptions-top');
-    } else {
-      $('.helperDiv').removeClass('helperDiv-bottom');
-      $('.helperOptions').removeClass('helperOptions-bottom');
-      $('.helperDiv').addClass('helperDiv-top');
-      $('.helperOptions').addClass('helperOptions-top');
-    }
+        // styling and positioning
+        let leftPosition = ipX + spanX - 16;
+        let spanW = ipX + spanX + helperWidth;
+        let topPosition = (cloneFieldHeight - helperHeight - spanHeight - 10);
+        let topToWindow = Math.abs(spanY - inputHeight - ipY);
+        if (span.textContent !== '.') {
+          topToWindow = Math.abs(spanHeight - ipY);
+        }
+        if (topToWindow <= helperHeight) {
+          topPosition = (cloneFieldHeight);
+          $('.helperDiv').addClass('helperDiv-bottom');
+          $('.helperOptions').addClass('helperOptions-bottom');
+          $('.helperDiv').removeClass('helperDiv-top');
+          $('.helperOptions').removeClass('helperOptions-top');
+        } else {
+          $('.helperDiv').removeClass('helperDiv-bottom');
+          $('.helperOptions').removeClass('helperOptions-bottom');
+          $('.helperDiv').addClass('helperDiv-top');
+          $('.helperOptions').addClass('helperOptions-top');
+        }
 
-    if (inputHtml.tagName === 'INPUT') {
-      // input field with full length string
-      if ((spanW - helperWidth) >= inputWidth && (inputWidth + helperWidth) < windowWidth) {
-        leftPosition = inputWidth;
-      }
-      // full width input field
-      if (spanW >= windowWidth && (inputWidth + helperWidth) > windowWidth) {
-        leftPosition = windowWidth - helperWidth - ipX;
-      }
-    }
+        if (inputHtml.tagName === 'INPUT') {
+          // input field with full length string
+          if ((spanW - helperWidth) >= inputWidth && (inputWidth + helperWidth) < windowWidth) {
+            leftPosition = inputWidth;
+          }
+          // full width input field
+          if (spanW >= windowWidth && (inputWidth + helperWidth) > windowWidth) {
+            leftPosition = windowWidth - helperWidth - ipX;
+          }
+        }
 
-    if (inputHtml.tagName === 'TEXTAREA') {
-      // full width text area
-      if (spanW >= windowWidth) {
-        leftPosition = windowWidth - helperWidth - ipX;
-      }
-    }
+        if (inputHtml.tagName === 'TEXTAREA') {
+          // full width text area
+          if (spanW >= windowWidth) {
+            leftPosition = windowWidth - helperWidth - ipX;
+          }
+        }
 
-    helperDiv.style.left = `${leftPosition}px`;
-    helperDiv.style.top = `${topPosition}px`;
+        helperDiv.style.left = `${leftPosition}px`;
+        helperDiv.style.top = `${topPosition}px`;
 
+      } else {
+        if (helperDiv !== null) {
+          removeHelper(helperDiv, input);
+        }
+      };
+    });
   } else {
     if (helperDiv !== null) {
+      console.log('cc === null');
       removeHelper(helperDiv, input);
     }
   };
