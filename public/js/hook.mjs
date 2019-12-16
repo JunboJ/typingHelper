@@ -48,8 +48,8 @@ $(document).ready(function () {
         element.on('keyup', arrowKeyEventHandler);
     });
 
-    $('.tempLangSwitch').on('change', event => {
-        language = $('.tempLangSwitch:checked + .langCode').val();
+    $('.tempLangSwitch-1').on('change', event => {
+        language = $('.tempLangSwitch-1:checked + .langCode').val();
         console.log(language);
     });
 });
