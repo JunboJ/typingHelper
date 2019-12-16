@@ -8,27 +8,41 @@
     <title>Writing System</title>
     <link rel="stylesheet" type="text/css" href="./public/css/helperDiv.css">
     <link rel="stylesheet" href="./public/css/all.css">
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        // Load the Google Transliterate API
+        google.load("elements", "1", {
+            packages: "transliteration"
+        });
+
+        function onLoad() {
+            var options = {
+                sourceLanguage: google.elements.transliteration.LanguageCode.ENGLISH,
+                destinationLanguage: [google.elements.transliteration.LanguageCode.CHINESE],
+                shortcutKey: 'ctrl+g',
+                transliterationEnabled: true
+            };
+
+            // Create an instance on TransliterationControl with the required
+            // options.
+            var control = new google.elements.transliteration.TransliterationControl(options);
+
+            // Enable transliteration in the textbox with id
+            // 'transliterateTextarea'.
+            control.makeTransliteratable(['transliterateTextarea']);
+        }
+        google.setOnLoadCallback(onLoad);
+    </script>
 </head>
 
 <body class="container">
-    <div>
+    <!-- <div>
         <input class="writingHelper" style="width: 400px;" type="text">
     </div>
-    <h4>Input at top</h4>
-    <hr>
-    <h4>Input area: </h4>
+    <h4>Input at top</h4> -->
+    <h2>Google undocumented API: </h2>
     <div>
-        <textarea class="writingHelper" style="width: 400px; height: 200px;"></textarea>
-    </div>
-
-    <h2 class="title" style="position: fixed; right: 20px; top: 0;">Writing System Demo (French Only)</h2>
-    <h4>Full width, one line input field: </h4>
-    <div>
-        <input class="writingHelper" style="width: 100%; margin-right: 3px;" type="text"
-            value="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa">
-    </div>
-    <div>
-        <h2>Temp language switch: </h2>
+        <h3>Temp language switch (Only works on ): </h3>
         <label class="check-container">Chinese
             <input class="tempLangSwitch" name="lang" type="radio" checked>
             <input class="langCode" type="hidden" value="zh">
@@ -39,6 +53,25 @@
             <input class="langCode" type="hidden" value="fr">
             <span class="checkmark"></span>
         </label>
+    </div>
+    <div>
+        <textarea class="writingHelper" style="width: 400px; height: 200px;"></textarea>
+    </div>
+
+    <h2 class="title" style="position: fixed; right: 20px; top: 0;">Writing System Demo (French Only)</h2>
+    <!-- <h4>Full width, one line input field: </h4> -->
+    <hr>
+    <div>
+        <h2>Google deprecated Text Transliterate API: </h2>
+        <h3>Type pinyin "zaoshanghao" (Good morning):</h3>
+        <!-- <input class="writingHelper" style="width: 100%; margin-right: 3px;" type="text"
+            value="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"> -->
+    </div>
+    <div>
+        <form><textarea name="ta" rows="6" id="transliterateTextarea" cols="6"
+            style="width: 400px; height: 200px; margin-left: 1rem;"></textarea></form>
+    </div>
+    <div>
         <ul>
             <h3>Supported feature: </h3>
             <li>Navigate though string with arrow keys</li>
@@ -48,6 +81,7 @@
             <li>Dismiss UI by clicking X button or pressing ESC key or clicking outside box</li>
         </ul>
     </div>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script type="module" src="./public/js/hook.mjs"></script>
 </body>

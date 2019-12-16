@@ -30,7 +30,7 @@ const test = () => {
             'X-ClientTraceId': uuidv4().toString()
         },
         body: [{
-            'Text': 'womenzaixuexizhongwen'
+            'Text': 'xue'
         }],
         json: true,
     };
