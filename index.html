@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Writing System</title>
-    <link rel="stylesheet" type="text/css" href="./public/css/helperDiv.css">
-    <link rel="stylesheet" href="./public/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/css/helperDiv.css">
+    <link rel="stylesheet" href="/css/all.css">
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
         // Load the Google Transliterate API
@@ -36,42 +36,80 @@
 </head>
 
 <body class="container">
-    <!-- <div>
-        <input class="writingHelper" style="width: 400px;" type="text">
-    </div>
-    <h4>Input at top</h4> -->
+    <!-- 1 -->
     <h2>Google undocumented API: </h2>
     <div>
-        <h3>Temp language switch (Only works on ): </h3>
+        <h3>Language switch: </h3>
         <label class="check-container">Chinese
-            <input class="tempLangSwitch" name="lang" type="radio" checked>
+            <input class="tempLangSwitch-1" name="lang-1" type="radio" checked>
             <input class="langCode" type="hidden" value="zh">
             <span class="checkmark"></span>
         </label>
         <label class="check-container">French
-            <input class="tempLangSwitch" name="lang" type="radio">
+            <input class="tempLangSwitch-1" name="lang-1" type="radio">
             <input class="langCode" type="hidden" value="fr">
             <span class="checkmark"></span>
         </label>
     </div>
     <div>
+        <b>Type pinyin "zaoshanghao" (Good morning): </b>
         <textarea class="writingHelper" style="width: 400px; height: 200px;"></textarea>
     </div>
 
     <h2 class="title" style="position: fixed; right: 20px; top: 0;">Writing System Demo (French Only)</h2>
-    <!-- <h4>Full width, one line input field: </h4> -->
+    <!-- 2 -->
     <hr>
     <div>
         <h2>Google deprecated Text Transliterate API: </h2>
-        <h3>Type pinyin "zaoshanghao" (Good morning):</h3>
-        <!-- <input class="writingHelper" style="width: 100%; margin-right: 3px;" type="text"
-            value="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"> -->
+        <div>
+            <h3>Language switch: </h3>
+            <label class="check-container">Chinese
+                <input class="tempLangSwitch-2" name="lang-2" type="radio" checked>
+                <input class="langCode" type="hidden" value="Chinese">
+                <span class="checkmark"></span>
+            </label>
+            <label class="check-container">Japanese
+                <input class="tempLangSwitch-2" name="lang-2" type="radio">
+                <input class="langCode" type="hidden" value="Japanese">
+                <span class="checkmark"></span>
+            </label>
+        </div>
     </div>
     <div>
+        <b>Type pinyin "zaoshanghao" (Good morning) / Romaji "kurumawokau" (buy a cart):</b>
         <form><textarea name="ta" rows="6" id="transliterateTextarea" cols="6"
-            style="width: 400px; height: 200px; margin-left: 1rem;"></textarea></form>
+                style="width: 400px; height: 200px; margin-left: 1rem;"></textarea></form>
     </div>
+    <!-- 3 -->
+    <hr>
     <div>
+        <h2>Microsoft Azure Text Transliterate API: </h2>
+        <p>wozaishangban --> 我在上班</p>
+        <p>konnichiwa --> コニチワ</p>
+        <!-- <div>
+            <h3>Language switch: </h3>
+            <label class="check-container">Chinese
+                <input class="tempLangSwitch-3" name="lang-3" type="radio" checked>
+                <input class="langCode" type="hidden" value="Chinese">
+                <span class="checkmark"></span>
+            </label>
+            <label class="check-container">Japanese
+                <input class="tempLangSwitch-3" name="lang-3" type="radio">
+                <input class="langCode" type="hidden" value="Japanese">
+                <span class="checkmark"></span>
+            </label>
+        </div> -->
+    </div>
+    <!-- <div>
+        <b>Type pinyin "zaoshanghao" (Good morning) / Romaji "kurumawokau" (buy a cart):</b><br>
+        <input type="text" style="margin-top: 1rem; margin-left: 1rem;" class="azureTr">
+        <button class="azureTrBtn" type="button">Submit</button>
+    </div> -->
+    <div class="result">
+        <p class="resultArea"></p>
+    </div>
+    <div style="height: 300px;"></div>
+    <!-- <div>
         <ul>
             <h3>Supported feature: </h3>
             <li>Navigate though string with arrow keys</li>
@@ -80,10 +118,11 @@
             <li>Input remain focus when choosing options</li>
             <li>Dismiss UI by clicking X button or pressing ESC key or clicking outside box</li>
         </ul>
-    </div>
+    </div> -->
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script type="module" src="./public/js/hook.mjs"></script>
+    <script type="module" src="/js/hook.mjs"></script>
+    <script src="/js/azuretl.js"></script>
 </body>
 
 </html>

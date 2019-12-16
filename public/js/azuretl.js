@@ -12,17 +12,30 @@ const subscriptionKey = '4b1e5ee9ccd64105afb218470e25249e';
 // }
 const endpoint = 'https://api.cognitive.microsofttranslator.com/';
 
+const lang = {
+    Japanese: {
+        'api-version': '3.0',
+        'language': 'ja',
+        'fromScript': 'Latn',
+        'toScript': 'jpan'
+    },
+    Chinese: {
+        'api-version': '3.0',
+        'language': 'zh-Hans',
+        'fromScript': 'Latn',
+        'toScript': 'Hans'
+    }
+}
 
-const test = () => {
+const test = (str, language) => {
+    // console.log(lang[language]);
+    
     let options = {
         method: 'POST',
         baseUrl: endpoint,
         url: 'transliterate',
         qs: {
-            'api-version': '3.0',
-            'language': 'zh-Hans',
-            'fromScript': 'Latn',
-            'toScript': 'Hans'
+            ...lang[language]
         },
         headers: {
             'Ocp-Apim-Subscription-Key': subscriptionKey,
@@ -30,28 +43,24 @@ const test = () => {
             'X-ClientTraceId': uuidv4().toString()
         },
         body: [{
-            'Text': 'xue'
+            'Text': str
         }],
         json: true,
     };
 
-    // let options = {
-    //     method: 'GET',
-    //     baseUrl: endpoint,
-    //     url: 'languages',
-    //     qs: {
-    //         'api-version': '3.0',
-    //     },
-    //     headers: {
-    //         'Content-type': 'application/json',
-    //         'X-ClientTraceId': uuidv4().toString()
-    //     },
-    //     json: true,
-    // };
-
     request(options, function (err, res, body) {
         console.log(JSON.stringify(body, null, 4));
+        const result = body;
+        // $('.resultArea').html(result[0].text);
     });
 };
 
-test();
+// $('.azureTrBtn').on('click', () => {
+//     const input = $('.azureTr').val();
+//     const language = $('.tempLangSwitch-3:checked + .langCode').val();
+//     test(input, language);
+// });
+// console.log({...lang.Japanese});
+
+
+test('wozaochizaofan', 'Chinese');

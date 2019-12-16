@@ -5,7 +5,7 @@ $(document).ready(function () {
     // document.getElementsByClassName('writingHelper');
     // let elementsArr = Array.from(elements);
 
-    language = $('.tempLangSwitch:checked + .langCode').val();
+    language = $('.tempLangSwitch-1:checked + .langCode').val();
     console.log(language);
     $('.writingHelper').each(function (index, object) {
         // elementsArr.forEach(element => {
