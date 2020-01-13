@@ -1,6 +1,8 @@
 import { get_fr } from './lang/frLib.mjs';
 import { get_zh } from './lang/zhLib.mjs';
 import { get_de } from './lang/deLib.mjs';
+import { get_es } from './lang/esLib.mjs';
+import { get_it } from './lang/itLib.mjs';
 
 let language = 'fr';
 const mode = '';
@@ -13,8 +15,14 @@ const getOptions = (str, callback) => {
       case 'de':
         callback(get_de(str) || null);
         break;
+      case 'es':
+        callback(get_es(str) || null);
+        break;
       case 'fr':
         callback(get_fr(str) || null);
+        break;
+      case 'it':
+        callback(get_it(str) || null);
         break;
       case 'zh':
         // if (get_zh(str)) {
