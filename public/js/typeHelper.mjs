@@ -79,7 +79,7 @@ const keyupEventHandler = event => {
     $(`#${event.which}`).mouseup();
   }
   if (event.which == 32) {
-    $('#49').mouseup();
+    // $('#49').mouseup();
   }
 };
 const keydownEventHandler = event => {

@@ -34,7 +34,7 @@ export const get_el = character => {
         P: ['Π'],
         r: ['ρ'],
         R: ['Ρ'],
-        s: ['σ'],
+        s: ['σ', 'ς'],
         S: ['Σ'],
         t: ['τ'],
         // T: ['Τ']
@@ -49,7 +49,9 @@ export const get_el = character => {
         y: ['υ','ύ','ϋ','ΰ'],
         Y: ['Υ'],
         z: ['ζ'],
-        Z: ['Ζ']
+        Z: ['Ζ'],
+        q: [';'],
+        Q: [';']
     }
 
     const letterSet = character => {
