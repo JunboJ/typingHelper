@@ -19,10 +19,20 @@ $(document).ready(function () {
 
         const eventHandler = event => {
             console.log('input event');
+
             setTimeout(() => {
                 writingHelper(element, language);
-            }, 100);
+            }, 200);
         };
+
+        const keyDownEventHandler = event => {
+            if (event.which == 32) {
+                const div = getHelperDiv();
+                if (div) {
+                    event.preventDefault();
+                }
+            }
+        }
 
         const arrowKeyEventHandler = event => {
             if (
@@ -44,6 +54,7 @@ $(document).ready(function () {
         };
 
         element.on('click', eventHandler);
+        element.on('keydown', keyDownEventHandler);
         element.on('input', eventHandler);
         element.on('keyup', arrowKeyEventHandler);
     });

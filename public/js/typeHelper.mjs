@@ -1,16 +1,20 @@
 import { get_fr } from './lang/frLib.mjs';
 import { get_zh } from './lang/zhLib.mjs';
+import { get_de } from './lang/deLib.mjs';
 
 let language = 'fr';
-const mode = 'test';
+const mode = '';
 let helperDiv = $('.helperDiv')[0] ? $('.helperDiv')[0] : null;
 // get options from library
 const getOptions = (str, callback) => {
+  console.log(language);
   if (str.length != 0) {
     switch (language) {
+      case 'de':
+        callback(get_de(str) || null);
+        break;
       case 'fr':
         callback(get_fr(str) || null);
-        // return get_fr(str) || null;
         break;
       case 'zh':
         // if (get_zh(str)) {
@@ -43,7 +47,7 @@ const closeBtnMouseDownHandler = event => {
   event.elements.input.off('blur');
 }
 const closeBtnClickedHandler = event => {
-  event.elements.helperDiv.remove();
+  if (event.elements.helperDiv) event.elements.helperDiv.remove();
   event.elements.input.off('keyup', keyupEventHandler);
   event.elements.input.off('keydown', keydownEventHandler);
 };
@@ -55,12 +59,18 @@ const keyupEventHandler = event => {
     console.log(`#${event.which}`);
     $(`#${event.which}`).mouseup();
   }
+  if (event.which == 32) {
+    $('#49').mouseup();
+  }
 };
 const keydownEventHandler = event => {
   if (document.getElementById(event.which)) {
     event.preventDefault();
     // document.getElementById(event.which).style.backgroundColor = 'rgb(78, 161, 216)';
     $('#' + event.which).css({ 'background-color': 'rgb(78, 161, 216)' });
+  }
+  if (event.which == 32) {
+    $('#49').css({ 'background-color': 'rgb(78, 161, 216)' });
   }
 };
 
@@ -154,49 +164,49 @@ const mapOptionToBtn = (
 ) => {
   const start = pages[pageNum][0];
   const end = pages[pageNum][1] + 1;
-  console.log('pages: ' + pages);
+  if (helperContent) {
+    options.result.slice(start, end).map((char, index) => {
+      let key = (index + 49);
 
-  options.result.slice(start, end).map((char, index) => {
-    let key = (index + 49);
+      // create options as buttons
+      let helperOptions = document.createElement('button');
+      helperOptions.className = className;
+      helperOptions.id = key;
+      helperOptions.style.fontSize = '1rem';
 
-    // create options as buttons
-    let helperOptions = document.createElement('button');
-    helperOptions.className = className;
-    helperOptions.id = key;
-    helperOptions.style.fontSize = '1rem';
+      // helperOptions.style.fontWeight = 'bold';
+      let text = document.createTextNode(char);
+      helperOptions.appendChild(text);
+      helperContent.appendChild(helperOptions);
 
-    // helperOptions.style.fontWeight = 'bold';
-    let text = document.createTextNode(char);
-    helperOptions.appendChild(text);
-    helperContent.appendChild(helperOptions);
+      // create tip spans
+      let tip = document.createElement('small');
+      tip.className = 'tips_windows';
+      tip.innerHTML = (index + 1);
 
-    // create tip spans
-    let tip = document.createElement('small');
-    tip.className = 'tips_windows';
-    tip.innerHTML = (index + 1);
+      helperOptions.prepend(tip);
 
-    helperOptions.prepend(tip);
+      $(helperOptions).on('mousedown', () => {
+        event.muAssets = {
+          input: input
+        }
+        mouseDownHandler(event);
+      });
+      $(helperOptions).on('mouseup', (event) => {
+        event.muAssets = {
+          helperDiv: helperDiv,
+          cursorStart: cursorStart,
+          cursorEnd: cursorEnd,
+          input: input,
+          options: options,
+          inputString: inputString,
+          char: char
+        }
+        mouseUpHandler(event);
+      });
 
-    $(helperOptions).on('mousedown', () => {
-      event.muAssets = {
-        input: input
-      }
-      mouseDownHandler(event);
     });
-    $(helperOptions).on('mouseup', (event) => {
-      event.muAssets = {
-        helperDiv: helperDiv,
-        cursorStart: cursorStart,
-        cursorEnd: cursorEnd,
-        input: input,
-        options: options,
-        inputString: inputString,
-        char: char
-      }
-      mouseUpHandler(event);
-    });
-
-  });
+  }
 };
 
 // add click event listener
@@ -320,6 +330,7 @@ export const writingHelper = (input, lang) => {
       let pageStart = 0;
       // display writing helper
       if (options !== null && options.result !== null) {
+        // pagination
         for (let i = 0; i < options.result.length; i++) {
           let a = 0;
           if (i != 0) a = 1;
@@ -411,26 +422,31 @@ export const writingHelper = (input, lang) => {
           // page controller container
           const pageCtrl = document.createElement('div');
           pageCtrl.className = 'pageCtrl';
+          if (pages.length <= 1) {
+            pageCtrl.style.display = 'none';
+          }
 
           // first row wrapper
           const firstRowWrapper = document.createElement('div');
           $(firstRowWrapper).css({ 'margin': '0', 'padding': '0', 'border': 'none', 'display': 'inline-flex', 'justify-content': 'space-between' });
           firstRowWrapper.append(helperContent);
-          firstRowWrapper.append(pageCtrl);
+          if (pages.length > 1) firstRowWrapper.append(pageCtrl);
           firstRowWrapper.append(btnSet);
           helperDiv.append(firstRowWrapper);
 
-          // page up button
-          const pageUp = document.createElement('button');
-          pageUp.className = 'pageCtrl';
-          pageUp.innerHTML = '<i class="fas fa-caret-left"></i>';
-          pageCtrl.append(pageUp);
+          if (pages.length > 1) {
+            // page up button
+            const pageUp = document.createElement('button');
+            pageUp.className = 'pageCtrl';
+            pageUp.innerHTML = '<i class="fas fa-caret-left"></i>';
+            pageCtrl.append(pageUp);
 
-          // page down button
-          const pageDown = document.createElement('button');
-          pageDown.className = 'pageCtrl';
-          pageDown.innerHTML = '<i class="fas fa-caret-right"></i>';
-          pageCtrl.append(pageDown);
+            // page down button
+            const pageDown = document.createElement('button');
+            pageDown.className = 'pageCtrl';
+            pageDown.innerHTML = '<i class="fas fa-caret-right"></i>';
+            pageCtrl.append(pageDown);
+          }
 
           // setting button
           const settingBtn = document.createElement('button');
