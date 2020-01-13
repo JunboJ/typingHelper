@@ -20,9 +20,9 @@ $(document).ready(function () {
         const eventHandler = event => {
             console.log('input event');
 
-            setTimeout(() => {
+            // setTimeout(() => {
                 writingHelper(element, language);
-            }, 200);
+            // }, 200);
         };
 
         const keyDownEventHandler = event => {

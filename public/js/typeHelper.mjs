@@ -3,9 +3,11 @@ import { get_zh } from './lang/zhLib.mjs';
 import { get_de } from './lang/deLib.mjs';
 import { get_es } from './lang/esLib.mjs';
 import { get_it } from './lang/itLib.mjs';
+import { get_el } from './lang/elLib.mjs';
 
 let language = 'fr';
-const mode = '';
+let mode = '';
+let autoSelect = false;
 let helperDiv = $('.helperDiv')[0] ? $('.helperDiv')[0] : null;
 // get options from library
 const getOptions = (str, callback) => {
@@ -13,18 +15,27 @@ const getOptions = (str, callback) => {
   if (str.length != 0) {
     switch (language) {
       case 'de':
+        autoSelect = false;
         callback(get_de(str) || null);
         break;
       case 'es':
+        autoSelect = false;
         callback(get_es(str) || null);
         break;
       case 'fr':
+        autoSelect = false;
         callback(get_fr(str) || null);
         break;
       case 'it':
+        autoSelect = false;
         callback(get_it(str) || null);
         break;
+      case 'el':
+        autoSelect = true;
+        callback(get_el(str) || null);
+        break;
       case 'zh':
+        autoSelect = false;
         // if (get_zh(str)) {
         //   result = get_zh(str) || null;
         // }
@@ -72,13 +83,20 @@ const keyupEventHandler = event => {
   }
 };
 const keydownEventHandler = event => {
-  if (document.getElementById(event.which)) {
-    event.preventDefault();
-    // document.getElementById(event.which).style.backgroundColor = 'rgb(78, 161, 216)';
-    $('#' + event.which).css({ 'background-color': 'rgb(78, 161, 216)' });
+  if (event.which >= 48 && event.which <= 57) {
+    if (document.getElementById(event.which)) {
+      event.preventDefault();
+      // document.getElementById(event.which).style.backgroundColor = 'rgb(78, 161, 216)';
+      $('#' + event.which).css({ 'background-color': 'rgb(78, 161, 216)' });
+    }
+    return;
   }
   if (event.which == 32) {
     $('#49').css({ 'background-color': 'rgb(78, 161, 216)' });
+    return;
+  }
+  if (autoSelect) {
+    $('#49').mouseup();
   }
 };
 
@@ -565,7 +583,6 @@ export const writingHelper = (input, lang) => {
     });
   } else {
     if (helperDiv !== null) {
-      console.log('cc === null');
       removeHelper(helperDiv, input);
     }
   };
