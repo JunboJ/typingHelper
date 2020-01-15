@@ -47,7 +47,6 @@ $(document).ready(function () {
                 }, 100);
             }
             if (event.which == 27) {
-                console.log('key 27');
                 const div = getHelperDiv();
                 if (div) div.remove();
             }

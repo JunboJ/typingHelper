@@ -73,30 +73,45 @@ const closeBtnClickedHandler = event => {
 
 // add key press event handler
 const keyupEventHandler = event => {
-  if (document.getElementById(event.which)) {
-    event.preventDefault();
-    console.log(`#${event.which}`);
-    $(`#${event.which}`).mouseup();
+  let keycode = event.which || event.keyCode;
+  if (event.shiftKey === false) {
+    if (document.getElementById(keycode)) {
+      event.preventDefault();
+      console.log(`#${keycode}`);
+      $(`#${keycode}`).mouseup();
+    }
   }
-  if (event.which == 32) {
-    // $('#49').mouseup();
+  if (keycode == 32 || keycode == 13) {
+    $('#49').mouseup();
   }
 };
 const keydownEventHandler = event => {
-  if (event.which >= 48 && event.which <= 57) {
-    if (document.getElementById(event.which)) {
+  // let mk = event.shiftKey;
+  // console.log(event);
+  // console.log('______________');
+  let keycode = event.which || event.keyCode;
+  if (event.shiftKey === false && keycode >= 48 && keycode <= 57) {
+    if (document.getElementById(keycode)) {
       event.preventDefault();
-      // document.getElementById(event.which).style.backgroundColor = 'rgb(78, 161, 216)';
-      $('#' + event.which).css({ 'background-color': 'rgb(78, 161, 216)' });
+      // document.getElementById(keycode).style.backgroundColor = 'rgb(78, 161, 216)';
+      $('#' + keycode).css({ 'background-color': 'rgb(78, 161, 216)' });
     }
     return;
   }
-  if (event.which == 32) {
+  if (keycode == 32 || keycode == 13) {
     $('#49').css({ 'background-color': 'rgb(78, 161, 216)' });
     return;
   }
-  if (autoSelect) {
-    $('#49').mouseup();
+  const inputKeys = [39, 44, 45, 46, 47, 59, 61, 91, 92, 93, 96];
+  if (autoSelect && !(keycode >= 48 && keycode <= 57)) {
+    const validKey = 0;
+    inputKeys.map(k => {
+      keycode == k ? null : validKey + 1;
+    });
+    if (validKey == 0) {
+      console.log(validKey);
+      $('#49').mouseup();
+    }
   }
 };
 

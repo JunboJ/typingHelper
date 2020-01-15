@@ -10,10 +10,13 @@ export const get_es = character => {
         N: ['Ñ'],
         o: ['ó'],
         O: ['Ó'],
-        u: ['ü'],
+        u: ['ü', 'ú'],
         U: ['Ü', 'Ú'],
         _q: ['¿'],
-        _e: ['¡']
+        _e: ['¡'],
+        _do: ['€'],
+        _bml: ['«'],
+        _bmr: ['»']
     }
 
     const letterSet = character => {
@@ -44,6 +47,12 @@ export const get_es = character => {
                 return es._e;
             case '?':
                 return es._q;
+            case '$':
+                return es._do;
+            case '<':
+                return es._bml;
+            case '>':
+                return es._bmr;
             default:
                 return null;
         }

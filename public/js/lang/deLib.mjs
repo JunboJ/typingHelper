@@ -7,7 +7,10 @@ export const get_de = character => {
         U: ['Ü'],
         u: ['ü'],
         s: ['ß'],
-        S: ['ẞ']
+        S: ['ẞ'],
+        _do: ['€'],
+        _bml: ['«'],
+        _bmr: ['»']
     }
 
     const letterSet = character => {
@@ -28,6 +31,12 @@ export const get_de = character => {
                 return de.s;
             case 'S':
                 return de.S;
+            case '$':
+                return es._do;
+            case '<':
+                return es._bml;
+            case '>':
+                return es._bmr;
             default:
                 return null;
         }
