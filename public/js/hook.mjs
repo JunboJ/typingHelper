@@ -41,12 +41,12 @@ $(document).ready(function () {
                 }
             };
             if (div) {
-                if (
-                    event.which == 37 ||
-                    event.which == 39
-                ) {
-                    run();
-                }
+                // if (
+                //     event.which == 37 ||
+                //     event.which == 39
+                // ) {
+                //     run();
+                // }
             } else {
                 if (
                     event.which == 37 ||
