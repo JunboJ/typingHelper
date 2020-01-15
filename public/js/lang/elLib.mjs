@@ -125,6 +125,10 @@ export const get_el = character => {
                 return el.p;
             case 'P':
                 return el.P;
+            case 'q':
+                return el.q;
+            case 'Q':
+                return el.Q;
             case 'r':
                 return el.r;
             case 'R':
