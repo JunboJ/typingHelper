@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Writing System</title>
-    <link rel="stylesheet" type="text/css" href="public/css/helperDiv.css">
-    <link rel="stylesheet" href="public/css/all.css">
+    <link rel="stylesheet" type="text/css" href="css/helperDiv.css">
+    <link rel="stylesheet" href="css/all.css">
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
         // Load the Google Transliterate API
@@ -40,8 +40,13 @@
     <h2>Google undocumented API (For Chinese only) : </h2>
     <div>
         <h3>Language switch: </h3>
-        <label class="check-container">Chinese
+        <label class="check-container">English
             <input class="tempLangSwitch-1" name="lang-1" type="radio" checked>
+            <input class="langCode" type="hidden" value="en">
+            <span class="checkmark"></span>
+        </label>
+        <label class="check-container">Chinese
+            <input class="tempLangSwitch-1" name="lang-1" type="radio">
             <input class="langCode" type="hidden" value="zh">
             <span class="checkmark"></span>
         </label>
@@ -68,6 +73,11 @@
         <label class="check-container">Greek
             <input class="tempLangSwitch-1" name="lang-1" type="radio">
             <input class="langCode" type="hidden" value="el">
+            <span class="checkmark"></span>
+        </label>
+        <label class="check-container">Indonesian
+            <input class="tempLangSwitch-1" name="lang-1" type="radio">
+            <input class="langCode" type="hidden" value="en">
             <span class="checkmark"></span>
         </label>
     </div>
@@ -138,7 +148,7 @@
     </div> -->
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script type="module" src="public/js/hook.mjs"></script>
+    <script type="module" src="js/hook.mjs"></script>
     <!-- <script src="/js/azuretl.js"></script> -->
 </body>
 

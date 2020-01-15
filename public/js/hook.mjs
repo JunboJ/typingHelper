@@ -18,11 +18,9 @@ $(document).ready(function () {
         };
 
         const eventHandler = event => {
-            console.log('input event');
-
-            // setTimeout(() => {
+            if (language != 'en') {
                 writingHelper(element, language);
-            // }, 200);
+            }
         };
 
         const keyDownEventHandler = event => {
@@ -35,19 +33,31 @@ $(document).ready(function () {
         }
 
         const arrowKeyEventHandler = event => {
-            if (
-                event.which == 37 ||
-                event.which == 38 ||
-                event.which == 39 ||
-                event.which == 40
-            ) {
+            const div = getHelperDiv();
+            const run = () => {
                 console.log(event.which);
-                setTimeout(() => {
+                if (language != 'en') {
                     writingHelper(element, language);
-                }, 100);
+                }
+            };
+            if (div) {
+                if (
+                    event.which == 37 ||
+                    event.which == 39
+                ) {
+                    run();
+                }
+            } else {
+                if (
+                    event.which == 37 ||
+                    event.which == 38 ||
+                    event.which == 39 ||
+                    event.which == 40
+                ) {
+                    run();
+                }
             }
             if (event.which == 27) {
-                const div = getHelperDiv();
                 if (div) div.remove();
             }
         };
