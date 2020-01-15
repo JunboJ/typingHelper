@@ -9,6 +9,8 @@ let language = 'fr';
 let mode = 'test';
 let autoSelect = false;
 let helperDiv = $('.helperDiv')[0] ? $('.helperDiv')[0] : null;
+let pageNum = 0;
+let highlightOption = 49;
 // get options from library
 const getOptions = (str, callback) => {
   if (str.length != 0) {
@@ -41,7 +43,7 @@ const getOptions = (str, callback) => {
         $.get("https://www.google.com/inputtools/request?ime=pinyin&ie=utf-8&oe=utf-8&app=translate&num=10&text=" + str, function (data, status) {
           if (data[0] === "SUCCESS") {
             console.log(data);
-            
+
             const result = {
               resultString: str,
               partEnd: str.length,
@@ -69,8 +71,8 @@ const closeBtnMouseDownHandler = event => {
 
 const closeBtnClickedHandler = event => {
   if (event.elements.helperDiv) event.elements.helperDiv.remove();
-  event.elements.input.off('keyup', keyupEventHandler);
-  event.elements.input.off('keydown', keydownEventHandler);
+  event.elements.input.off('.basicKeyEvents');
+  event.elements.input.off('.basicKeyEvents');
 };
 
 const keyValidityCheck = keycode => {
@@ -94,11 +96,13 @@ const keyupEventHandler = event => {
       event.preventDefault();
       // console.log(`#${keycode}`);
       $(`#${keycode}`).mouseup();
+      $('body').off('.basicKeyEvents');
     }
   }
   if (keycode == 32 || keycode == 13) {
     event.preventDefault();
-    $('#49').mouseup();
+    $('#' + highlightOption).mouseup();
+    $('body').off('.basicKeyEvents');
   }
 };
 const keydownEventHandler = event => {
@@ -116,7 +120,29 @@ const keydownEventHandler = event => {
   // space key and enter key pressed
   if (keycode == 32 || keycode == 13) {
     event.preventDefault();
-    $('#49').css({ 'background-color': 'rgb(78, 161, 216)' });
+    $('#' + highlightOption).css({ 'background-color': 'rgb(78, 161, 216)' });
+    return;
+  }
+
+  if (keycode == 38) {
+    event.preventDefault();
+    if (highlightOption - 49 > 0) {
+      highlightOption = highlightOption - 1;
+      setHighlight(highlightOption);
+    }
+    // console.log(highlightOption);
+    return;
+  }
+
+  if (keycode == 40) {
+    event.preventDefault();
+    // console.log(event.pages[pageNum][1]);
+    if (highlightOption - 49 < event.pages[pageNum][1]) {
+      highlightOption = highlightOption + 1;
+      setHighlight(highlightOption);
+    }
+    console.log(highlightOption);
+    // console.log(event.pages + '/' + pageNum + '/' + event.pages[pageNum][1] + '/' + highlightOption);
     return;
   }
 
@@ -154,8 +180,8 @@ const settingBtnClickedHandler = event => {
 // remove helperDiv function
 const removeHelper = (helperDiv, input) => {
   helperDiv.remove();
-  input.off('keyup', keyupEventHandler);
-  input.off('keydown', keydownEventHandler);
+  input.off('.basicKeyEvents');
+  input.off('.basicKeyEvents');
 };
 
 // setting drop down list active function
@@ -169,8 +195,6 @@ const createDropdown = () => {
   return menu;
 };
 
-let pageNum = 0;
-
 // helper content creating function
 const createOptions = (
   helperDiv,
@@ -183,6 +207,7 @@ const createOptions = (
   mode = 'new'
 ) => {
   $(helperContent).empty();
+  highlightOption = 49;
   if (mode == 'new') pageNum = 0;
   if (mode == 'pageChange') { };
   const inputHtml = input[0];
@@ -216,7 +241,7 @@ const mapOptionToBtn = (
   input
 ) => {
   const start = pages[pageNum][0];
-  const end = pages[pageNum][1];
+  const end = pages[pageNum][1] + 1;
   console.log(pageNum + '/' + start + '/' + end);
 
   if (helperContent) {
@@ -259,16 +284,18 @@ const mapOptionToBtn = (
         }
         mouseUpHandler(event);
       });
-      input.on('keydown', event => {
-        keydownEventHandler(event);
-      });
-      input.on('keyup', event => {
-        keyupEventHandler(event);
-      });
 
+      // default option highlight
+      setHighlight();
     });
   }
 };
+
+// selection highlight
+const setHighlight = (option = 49) => {
+  $('.helperOptions').css({ 'background-color': 'white' });
+  $('#' + option).css({ 'background-color': 'rgb(78, 161, 216)' });
+}
 
 // pagination event handlers
 const prevPageEventHandler = (event, callback) => {
@@ -295,7 +322,7 @@ const nextPageEventHandler = (event, callback) => {
       callback();
     }
   }
-}
+};
 
 // add click event listener
 const mouseDownHandler = event => {
@@ -494,6 +521,8 @@ export const writingHelper = (input, lang) => {
         let helperContent = $('.helperContent')[0] || null;
 
         if (helperDiv === null) {
+          console.log('new helper Div');
+          
           helperDiv = document.createElement('div');
           helperDiv.className = 'helperDiv';
           inputParent.append(helperDiv);
@@ -565,12 +594,16 @@ export const writingHelper = (input, lang) => {
 
           // setting button
           const settingBtn = document.createElement('button');
-          settingBtn.className = 'setttingBtn';
+          settingBtn.className = 'settingBtn';
           settingBtn.innerHTML = '<i class="fas fa-cog"></i>';
           btnSet.appendChild(settingBtn);
           $(settingBtn).on('mousedown', (event) => {
             event.elements = { input: input };
-            settingBtnClickedHandler(event)
+            settingBtnClickedHandler(event);
+            input.focus();
+          });
+          $(settingBtn).on('mouseup', (event) => {
+            input.focus();
           });
 
           // closeBtn 
@@ -599,8 +632,14 @@ export const writingHelper = (input, lang) => {
 
           // add key press event listener
           const basicKeyEventListener = () => {
-            input.on('keyup', keyupEventHandler);
-            input.on('keydown', keydownEventHandler);
+            input.on('keyup.basicKeyEvents', event => {
+              event.pages = pages;
+              keyupEventHandler(event);
+            });
+            input.on('keydown.basicKeyEvents', event => {
+              event.pages = pages;
+              keydownEventHandler(event);
+            });
             if (mode !== 'test') {
               input.one("blur", event => {
                 event.elements = {

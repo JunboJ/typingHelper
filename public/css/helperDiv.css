@@ -63,7 +63,7 @@
     -webkit-transition: background-color 0.4s, color 0.4s;
 }
 
-.setttingBtn {
+.settingBtn {
     background-color: white;
     border: none;
     width: auto;
@@ -131,13 +131,13 @@
     outline: none;
 }
 
-.setttingBtn:hover {
+.settingBtn:hover {
     cursor: pointer;
     color: #343a40;
     background-color: #ececec;
 }
 
-.setttingBtn:focus {
+.settingBtn:focus {
     cursor: pointer;
     color: #343a40;
     outline: none;
