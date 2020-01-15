@@ -18,11 +18,9 @@ $(document).ready(function () {
         };
 
         const eventHandler = event => {
-            console.log('input event');
-
-            // setTimeout(() => {
+            if (language != 'en') {
                 writingHelper(element, language);
-            // }, 200);
+            }
         };
 
         const keyDownEventHandler = event => {
@@ -42,9 +40,11 @@ $(document).ready(function () {
                 event.which == 40
             ) {
                 console.log(event.which);
-                setTimeout(() => {
-                    writingHelper(element, language);
-                }, 100);
+                if (language != 'en') {
+                    setTimeout(() => {
+                        writingHelper(element, language);
+                    }, 100);
+                }
             }
             if (event.which == 27) {
                 const div = getHelperDiv();
