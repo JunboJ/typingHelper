@@ -37,24 +37,25 @@ const getOptions = (str, callback) => {
         break;
       case 'zh':
         autoSelect = false;
-        // if (get_zh(str)) {
-        //   result = get_zh(str) || null;
-        // }
-        $.get("https://www.google.com/inputtools/request?ime=pinyin&ie=utf-8&oe=utf-8&app=translate&num=10&text=" + str, function (data, status) {
-          if (data[0] === "SUCCESS") {
-            console.log(data);
+        if (get_zh(str)) {
+          const result = get_zh(str) || null;
+          callback(result);
+        }
+        // $.get("https://www.google.com/inputtools/request?ime=pinyin&ie=utf-8&oe=utf-8&app=translate&num=10&text=" + str, function (data, status) {
+        //   if (data[0] === "SUCCESS") {
+        //     console.log(data);
 
-            const result = {
-              resultString: str,
-              partEnd: str.length,
-              result: data[1][0][1],
-              strL: str.length
-            }
-            callback(result);
-          } else {
-            return null;
-          }
-        });
+        //     const result = {
+        //       resultString: str,
+        //       partEnd: str.length,
+        //       result: data[1][0][1],
+        //       strL: str.length
+        //     }
+        //     callback(result);
+        //   } else {
+        //     return null;
+        //   }
+        // });
         break;
       default:
         return null;
@@ -116,6 +117,17 @@ const keydownEventHandler = event => {
       $('#' + keycode).css({ 'background-color': 'rgb(78, 161, 216)' });
     }
     return;
+  }
+
+
+  if (keycode == 189) {
+    event.preventDefault();
+    $('#prevPageCtrl').mouseup();
+  }
+
+  if (keycode == 187) {
+    event.preventDefault();
+    $('#nextPageCtrl').mouseup();
   }
 
   // space key and enter key pressed
@@ -523,7 +535,7 @@ export const writingHelper = (input, lang) => {
 
         if (helperDiv === null) {
           console.log('new helper Div');
-          
+
           helperDiv = document.createElement('div');
           helperDiv.className = 'helperDiv';
           inputParent.append(helperDiv);
