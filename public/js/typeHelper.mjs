@@ -77,7 +77,7 @@ const closeBtnClickedHandler = event => {
 
 const keyValidityCheck = keycode => {
   // console.log(keycode);
-  const inputKeys = [192, 189, 187, 219, 221, 220, 186, 222, 188, 190, 191];
+  const inputKeys = [192, 219, 221, 220, 186, 222, 188, 190, 191];
   if (autoSelect && !(keycode >= 48 && keycode <= 57) && !(keycode >= 65 && keycode <= 90)) {
     const valid = inputKeys.includes(keycode);
     return valid;
@@ -105,6 +105,7 @@ const keyupEventHandler = event => {
     $('body').off('.basicKeyEvents');
   }
 };
+
 const keydownEventHandler = event => {
   let keycode = event.which || event.keyCode;
   // console.log(`#${keycode}`);
@@ -554,6 +555,7 @@ export const writingHelper = (input, lang) => {
             // page up button
             const prevPage = document.createElement('button');
             prevPage.className = 'pageCtrl';
+            prevPage.id = 'prevPageCtrl';
             prevPage.innerHTML = '<i class="fas fa-caret-left"></i>';
             pageCtrl.append(prevPage);
             $(prevPage).on('mousedown', (event) => {
@@ -574,6 +576,7 @@ export const writingHelper = (input, lang) => {
             // page down button
             const nextPage = document.createElement('button');
             nextPage.className = 'pageCtrl';
+            nextPage.id = 'nextPageCtrl';
             nextPage.innerHTML = '<i class="fas fa-caret-right"></i>';
             pageCtrl.append(nextPage);
             $(nextPage).on('mousedown', (event) => {

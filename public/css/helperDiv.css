@@ -112,7 +112,7 @@
 
 .helperOptions:hover {
     cursor: pointer;
-    background-color: rgb(78, 161, 216);
+    background-color: rgb(78, 161, 216) !important;
 }
 
 .helperCloseBtn:hover {
