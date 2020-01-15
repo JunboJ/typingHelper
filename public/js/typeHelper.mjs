@@ -106,6 +106,7 @@ const keyupEventHandler = event => {
     $('body').off('.basicKeyEvents');
   }
 };
+
 const keydownEventHandler = event => {
   let keycode = event.which || event.keyCode;
   // console.log(`#${keycode}`);
@@ -118,7 +119,15 @@ const keydownEventHandler = event => {
     return;
   }
 
-  // next/prev page navigation
+  if (keycode == 189) {
+    event.preventDefault();
+    $('#prevPageCtrl').mouseup();
+  }
+
+  if (keycode == 187) {
+    event.preventDefault();
+    $('#nextPageCtrl').mouseup();
+  }
 
   // space key and enter key pressed
   if (keycode == 32 || keycode == 13) {
@@ -525,7 +534,7 @@ export const writingHelper = (input, lang) => {
 
         if (helperDiv === null) {
           console.log('new helper Div');
-          
+
           helperDiv = document.createElement('div');
           helperDiv.className = 'helperDiv';
           inputParent.append(helperDiv);
@@ -557,6 +566,7 @@ export const writingHelper = (input, lang) => {
             // page up button
             const prevPage = document.createElement('button');
             prevPage.className = 'pageCtrl';
+            prevPage.id = 'prevPageCtrl';
             prevPage.innerHTML = '<i class="fas fa-caret-left"></i>';
             pageCtrl.append(prevPage);
             $(prevPage).on('mousedown', (event) => {
@@ -577,6 +587,7 @@ export const writingHelper = (input, lang) => {
             // page down button
             const nextPage = document.createElement('button');
             nextPage.className = 'pageCtrl';
+            nextPage.id = 'nextPageCtrl';
             nextPage.innerHTML = '<i class="fas fa-caret-right"></i>';
             pageCtrl.append(nextPage);
             $(nextPage).on('mousedown', (event) => {
