@@ -137,22 +137,29 @@ const keydownEventHandler = event => {
     return;
   }
 
-  if (keycode == 38) {
-    event.preventDefault();
+  if (keycode == 37) {
     if (highlightOption - 49 > 0) {
+      event.preventDefault();
       highlightOption = highlightOption - 1;
       setHighlight(highlightOption);
+    } else {
+      if (pageNum > 0) {
+        event.preventDefault();
+        $('#prevPageCtrl').mouseup();
+      }
     }
     // console.log(highlightOption);
     return;
   }
 
-  if (keycode == 40) {
-    event.preventDefault();
-    // console.log(event.pages[pageNum][1]);
-    if (highlightOption - 49 < event.pages[pageNum][1]) {
+  if (keycode == 39) {
+    if (highlightOption - 49 < (event.pages[pageNum][1] - event.pages[pageNum][0])) {
+      event.preventDefault();
       highlightOption = highlightOption + 1;
       setHighlight(highlightOption);
+    } else {
+      event.preventDefault();
+      $('#nextPageCtrl').mouseup();
     }
     console.log(highlightOption);
     // console.log(event.pages + '/' + pageNum + '/' + event.pages[pageNum][1] + '/' + highlightOption);

@@ -102,6 +102,18 @@
     -webkit-transition: background-color 0.15s;
 }
 
+@-moz-document url-prefix() {
+    .helperOptions {
+        padding: 2px 5px 2px 4px;
+    }
+    .settingBtn {
+        padding-bottom: 3px;
+    }
+    .helperCloseBtn {
+        padding-bottom: 3px;
+    }
+}
+
 .helperOptions-top:nth-child(1) {
     border-radius: 0.7rem 0 0 0;
 }
