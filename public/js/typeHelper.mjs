@@ -6,7 +6,7 @@ import { get_it } from './lang/itLib.mjs';
 import { get_el } from './lang/elLib.mjs';
 
 let language = 'fr';
-let mode = 'test';
+let mode = '';
 let autoSelect = false;
 let helperDiv = $('.helperDiv')[0] ? $('.helperDiv')[0] : null;
 let pageNum = 0;
@@ -37,24 +37,25 @@ const getOptions = (str, callback) => {
         break;
       case 'zh':
         autoSelect = false;
-        // if (get_zh(str)) {
-        //   result = get_zh(str) || null;
-        // }
-        $.get("https://www.google.com/inputtools/request?ime=pinyin&ie=utf-8&oe=utf-8&app=translate&num=10&text=" + str, function (data, status) {
-          if (data[0] === "SUCCESS") {
-            console.log(data);
+        if (get_zh(str)) {
+          const result = get_zh(str) || null;
+          callback(result);
+        }
+        // $.get("https://www.google.com/inputtools/request?ime=pinyin&ie=utf-8&oe=utf-8&app=translate&num=10&text=" + str, function (data, status) {
+        //   if (data[0] === "SUCCESS") {
+        //     console.log(data);
 
-            const result = {
-              resultString: str,
-              partEnd: str.length,
-              result: data[1][0][1],
-              strL: str.length
-            }
-            callback(result);
-          } else {
-            return null;
-          }
-        });
+        //     const result = {
+        //       resultString: str,
+        //       partEnd: str.length,
+        //       result: data[1][0][1],
+        //       strL: str.length
+        //     }
+        //     callback(result);
+        //   } else {
+        //     return null;
+        //   }
+        // });
         break;
       default:
         return null;
@@ -77,7 +78,7 @@ const closeBtnClickedHandler = event => {
 
 const keyValidityCheck = keycode => {
   // console.log(keycode);
-  const inputKeys = [192, 189, 187, 219, 221, 220, 186, 222, 188, 190, 191];
+  const inputKeys = [192, 219, 221, 220, 186, 222, 188, 190, 191];
   if (autoSelect && !(keycode >= 48 && keycode <= 57) && !(keycode >= 65 && keycode <= 90)) {
     const valid = inputKeys.includes(keycode);
     return valid;
@@ -116,6 +117,8 @@ const keydownEventHandler = event => {
     }
     return;
   }
+
+  // next/prev page navigation
 
   // space key and enter key pressed
   if (keycode == 32 || keycode == 13) {
