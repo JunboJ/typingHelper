@@ -103,11 +103,15 @@ const keyupEventHandler = event => {
   }
   if (keycode == 32 || keycode == 13) {
     console.log(highlightOption);
-    if (highlightOption != 49) {
+    if (language == 'el') {
       event.preventDefault();
       $('#' + highlightOption).mouseup();
     }
     if ((language == 'de' || language == 'es' || language == 'fr' || language == 'it') && highlightOption == 49) { }
+    if (highlightOption != 49) {
+      event.preventDefault();
+      $('#' + highlightOption).mouseup();
+    }
   }
 };
 
@@ -135,7 +139,6 @@ const keydownEventHandler = event => {
   // space key and enter key pressed
   if (keycode == 32 || keycode == 13) {
     console.log(language);
-
     if ((language == 'de' || language == 'es' || language == 'fr' || language == 'it') && highlightOption == 49) {
       console.log('add a space!!!');
       return;
