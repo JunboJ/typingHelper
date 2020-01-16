@@ -73,7 +73,6 @@ const closeBtnMouseDownHandler = event => {
 const closeBtnClickedHandler = event => {
   if (event.elements.helperDiv) event.elements.helperDiv.remove();
   event.elements.input.off('.basicKeyEvents');
-  event.elements.input.off('.basicKeyEvents');
 };
 
 const keyValidityCheck = keycode => {
@@ -98,18 +97,22 @@ const keyupEventHandler = event => {
       // console.log(`#${keycode}`);
       $(`#${keycode}`).mouseup();
       $('body').off('.basicKeyEvents');
+      event.input.off('.basicKeyEvents');
+      event.helperDiv.remove();
     }
   }
   if (keycode == 32 || keycode == 13) {
-    event.preventDefault();
-    $('#' + highlightOption).mouseup();
-    $('body').off('.basicKeyEvents');
+    console.log(highlightOption);
+    if (highlightOption != 49) {
+      event.preventDefault();
+      $('#' + highlightOption).mouseup();
+    }
+    if ((language == 'de' || language == 'es' || language == 'fr' || language == 'it') && highlightOption == 49) { }
   }
 };
 
 const keydownEventHandler = event => {
   let keycode = event.which || event.keyCode;
-  // console.log(`#${keycode}`);
   // number key pressed
   if (event.shiftKey === false && keycode >= 48 && keycode <= 57) {
     if (document.getElementById(keycode)) {
@@ -118,7 +121,6 @@ const keydownEventHandler = event => {
     }
     return;
   }
-
 
   if (keycode == 189) {
     event.preventDefault();
@@ -132,33 +134,41 @@ const keydownEventHandler = event => {
 
   // space key and enter key pressed
   if (keycode == 32 || keycode == 13) {
-    event.preventDefault();
-    $('#' + highlightOption).css({ 'background-color': 'rgb(78, 161, 216)' });
-    return;
+    console.log(language);
+
+    if ((language == 'de' || language == 'es' || language == 'fr' || language == 'it') && highlightOption == 49) {
+      console.log('add a space!!!');
+      return;
+    } else {
+      event.preventDefault();
+      $('#' + highlightOption).css({ 'background-color': 'rgb(78, 161, 216)' });
+    }
   }
 
-  if (keycode == 37) {
+  if (keycode == 38) {
+    event.preventDefault();
     if (highlightOption - 49 > 0) {
-      event.preventDefault();
+      // event.preventDefault();
       highlightOption = highlightOption - 1;
       setHighlight(highlightOption);
     } else {
-      if (pageNum > 0) {
-        event.preventDefault();
-        $('#prevPageCtrl').mouseup();
-      }
+      // if (pageNum > 0) {
+      // event.preventDefault();
+      $('#prevPageCtrl').mouseup();
+      // }
     }
     // console.log(highlightOption);
     return;
   }
 
-  if (keycode == 39) {
+  if (keycode == 40) {
+    event.preventDefault();
     if (highlightOption - 49 < (event.pages[pageNum][1] - event.pages[pageNum][0])) {
-      event.preventDefault();
+      // event.preventDefault();
       highlightOption = highlightOption + 1;
       setHighlight(highlightOption);
     } else {
-      event.preventDefault();
+      // event.preventDefault();
       $('#nextPageCtrl').mouseup();
     }
     console.log(highlightOption);
@@ -200,7 +210,6 @@ const settingBtnClickedHandler = event => {
 // remove helperDiv function
 const removeHelper = (helperDiv, input) => {
   helperDiv.remove();
-  input.off('.basicKeyEvents');
   input.off('.basicKeyEvents');
 };
 
@@ -346,16 +355,18 @@ const nextPageEventHandler = (event, callback) => {
 
 // add click event listener
 const mouseDownHandler = event => {
-  event.stopPropagation();
   event.muAssets.input.off('blur');
+  event.stopPropagation();
 };
 
 const mouseUpHandler = event => {
+  event.muAssets.input.off('blur');
+  event.stopPropagation();
   const inputHtml = event.muAssets.input[0];
   let wordStart, wordEnd, newString;
   if (event.muAssets.cursorStart == event.muAssets.cursorEnd) {
     wordStart = event.muAssets.cursorStart - event.muAssets.options.strL;
-    wordEnd = event.muAssets.cursorStart - event.muAssets.options.strL + event.muAssets.options.partEnd;
+    wordEnd = wordStart + event.muAssets.options.partEnd;
     newString = event.muAssets.inputString.slice(0, wordStart) + event.muAssets.char + event.muAssets.inputString.slice(wordEnd);
   } else {
     let selectedString = event.muAssets.inputString.slice(event.muAssets.cursorStart, event.muAssets.cursorEnd);
@@ -364,7 +375,7 @@ const mouseUpHandler = event => {
   }
   inputHtml.value = newString;
   removeHelper(event.muAssets.helperDiv, event.muAssets.input);
-  inputHtml.click();
+  // event.muAssets.input.focus();
 }
 
 const getInputSL = inputHtml => {
@@ -656,6 +667,8 @@ export const writingHelper = (input, lang) => {
           const basicKeyEventListener = () => {
             input.on('keyup.basicKeyEvents', event => {
               event.pages = pages;
+              event.helperDiv = helperDiv;
+              event.input = input;
               keyupEventHandler(event);
             });
             input.on('keydown.basicKeyEvents', event => {
