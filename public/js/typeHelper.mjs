@@ -103,7 +103,7 @@ const keyupEventHandler = event => {
   }
   if (keycode == 32 || keycode == 13) {
     console.log(highlightOption);
-    if (language == 'el') {
+    if (language == 'el' || language == 'zh') {
       event.preventDefault();
       $('#' + highlightOption).mouseup();
     }
