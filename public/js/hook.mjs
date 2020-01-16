@@ -18,18 +18,20 @@ $(document).ready(function () {
         };
 
         const eventHandler = event => {
+            console.log('input event');
             if (language != 'en') {
                 writingHelper(element, language);
+                return;
             }
         };
 
         const keyDownEventHandler = event => {
-            if (event.which == 32) {
-                const div = getHelperDiv();
-                if (div) {
-                    event.preventDefault();
-                }
-            }
+            // if (event.which == 32) {
+            //     const div = getHelperDiv();
+            //     if (div) {
+            //         event.preventDefault();
+            //     }
+            // }
         }
 
         const arrowKeyEventHandler = event => {
@@ -41,12 +43,12 @@ $(document).ready(function () {
                 }
             };
             if (div) {
-                // if (
-                //     event.which == 37 ||
-                //     event.which == 39
-                // ) {
-                //     run();
-                // }
+                if (
+                    event.which == 37 ||
+                    event.which == 39
+                ) {
+                    run();
+                }
             } else {
                 if (
                     event.which == 37 ||
@@ -64,8 +66,8 @@ $(document).ready(function () {
 
         element.on('click', eventHandler);
         element.on('keydown', keyDownEventHandler);
-        element.on('input', eventHandler);
         element.on('keyup', arrowKeyEventHandler);
+        element.on('input', eventHandler);
     });
 
     $('.tempLangSwitch-1').on('change', event => {
