@@ -36,9 +36,6 @@ const addLanguageCheckingList = () => {
 };
 
 $(document).ready(function () {
-    // const elements = $('.writingHelper');
-    // document.getElementsByClassName('writingHelper');
-    // let elementsArr = Array.from(elements);
     const buttonPosLeft = $('#changeLanguage_btn').offset().left;
     const buttonPosTop = $('#changeLanguage_btn').offset().top;
     const buttonWidth = $('#changeLanguage_btn').width();
