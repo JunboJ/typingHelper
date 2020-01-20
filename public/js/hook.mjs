@@ -1,11 +1,55 @@
 import { writingHelper } from './typeHelper.mjs';
 let language = null;
+
+const addLanguageCheckingList = () => {
+    const languages = ['de', 'el', 'en', 'es', 'fr', 'id', 'it', 'ja', 'zh']
+    const listWrapper = document.createElement('div');
+    listWrapper.className = 'listWrapper';
+    languages.forEach(lang => {
+        const langLabel = document.createElement('label');
+        langLabel.className = 'listItems';
+        langLabel.classList.add('check-container');
+
+        const langSwitch = document.createElement('input');
+        langSwitch.className = 'langSwitch';
+        langSwitch.name = 'lang';
+        langSwitch.type = 'radio';
+        if (lang == 'en') langSwitch.checked;
+
+        const langCode = document.createElement('input');
+        langCode.className = 'langCode';
+        langCode.type = 'hidden';
+        langCode.value = lang;
+
+        const mark = document.createElement('span');
+        mark.className = 'checkmark';
+
+        langLabel.appendChild(langSwitch);
+        langLabel.appendChild(langCode);
+        langLabel.appendChild(mark);
+
+        listWrapper.appendChild(langLabel);
+    });
+    return listWrapper;
+};
+
 $(document).ready(function () {
     // const elements = $('.writingHelper');
     // document.getElementsByClassName('writingHelper');
     // let elementsArr = Array.from(elements);
-
-    language = $('.tempLangSwitch-1:checked + .langCode').val();
+    const buttonPosLeft = $('#changeLanguage_btn').offset().left;
+    const buttonPosTop = $('#changeLanguage_btn').offset().top;
+    const langList = addLanguageCheckingList();
+    $(langList).css({
+        'left': buttonPosLeft, 
+        'top': buttonPosTop
+    });
+    $('#changeLanguage_btn').on('click', event => {
+        // const classCheck = $(langList).hasClass('listWrapper_off');
+        $(langList).toggleClass('listWrapper_off');
+        $(langList).toggleClass('listWrapper_on');
+    });
+    language = $('.langSwitch:checked + .langCode').val();
     console.log(language);
     $('.writingHelper').each(function (index, object) {
         // elementsArr.forEach(element => {
@@ -40,7 +84,7 @@ $(document).ready(function () {
                 writingHelper(element, language);
             }
         };
-        
+
         const arrowKeyEventHandler = event => {
             const div = getHelperDiv();
             if (div) {

@@ -245,3 +245,16 @@
     -ms-transform: rotate(45deg);
     transform: rotate(45deg);
 }
+
+.listWrapper {
+    position: fixed;
+}
+
+.listWrapper_off {
+    display: none;
+}
+
+.listWrapper_on {
+    display: flex;
+    flex-flow: column;
+}
