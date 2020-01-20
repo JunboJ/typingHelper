@@ -10,28 +10,29 @@
     <link rel="stylesheet" href="css/all.css">
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
-        // Load the Google Transliterate API
-        google.load("elements", "1", {
-            packages: "transliteration"
-        });
+        // // Load the Google Transliterate API
+        // google.load("elements", "1", {
+        //     packages: "transliteration"
+        // });
 
-        function onLoad() {
-            var options = {
-                sourceLanguage: google.elements.transliteration.LanguageCode.ENGLISH,
-                destinationLanguage: [google.elements.transliteration.LanguageCode.CHINESE],
-                shortcutKey: 'ctrl+g',
-                transliterationEnabled: true
-            };
+        // function onLoad() {
+        //     var options = {
+        //         sourceLanguage: google.elements.transliteration.LanguageCode.ENGLISH,
+        //         destinationLanguage: [google.elements.transliteration.LanguageCode.CHINESE],
+        //         shortcutKey: 'ctrl+g',
+        //         transliterationEnabled: true
+        //     };
 
-            // Create an instance on TransliterationControl with the required
-            // options.
-            var control = new google.elements.transliteration.TransliterationControl(options);
+        //     // Create an instance on TransliterationControl with the required
+        //     // options.
+        //     var control = new google.elements.transliteration.TransliterationControl(options);
 
-            // Enable transliteration in the textbox with id
-            // 'transliterateTextarea'.
-            control.makeTransliteratable(['transliterateTextarea']);
-        }
-        google.setOnLoadCallback(onLoad);
+        //     // Enable transliteration in the textbox with id
+        //     // 'transliterateTextarea'.
+        //     control.makeTransliteratable(['transliterateTextarea']);
+        // }
+        // google.setOnLoadCallback(onLoad);
+        
     </script>
 </head>
 
@@ -45,7 +46,8 @@
             <input class="langCode" type="hidden" value="en">
             <span class="checkmark"></span>
         </label>
-        <label class="check-container">Chinese <!-- (Google undocumented API) -->
+        <label class="check-container">Chinese
+            <!-- (Google undocumented API) -->
             <input class="tempLangSwitch-1" name="lang-1" type="radio" disabled>
             <input class="langCode" type="hidden" value="zh">
             <span class="checkmark"></span>
@@ -150,6 +152,12 @@
     </div> -->
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+        // $.get('https://api.cognitive.microsofttranslator.com/languages?api-version=3.0', data => {
+        //     console.log(data);
+        // });
+        
+    </script>
     <script type="module" src="js/hook.mjs"></script>
     <!-- <script src="/js/azuretl.js"></script> -->
 </body>
