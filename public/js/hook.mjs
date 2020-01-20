@@ -2,24 +2,26 @@ import { writingHelper } from './typeHelper.mjs';
 let language = null;
 
 const addLanguageCheckingList = () => {
-    const languages = ['de', 'el', 'en', 'es', 'fr', 'id', 'it', 'ja', 'zh']
+    const languages = { 'de': 'German', 'el': 'Greek', 'en': 'English', 'es': 'Spanish', 'fr': 'French', 'id': 'Indonesian', 'it': 'Italian', 'ja': 'Japanese', 'zh': 'Chinese' }
     const listWrapper = document.createElement('div');
     listWrapper.className = 'listWrapper';
-    languages.forEach(lang => {
+    Object.keys(languages).map(code => {
         const langLabel = document.createElement('label');
         langLabel.className = 'listItems';
         langLabel.classList.add('check-container');
+        $(langLabel).css({'height':'1rem', 'margin':'0.5rem', });
+        langLabel.innerText = languages[code];
 
         const langSwitch = document.createElement('input');
         langSwitch.className = 'langSwitch';
         langSwitch.name = 'lang';
         langSwitch.type = 'radio';
-        if (lang == 'en') langSwitch.checked;
+        if (code === 'en') langSwitch.checked = true;
 
         const langCode = document.createElement('input');
         langCode.className = 'langCode';
         langCode.type = 'hidden';
-        langCode.value = lang;
+        langCode.value = code;
 
         const mark = document.createElement('span');
         mark.className = 'checkmark';
@@ -39,11 +41,22 @@ $(document).ready(function () {
     // let elementsArr = Array.from(elements);
     const buttonPosLeft = $('#changeLanguage_btn').offset().left;
     const buttonPosTop = $('#changeLanguage_btn').offset().top;
+    const buttonWidth = $('#changeLanguage_btn').width();
+    const buttonHeight = $('#changeLanguage_btn').height();
     const langList = addLanguageCheckingList();
+    $(langList).addClass('listWrapper_off');
+    const langListWidth = $(langList).width();
+    const langListHeight = $(langList).height();
+    console.log(langListHeight);
+    // const buttonLeft = Math.floor(buttonWidth - langListWidth);
+    const buttonTop = Math.floor(buttonPosTop - 300 - 5);
+    
     $(langList).css({
-        'left': buttonPosLeft, 
-        'top': buttonPosTop
+        'left': buttonPosLeft - 11,
+        'top': buttonTop
     });
+    $(langList).addClass('listWrapper_off');
+    document.body.appendChild(langList);
     $('#changeLanguage_btn').on('click', event => {
         // const classCheck = $(langList).hasClass('listWrapper_off');
         $(langList).toggleClass('listWrapper_off');
@@ -133,8 +146,8 @@ $(document).ready(function () {
         element.on('input', eventHandler);
     });
 
-    $('.tempLangSwitch-1').on('change', event => {
-        language = $('.tempLangSwitch-1:checked + .langCode').val();
+    $('.langSwitch').on('change', event => {
+        language = $('.langSwitch:checked + .langCode').val();
         console.log(language);
     });
 });
