@@ -26,12 +26,12 @@ $(document).ready(function () {
         };
 
         const keyDownEventHandler = event => {
-            if (event.which == 32) {
-                const div = getHelperDiv();
-                if (div) {
-                    event.preventDefault();
-                }
-            }
+            // if (event.which == 32) {
+            //     const div = getHelperDiv();
+            //     if (div) {
+            //         event.preventDefault();
+            //     }
+            // }
         }
 
         const run = () => {

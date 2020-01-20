@@ -99,6 +99,9 @@ const keyupEventHandler = event => {
       $('body').off('.basicKeyEvents');
       event.input.off('.basicKeyEvents');
       event.helperDiv.remove();
+      if (language == 'zh') {
+        writingHelper(event.input, language);
+      }
     }
   }
   if (keycode == 32 || keycode == 13) {
