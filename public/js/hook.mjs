@@ -26,22 +26,23 @@ $(document).ready(function () {
         };
 
         const keyDownEventHandler = event => {
-            // if (event.which == 32) {
-            //     const div = getHelperDiv();
-            //     if (div) {
-            //         event.preventDefault();
-            //     }
-            // }
+            if (event.which == 32) {
+                const div = getHelperDiv();
+                if (div) {
+                    event.preventDefault();
+                }
+            }
         }
 
+        const run = () => {
+            // console.log(event.which);
+            if (language != 'en') {
+                writingHelper(element, language);
+            }
+        };
+        
         const arrowKeyEventHandler = event => {
             const div = getHelperDiv();
-            const run = () => {
-                console.log(event.which);
-                if (language != 'en') {
-                    writingHelper(element, language);
-                }
-            };
             if (div) {
                 if (
                     event.which == 37 ||
@@ -64,9 +65,27 @@ $(document).ready(function () {
             }
         };
 
+        const spaceKeyUpEventHandler = event => {
+            if (language == 'zh') {
+                run();
+            }
+        };
+
         element.on('click', eventHandler);
         element.on('keydown', keyDownEventHandler);
-        element.on('keyup', arrowKeyEventHandler);
+        element.on('keyup', (event) => {
+            if (
+                event.which == 37 ||
+                event.which == 38 ||
+                event.which == 39 ||
+                event.which == 40
+            ) {
+                arrowKeyEventHandler(event);
+            }
+            if (event.which == 32) {
+                spaceKeyUpEventHandler(event);
+            }
+        });
         element.on('input', eventHandler);
     });
 

@@ -104,8 +104,9 @@ const keyupEventHandler = event => {
   if (keycode == 32 || keycode == 13) {
     console.log(highlightOption);
     if (language == 'el' || language == 'zh') {
-      event.preventDefault();
+      // event.preventDefault();
       $('#' + highlightOption).mouseup();
+      writingHelper(event.input, language);
     }
     if ((language == 'de' || language == 'es' || language == 'fr' || language == 'it') && highlightOption == 49) { }
     if (highlightOption != 49) {
