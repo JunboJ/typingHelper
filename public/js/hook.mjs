@@ -1,7 +1,7 @@
 import { writingHelper } from './typeHelper.mjs';
 let language = null;
 
-const addLanguageCheckingList = () => {
+const addLanguageCheckingList = textInput => {
     const languages = { 'de': 'German', 'el': 'Greek', 'en': 'English', 'es': 'Spanish', 'fr': 'French', 'id': 'Indonesian', 'it': 'Italian', 'ja': 'Japanese', 'zh': 'Chinese' }
     const listWrapper = document.createElement('div');
     listWrapper.className = 'listWrapper';
@@ -9,7 +9,7 @@ const addLanguageCheckingList = () => {
         const langLabel = document.createElement('label');
         langLabel.className = 'listItems';
         langLabel.classList.add('check-container');
-        $(langLabel).css({'height':'1rem', 'margin':'0.5rem', });
+        $(langLabel).css({ 'height': '1rem', 'margin': '0.5rem', });
         langLabel.innerText = languages[code];
 
         const langSwitch = document.createElement('input');
@@ -17,6 +17,12 @@ const addLanguageCheckingList = () => {
         langSwitch.name = 'lang';
         langSwitch.type = 'radio';
         if (code === 'en') langSwitch.checked = true;
+        $(langSwitch).on('change', () => {
+            setTimeout(() => {
+                $(listWrapper).toggleClass('listWrapper_off');
+                $(listWrapper).toggleClass('listWrapper_on');
+            }, 50);
+        });
 
         const langCode = document.createElement('input');
         langCode.className = 'langCode';
@@ -47,7 +53,7 @@ $(document).ready(function () {
     console.log(langListHeight);
     // const buttonLeft = Math.floor(buttonWidth - langListWidth);
     const buttonTop = Math.floor(buttonPosTop - 300 - 5);
-    
+
     $(langList).css({
         'left': buttonPosLeft - 11,
         'top': buttonTop
@@ -65,7 +71,7 @@ $(document).ready(function () {
         // elementsArr.forEach(element => {
         const element = $(this);
 
-        element.parent().css({ 'display': 'flex', 'flex-flow': 'column', 'width': 'inherit', 'position': 'relative', 'margin-left': '20px' });
+        element.parent().css({ 'display': 'flex', 'flex-flow': 'column', 'width': '100%', 'position': 'relative' });
 
         const getHelperDiv = () => {
             return $('.helperDiv')[0] || null;
@@ -145,6 +151,19 @@ $(document).ready(function () {
 
     $('.langSwitch').on('change', event => {
         language = $('.langSwitch:checked + .langCode').val();
-        console.log(language);
+        const inputElList = document.querySelectorAll('.writingHelper');
+        for (const inputEl of inputElList) {
+            if (language == 'ja') {
+                wanakana.bind(inputEl);
+                console.log('bind');
+            } else {
+                try {
+                    wanakana.unbind(inputEl);
+                    console.log('unbind');
+                } catch (error) {
+                    return;
+                }
+            }
+        }
     });
 });

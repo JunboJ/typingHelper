@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="css/helperDiv.css">
     <link rel="stylesheet" href="css/all.css">
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="js/lang/wanakana.min.js"></script>
     <script type="text/javascript">
         // // Load the Google Transliterate API
         // google.load("elements", "1", {
@@ -84,7 +85,7 @@
         </label>
     </div>
     <div>
-        <textarea class="writingHelper" style="width: 400px; height: 200px;"></textarea>
+        <textarea class="writingHelper" id="ja_ime" style="width: 400px; height: 200px;"></textarea>
     </div>
 
     <h2 class="title" style="position: fixed; right: 20px; top: 0;">Writing System Demo</h2>
@@ -156,7 +157,6 @@
         // $.get('https://api.cognitive.microsofttranslator.com/languages?api-version=3.0', data => {
         //     console.log(data);
         // });
-        
     </script>
     <script type="module" src="js/hook.mjs"></script>
     <!-- <script src="/js/azuretl.js"></script> -->
