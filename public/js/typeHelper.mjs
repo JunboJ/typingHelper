@@ -13,10 +13,8 @@ let pageNum = 0;
 let highlightOption = 49;
 // get options from library
 const getOptions = (str, callback) => {
-  // var textInput = document.getElementById('ja_ime');
   const reset = () => {
     autoSelect = false;
-    // wanakana.unbind(textInput);
     console.log('reset');
   }
   if (str.length != 0) {
