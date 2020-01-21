@@ -13,30 +13,36 @@ let pageNum = 0;
 let highlightOption = 49;
 // get options from library
 const getOptions = (str, callback) => {
+  // var textInput = document.getElementById('ja_ime');
+  const reset = () => {
+    autoSelect = false;
+    // wanakana.unbind(textInput);
+    console.log('reset');
+  }
   if (str.length != 0) {
     switch (language) {
       case 'de':
-        autoSelect = false;
+        reset();
         callback(get_de(str) || null);
         break;
       case 'es':
-        autoSelect = false;
+        reset();
         callback(get_es(str) || null);
         break;
       case 'fr':
-        autoSelect = false;
+        reset();
         callback(get_fr(str) || null);
         break;
       case 'it':
-        autoSelect = false;
+        reset();
         callback(get_it(str) || null);
         break;
       case 'el':
-        autoSelect = true;
+        reset();
         callback(get_el(str) || null);
         break;
       case 'zh':
-        autoSelect = false;
+        reset();
         if (get_zh(str)) {
           const result = get_zh(str) || null;
           callback(result);
@@ -57,6 +63,10 @@ const getOptions = (str, callback) => {
         //   }
         // });
         break;
+      case 'ja':
+        autoSelect = false;
+        // wanakana.bind(textInput);
+        break;
       default:
         return null;
     }
@@ -76,7 +86,6 @@ const closeBtnClickedHandler = event => {
 };
 
 const keyValidityCheck = keycode => {
-  // console.log(keycode);
   const inputKeys = [192, 219, 221, 220, 186, 222, 188, 190, 191];
   if (autoSelect && !(keycode >= 48 && keycode <= 57) && !(keycode >= 65 && keycode <= 90)) {
     const valid = inputKeys.includes(keycode);

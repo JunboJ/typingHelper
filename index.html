@@ -9,44 +9,46 @@
     <link rel="stylesheet" type="text/css" href="public/css/helperDiv.css">
     <link rel="stylesheet" href="public/css/all.css">
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="js/lang/wanakana.min.js"></script>
     <script type="text/javascript">
-        // Load the Google Transliterate API
-        google.load("elements", "1", {
-            packages: "transliteration"
-        });
+        // // Load the Google Transliterate API
+        // google.load("elements", "1", {
+        //     packages: "transliteration"
+        // });
 
-        function onLoad() {
-            var options = {
-                sourceLanguage: google.elements.transliteration.LanguageCode.ENGLISH,
-                destinationLanguage: [google.elements.transliteration.LanguageCode.CHINESE],
-                shortcutKey: 'ctrl+g',
-                transliterationEnabled: true
-            };
+        // function onLoad() {
+        //     var options = {
+        //         sourceLanguage: google.elements.transliteration.LanguageCode.ENGLISH,
+        //         destinationLanguage: [google.elements.transliteration.LanguageCode.CHINESE],
+        //         shortcutKey: 'ctrl+g',
+        //         transliterationEnabled: true
+        //     };
 
-            // Create an instance on TransliterationControl with the required
-            // options.
-            var control = new google.elements.transliteration.TransliterationControl(options);
+        //     // Create an instance on TransliterationControl with the required
+        //     // options.
+        //     var control = new google.elements.transliteration.TransliterationControl(options);
 
-            // Enable transliteration in the textbox with id
-            // 'transliterateTextarea'.
-            control.makeTransliteratable(['transliterateTextarea']);
-        }
-        google.setOnLoadCallback(onLoad);
+        //     // Enable transliteration in the textbox with id
+        //     // 'transliterateTextarea'.
+        //     control.makeTransliteratable(['transliterateTextarea']);
+        // }
+        // google.setOnLoadCallback(onLoad);
+
     </script>
 </head>
 
 <body class="container">
     <!-- 1 -->
     <!-- <h2>Google undocumented API (For Chinese only) : </h2> -->
-    <div>
+    <!-- <div>
         <h3>Language switch: </h3>
         <label class="check-container">English
             <input class="tempLangSwitch-1" name="lang-1" type="radio" checked>
             <input class="langCode" type="hidden" value="en">
             <span class="checkmark"></span>
         </label>
-        <label class="check-container">Chinese (Google undocumented API)
-            <input class="tempLangSwitch-1" name="lang-1" type="radio">
+        <label class="check-container">Chinese
+            <input class="tempLangSwitch-1" name="lang-1" type="radio" disabled>
             <input class="langCode" type="hidden" value="zh">
             <span class="checkmark"></span>
         </label>
@@ -80,16 +82,15 @@
             <input class="langCode" type="hidden" value="en">
             <span class="checkmark"></span>
         </label>
-    </div>
-    <div>
-        <textarea class="writingHelper" style="width: 400px; height: 200px;"></textarea>
+    </div> -->
+    <div style="margin-top: 60px; width: 100%;">
+        <textarea class="writingHelper" id="ja_ime" style="width: 400px; height: 200px; margin: auto;"></textarea>
     </div>
 
     <h2 class="title" style="position: fixed; right: 20px; top: 0;">Writing System Demo</h2>
     <!-- 2 -->
-    <div>
-        <!-- <h2>Google deprecated Text Transliterate API: </h2> -->
-        <!-- <div>
+    <!-- <h2>Google deprecated Text Transliterate API: </h2> -->
+    <!-- <div>
             <h3>Language switch: </h3>
             <label class="check-container">Chinese
                 <input class="tempLangSwitch-2" name="lang-2" type="radio" checked>
@@ -102,7 +103,6 @@
                 <span class="checkmark"></span>
             </label>
         </div> -->
-    </div>
     <!-- <div>
         <b>Type pinyin "zaoshanghao" (Good morning) / Romaji "kurumawokau" (buy a cart):</b>
         <form><textarea name="ta" rows="6" id="transliterateTextarea" cols="6"
@@ -132,10 +132,9 @@
         <input type="text" style="margin-top: 1rem; margin-left: 1rem;" class="azureTr">
         <button class="azureTrBtn" type="button">Submit</button>
     </div> -->
-    <div class="result">
-        <p class="resultArea"></p>
+    <div style="height: 300px;">
+        <button type="button" id="changeLanguage_btn" style="margin-left: 150px">Click</button>
     </div>
-    <div style="height: 300px;"></div>
     <!-- <div>
         <ul>
             <h3>Supported feature: </h3>
