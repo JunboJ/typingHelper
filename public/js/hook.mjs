@@ -17,7 +17,7 @@ const addLanguageCheckingList = textInput => {
         langSwitch.name = 'lang';
         langSwitch.type = 'radio';
         if (code === 'en') langSwitch.checked = true;
-        $(langSwitch).on('change', () => {
+        $(langSwitch).on('click', () => {
             setTimeout(() => {
                 $(listWrapper).toggleClass('listWrapper_off');
                 $(listWrapper).toggleClass('listWrapper_on');
@@ -85,15 +85,6 @@ $(document).ready(function () {
             }
         };
 
-        const keyDownEventHandler = event => {
-            // if (event.which == 32) {
-            //     const div = getHelperDiv();
-            //     if (div) {
-            //         event.preventDefault();
-            //     }
-            // }
-        }
-
         const run = () => {
             // console.log(event.which);
             if (language != 'en') {
@@ -125,14 +116,7 @@ $(document).ready(function () {
             }
         };
 
-        const spaceKeyUpEventHandler = event => {
-            if (language == 'zh') {
-                run();
-            }
-        };
-
         element.on('click', eventHandler);
-        element.on('keydown', keyDownEventHandler);
         element.on('keyup', (event) => {
             if (
                 event.which == 37 ||
@@ -142,28 +126,26 @@ $(document).ready(function () {
             ) {
                 arrowKeyEventHandler(event);
             }
-            if (event.which == 32) {
-                spaceKeyUpEventHandler(event);
-            }
         });
         element.on('input', eventHandler);
     });
 
     $('.langSwitch').on('change', event => {
         language = $('.langSwitch:checked + .langCode').val();
-        const inputElList = document.querySelectorAll('.writingHelper');
-        for (const inputEl of inputElList) {
-            if (language == 'ja') {
-                wanakana.bind(inputEl);
-                console.log('bind');
-            } else {
-                try {
-                    wanakana.unbind(inputEl);
-                    console.log('unbind');
-                } catch (error) {
-                    return;
-                }
-            }
-        }
+        // const inputElList = document.querySelectorAll('.writingHelper');
+        // for (const inputEl of inputElList) {
+        //     if (language == 'ja') {
+        //         wanakana.bind(inputEl);
+        //         console.log('bind');
+        //     } else {
+        //         try {
+        //             wanakana.unbind(inputEl);
+        //             console.log('unbind');
+        //         } catch (error) {
+        //             return;
+        //         }
+        //     }
+        // }
+        
     });
 });
