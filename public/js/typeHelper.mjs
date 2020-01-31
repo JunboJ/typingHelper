@@ -6,7 +6,7 @@ import { get_it } from './lang/itLib.mjs';
 import { get_el } from './lang/elLib.mjs';
 
 let language = 'fr';
-let mode = '';
+let mode = 'test';
 let autoSelect = false;
 let helperDiv = $('.helperDiv')[0] ? $('.helperDiv')[0] : null;
 let pageNum = 0;
@@ -47,21 +47,6 @@ const getOptions = (str, callback) => {
           const result = get_zh(str) || null;
           callback(result);
         }
-        // $.get("https://www.google.com/inputtools/request?ime=pinyin&ie=utf-8&oe=utf-8&app=translate&num=10&text=" + str, function (data, status) {
-        //   if (data[0] === "SUCCESS") {
-        //     console.log(data);
-
-        //     const result = {
-        //       resultString: str,
-        //       partEnd: str.length,
-        //       result: data[1][0][1],
-        //       strL: str.length
-        //     }
-        //     callback(result);
-        //   } else {
-        //     return null;
-        //   }
-        // });
         break;
       case 'ja':
         autoSelect = false;
@@ -86,6 +71,7 @@ const closeBtnClickedHandler = event => {
 };
 
 const keyValidityCheck = keycode => {
+  // console.log(keycode);
   const inputKeys = [192, 219, 221, 220, 186, 222, 188, 190, 191];
   if (autoSelect && !(keycode >= 48 && keycode <= 57) && !(keycode >= 65 && keycode <= 90)) {
     const valid = inputKeys.includes(keycode);
@@ -256,7 +242,7 @@ const createOptions = (
   if (mode == 'new') pageNum = 0;
   if (mode == 'pageChange') { };
   const inputHtml = input[0];
-  const inputString = inputHtml.value;
+  const inputString = getInputValue(inputHtml);
   let className = 'helperOptions';
   // map options to buttons
   if (options.result !== null) {
@@ -292,7 +278,7 @@ const mapOptionToBtn = (
   if (helperContent) {
     options.result.slice(start, end).map((char, index) => {
       let key = (index + 49);
-      console.log(index);
+      // console.log(index);
 
       // create options as buttons
       let helperOptions = document.createElement('button');
@@ -379,6 +365,7 @@ const mouseUpHandler = event => {
   event.muAssets.input.off('blur');
   event.stopPropagation();
   const inputHtml = event.muAssets.input[0];
+  const input_val = getInputValue(inputHtml);
   let wordStart, wordEnd, newString;
   if (event.muAssets.cursorStart == event.muAssets.cursorEnd) {
     wordStart = event.muAssets.cursorStart - event.muAssets.options.strL;
@@ -389,9 +376,36 @@ const mouseUpHandler = event => {
     let modifiedSelectedString = selectedString.replace(event.muAssets.options.resultString, event.muAssets.char);
     newString = event.muAssets.inputString.slice(0, event.muAssets.cursorStart) + modifiedSelectedString + event.muAssets.inputString.slice(event.muAssets.cursorEnd);
   }
-  inputHtml.value = newString;
+  input_val = newString;
   removeHelper(event.muAssets.helperDiv, event.muAssets.input);
   // event.muAssets.input.focus();
+}
+
+const getCaretPosition = editableDiv => {
+  var caretPos = 0,
+    sel, range;
+  if (window.getSelection) {
+    sel = window.getSelection();
+    console.log('getSelection: ', sel);
+    
+    if (sel.rangeCount) {
+      range = sel.getRangeAt(0);
+      if (range.commonAncestorContainer.parentNode == editableDiv) {
+        caretPos = range.endOffset;
+      }
+    }
+  } else if (document.selection && document.selection.createRange) {
+    range = document.selection.createRange();
+    if (range.parentElement() == editableDiv) {
+      var tempEl = document.createElement("span");
+      editableDiv.insertBefore(tempEl, editableDiv.firstChild);
+      var tempRange = range.duplicate();
+      tempRange.moveToElementText(tempEl);
+      tempRange.setEndPoint("EndToEnd", range);
+      caretPos = tempRange.text.length;
+    }
+  }
+  return caretPos;
 }
 
 const getInputSL = inputHtml => {
@@ -401,7 +415,7 @@ const getInputSL = inputHtml => {
   }
   // get the character under caret
   if (cursorStart == cursorEnd) cursorStart = cursorEnd == 0 ? 0 : (cursorStart - 1);
-  const inputString = inputHtml.value;
+  const inputString = getInputValue(inputHtml);
   const currentCharacter = inputString.slice(cursorStart, cursorEnd);
   // console.log(currentCharacter);
 
@@ -425,7 +439,8 @@ const getInputML = inputHtml => {
     start = cursorStart;
     end = cursorEnd;
   }
-  const inputString = inputHtml.value.slice(start, end);
+  const input_val = getInputValue(inputHtml);
+  const inputString = input_val.slice(start, end);
 
   // const patt = new RegExp('([a-zA-Z]*)', 'g');
   const patt = /([a-zA-Z]+)/gi;
@@ -460,24 +475,47 @@ const getInputML = inputHtml => {
   };
 };
 
+// get input value
+const getInputValue = element => {
+  if (element.tagName === 'DIV') {
+    let input_val = element.innerText;
+    return input_val;
+  } else {
+    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+      let input_val = element.value;
+      return input_val;
+    } else {
+      console.log('the element is invalid');
+      return false;
+    }
+  }
+}
+
 // default export function
 export const writingHelper = (input, lang) => {
+  const inputHtml = input[0];
+  const inputParent = input.parent();
+  const input_val = getInputValue(inputHtml);
+  console.log(input_val);
+  
+  let getCurrentCharacter;
+  console.log(input);
+  
   language = lang;
 
   helperDiv = $('.helperDiv')[0] ? $('.helperDiv')[0] : null;
 
-  const inputHtml = input[0];
-  const inputParent = input.parent();
 
-  let getCurrentCharacter;
 
   if (language === 'zh') {
     getCurrentCharacter = () => getInputML(inputHtml);
   } else {
     getCurrentCharacter = () => getInputSL(inputHtml);
   }
-  if (inputHtml.value) {
+  if (input_val) {
     var { currentCharacter, cursorStart, cursorEnd } = getCurrentCharacter();
+    console.log('cursorStart: ', cursorStart);
+    
   } else {
     var currentCharacter = null;
   }
@@ -519,7 +557,8 @@ export const writingHelper = (input, lang) => {
 
         // replace spaces in the textcontent
         const swap = '.';
-        const inputValue = inputHtml.tagName === 'INPUT' ? inputHtml.value.replace(/ /g, swap) : inputHtml.value;
+        const input_val = getInputValue(inputHtml);
+        const inputValue = inputHtml.tagName === 'INPUT' ? input_val.replace(/ /g, swap) : input_val;
         const textContent = inputValue.substr(0, cursorEnd).slice(0, -1);
 
         // assign content
@@ -536,6 +575,9 @@ export const writingHelper = (input, lang) => {
           offsetWidth: spanWidth,
           offsetHeight: spanHeight
         } = span;
+        const spany = $(span).offset().top;
+        console.log(spany);
+        
 
         // get position of clone div
         const {
@@ -560,6 +602,8 @@ export const writingHelper = (input, lang) => {
           offsetWidth: ipWidth,
           offsetHeight: ipHeight
         } = inputParent[0];
+        const ipy = $(inputParent[0]).offset().top;
+        console.log(ipy);
 
         // remove clone
         cloneField.remove();
@@ -568,7 +612,7 @@ export const writingHelper = (input, lang) => {
         let helperContent = $('.helperContent')[0] || null;
 
         if (helperDiv === null) {
-          console.log('new helper Div');
+          // console.log('new helper Div');
 
           helperDiv = document.createElement('div');
           helperDiv.className = 'helperDiv';
@@ -716,17 +760,19 @@ export const writingHelper = (input, lang) => {
         const windowHeight = window.innerHeight;
 
         // styling and positioning
-        let leftPosition = ipX + spanX - 16;
+        let leftPosition = spanX + 16;
+        // ipX + spanX - 16;
         let spanW = ipX + spanX + helperWidth;
         let topPosition = (cloneFieldHeight - helperHeight - spanHeight - 10);
-        let topToWindow = Math.abs(spanY - inputHeight - ipY);
+        
+        let topToWindow = Math.abs(spany);
         if (span.textContent !== '.') {
-          topToWindow = Math.abs(spanHeight - ipY);
+          topToWindow = Math.abs(spany);
         }
 
         const optionStyling = () => {
           if (topToWindow <= helperHeight) {
-            topPosition = (cloneFieldHeight);
+            // topPosition = (cloneFieldHeight);
             $('.helperDiv').addClass('helperDiv-bottom');
             $('.helperOptions').addClass('helperOptions-bottom');
             $('.helperDiv').removeClass('helperDiv-top');
@@ -739,6 +785,9 @@ export const writingHelper = (input, lang) => {
           }
         };
         optionStyling();
+
+        console.log(inputHtml.tagName);
+        
 
         if (inputHtml.tagName === 'INPUT') {
           // input field with full length string
@@ -758,8 +807,15 @@ export const writingHelper = (input, lang) => {
           }
         }
 
+        if (inputHtml.tagName === 'div') {
+          // full width text area
+          if (spanW >= windowWidth) {
+            leftPosition = windowWidth - helperWidth - ipX;
+          }
+        }
+
         helperDiv.style.left = `${leftPosition}px`;
-        helperDiv.style.top = `${topPosition}px`;
+        helperDiv.style.top = `${topPosition + 8}px`;
 
       } else {
         if (helperDiv !== null) {
