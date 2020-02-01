@@ -4,9 +4,7 @@ import { get_de } from './lang/deLib.mjs';
 import { get_es } from './lang/esLib.mjs';
 import { get_it } from './lang/itLib.mjs';
 import { get_el } from './lang/elLib.mjs';
-// import { toKana } from './lang/wanakana.min.js';
-console.log('wanakana: ', wanakana);
-
+import { get_ja } from './lang/jaLib.mjs';
 
 let language = 'fr';
 let mode = 'test';
@@ -53,7 +51,7 @@ const getOptions = (str, callback) => {
         break;
       case 'ja':
         autoSelect = false;
-        // wanakana.bind(textInput);
+        callback(get_ja(str) || null);
         break;
       default:
         return null;
@@ -104,7 +102,7 @@ const keyupEventHandler = event => {
   }
   if (keycode == 32 || keycode == 13) {
     console.log('highlight option: ', highlightOption);
-    if (language == 'el' || language == 'zh') {
+    if (language == 'el' || language == 'zh' || language == 'ja') {
       // event.preventDefault();
       $('#' + highlightOption).mouseup();
       writingHelper(event.input, language);
@@ -316,6 +314,8 @@ const mapOptionToBtn = (
           inputString: inputString,
           char: char
         }
+        console.log('event.muAssets: ', event.muAssets);
+        
         mouseUpHandler(event);
       });
 
@@ -368,10 +368,11 @@ const mouseUpHandler = event => {
   event.muAssets.input.off('blur');
   event.stopPropagation();
   const inputHtml = event.muAssets.input[0];
-  // let input_val = getInputValue(inputHtml);
   let wordStart, wordEnd, newString;
   if (event.muAssets.cursorStart == event.muAssets.cursorEnd) {
-    wordStart = event.muAssets.cursorStart - event.muAssets.options.strL;
+    // only japanese and Chinese have strL
+    let strLength = event.muAssets.options.strL || 0;
+    wordStart = event.muAssets.cursorStart - strLength;
     wordEnd = wordStart + event.muAssets.options.partEnd;
     newString = event.muAssets.inputString.slice(0, wordStart) + event.muAssets.char + event.muAssets.inputString.slice(wordEnd);
   } else {
@@ -542,7 +543,7 @@ export const writingHelper = (input, lang) => {
   }
   // get options from library
   let pages = [];
-  if (language !== 'ja') {
+  // if (language !== 'ja') {
     if (currentCharacter !== null) {
       getOptions(currentCharacter, (options) => {
         console.log('returned options: ', options);
@@ -848,14 +849,14 @@ export const writingHelper = (input, lang) => {
         removeHelper(helperDiv, input);
       }
     };
-  } else {
-    // setInputValue(inputHtml)
-    if (currentCharacter) {
-      console.log('current character: ', currentCharacter);
+  // } else {
+  //   // setInputValue(inputHtml)
+  //   if (currentCharacter) {
+  //     console.log('current character: ', currentCharacter);
 
-      const kanaStr = wanakana.toKana(currentCharacter);
-      console.log('kana string: ', kanaStr);
-    }
+  //     const kanaStr = wanakana.toKana(currentCharacter);
+  //     console.log('kana string: ', kanaStr);
+  //   }
 
-  }
+  // }
 };
