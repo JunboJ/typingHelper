@@ -181,7 +181,6 @@ const keydownEventHandler = event => {
 
   // other key check
   const valid = keyValidityCheck(keycode);
-  console.log(valid);
   if (valid) $('#49').mouseup();
 };
 
@@ -314,7 +313,7 @@ const mapOptionToBtn = (
           inputString: inputString,
           char: char
         }
-        console.log('event.muAssets: ', event.muAssets);
+        // console.log('event.muAssets: ', event.muAssets);
         
         mouseUpHandler(event);
       });
@@ -382,7 +381,7 @@ const mouseUpHandler = event => {
   }
   setInputValue(inputHtml, newString);
   removeHelper(event.muAssets.helperDiv, event.muAssets.input);
-  event.muAssets.input.focus();
+  setFocus(event.muAssets.input);
 }
 
 // const generateFinalResult = (cursorStart, cursorEnd, strLength, )
@@ -516,6 +515,26 @@ const setInputValue = (element, val) => {
   }
 }
 
+// focus on element function
+const setFocus = el => {
+  let element = el[0];
+  if (element.tagName === 'TEXTAREA' || element.tagName === 'INPUT') {
+    element.focus();
+  } else {
+    let stringNode = element.childNodes[0];
+    let stringLength = stringNode.length;
+    // console.log('set focus element: ', element);
+    let range = document.createRange();
+    let selection = window.getSelection();
+    range.setStart(stringNode, stringLength);
+    range.collapse(true);
+    console.log('range: ', stringNode);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    element.focus();
+  }
+}
+
 // default export function
 export const writingHelper = (input, lang) => {
   const inputHtml = input[0];
@@ -599,8 +618,6 @@ export const writingHelper = (input, lang) => {
             offsetHeight: spanHeight
           } = span;
           const spany = $(span).offset().top;
-          console.log(spany);
-
 
           // get position of clone div
           const {
@@ -626,7 +643,6 @@ export const writingHelper = (input, lang) => {
             offsetHeight: ipHeight
           } = inputParent[0];
           const ipy = $(inputParent[0]).offset().top;
-          console.log(ipy);
 
           // remove clone
           cloneField.remove();
@@ -680,7 +696,7 @@ export const writingHelper = (input, lang) => {
                 event.pages = pages;
                 console.log('prev');
                 prevPageEventHandler(event, () => {
-                  input.focus();
+                  setFocus(input);
                   createOptions(helperDiv, helperContent, options, input, cursorStart, cursorEnd, pages, 'pageChange');
                   optionStyling();
                 });
@@ -701,7 +717,7 @@ export const writingHelper = (input, lang) => {
                 event.pages = pages;
                 console.log('next');
                 nextPageEventHandler(event, () => {
-                  input.focus();
+                  setFocus(input);
                   createOptions(helperDiv, helperContent, options, input, cursorStart, cursorEnd, pages, 'pageChange');
                   optionStyling();
                 });
@@ -716,10 +732,10 @@ export const writingHelper = (input, lang) => {
             $(settingBtn).on('mousedown', (event) => {
               event.elements = { input: input };
               settingBtnClickedHandler(event);
-              input.focus();
+              setFocus(input);
             });
             $(settingBtn).on('mouseup', (event) => {
-              input.focus();
+              setFocus(input);
             });
 
             // closeBtn 
