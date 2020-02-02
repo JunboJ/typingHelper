@@ -39,7 +39,7 @@ const getOptions = (str, callback) => {
         callback(get_it(str) || null);
         break;
       case 'el':
-        reset();
+        autoSelect = true;
         callback(get_el(str) || null);
         break;
       case 'zh':
