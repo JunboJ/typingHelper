@@ -7,7 +7,7 @@ import { get_el } from './lang/elLib.mjs';
 import { get_ja } from './lang/jaLib.mjs';
 
 let language = 'fr';
-let mode = 'test';
+let mode = '';
 let autoSelect = false;
 let helperDiv = $('.helperDiv')[0] ? $('.helperDiv')[0] : null;
 let pageNum = 0;

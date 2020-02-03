@@ -6,10 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Writing System Demo</title>
-    <link rel="stylesheet" type="text/css" href="public/css/helperDiv.css">
-    <link rel="stylesheet" href="public/css/all.css">
+    <link rel="stylesheet" type="text/css" href="css/helperDiv.css">
+    <link rel="stylesheet" href="css/all.css">
+    <style>
+        .notes {
+            text-align: right;
+        }
+    </style>
     <!-- <script type="text/javascript" src="https://www.google.com/jsapi"></script> -->
-    <script type="text/javascript" src="public/js/lang/wanakana.min.js"></script>
+    <script type="text/javascript" src="js/lang/wanakana.min.js"></script>
     <script type="text/javascript">
         // // Load the Google Transliterate API
         // google.load("elements", "1", {
@@ -43,18 +48,25 @@
             <textarea class="writingHelper" id="ja_ime" style="width: 400px; height: 200px; margin: auto;"></textarea>
         </div>
         <div>
-            <div id="transcript" class="writingHelper" contentEditable="true" spellcheck="false" style="margin-left: 50px; width: 40%; border: 1px solid grey; font-size: 1rem;">this is editable</div>
+            <div id="transcript" class="writingHelper" contentEditable="true" spellcheck="false"
+                style="margin: auto; margin-top: 20px; width: 400px; border: 1px solid grey; font-size: 1rem;">this is
+                editable</div>
         </div>
 
+        <div style="height: auto; display: flex; justify-content: center; margin: 20px;">
+            <button type="button" id="changeLanguage_btn">Language Switch</button>
+        </div>
     </div>
 
-    <h2 class="title" style="position: fixed; right: 20px; top: 0;">Writing System Demo</h2>
-    <div style="height: 300px;">
-        <button type="button" id="changeLanguage_btn" style="margin-left: 150px">Language Switch</button>
+    <div style="position: fixed; right: 20px; top: 0;">
+        <h1>Writing System Demo</h1>
+        <h4 class="notes">Drop down menu in construction;</h4>
+        <h4 class="notes">Japanese: Romaji to Kana only;</h4>
+
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script type="module" src="public/js/hook.mjs"></script>
+    <script type="module" src="js/hook.mjs"></script>
 </body>
 
 </html>
