@@ -2,7 +2,7 @@ import { writingHelper } from './typeHelper.mjs';
 let language = null;
 
 const addLanguageCheckingList = textInput => {
-    const languages = { 'de': 'German', 'el': 'Greek', 'en': 'English', 'es': 'Spanish', 'fr': 'French', 'id': 'Indonesian', 'it': 'Italian', 'ja': 'Japanese', 'zh': 'Chinese' }
+    const languages = { 'de': 'German', 'el': 'Greek', 'en': 'English', 'es': 'Spanish', 'fr': 'French', 'id': 'Indonesian', 'it': 'Italian', /*'ja': 'Japanese',*/ 'zh': 'Chinese' }
     const listWrapper = document.createElement('div');
     listWrapper.className = 'listWrapper';
     Object.keys(languages).map(code => {
