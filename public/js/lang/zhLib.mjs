@@ -453,8 +453,9 @@ export const get_zh = str => {
   };
 
   let keysOnly = ["a", "e", "ai", "ei", "xi", "yi", "an", "han", "ang", "ao", "wa", "yu", "niu", "o", "ba", "pa", "pi", "bi", "bai", "bo", "bei", "ban", "pan", "bin", "bang", "pang", "beng", "bao", "bu", "pu", "mian", "po", "fan", "fu", "ben", "feng", "bian", "pian", "zhen", "biao", "piao", "huo", "bie", "min", "fen", "bing", "geng", "fang", "xian", "fou", "ca", "cha", "cai", "can", "shen", "cen", "san", "cang", "zang", "chen", "cao", "ce", "ze", "zhai", "dao", "ceng", "zha", "chai", "ci", "zi", "cuo", "chan", "shan", "zhan", "xin", "lian", "chang", "zhang", "chao", "zhao", "zhou", "che", "ju", "cheng", "rong", "sheng", "deng", "zhi", "zheng", "tang", "chi", "shi", "qi", "chuai", "tuo", "duo", "xue", "chong", "chou", "qiu", "xiu", "chu", "tuan", "zhui", "chuan", "zhuan", "yuan", "cuan", "chuang", "zhuang", "chui", "chun", "zhun", "cu", "dun", "qu", "xu", "chuo", "zu", "ji", "cong", "zong", "cou", "cui", "wei", "cun", "zuo", "zuan", "da", "dai", "tai", "ta", "dan", "lu", "tan", "ren", "jie", "yan", "dang", "tao", "tiao", "te", "de", "dei", "di", "ti", "tui", "you", "dian", "tian", "zhu", "nian", "diao", "yao", "die", "she", "ye", "xie", "zhe", "ding", "diu", "ting", "dong", "tong", "zhong", "dou", "du", "duan", "dui", "rui", "yue", "tun", "hui", "wu", "ya", "he", "wo", "en", "n", "er", "fa", "quan", "fei", "pei", "ping", "fo", "hu", "ga", "ge", "ha", "xia", "gai", "hai", "gan", "gang", "jiang", "hang", "gong", "hong", "guang", "qiong", "gao", "hao", "li", "jia", "luo", "ke", "qia", "gei", "gen", "hen", "gou", "kou", "gu", "pai", "gua", "tou", "guai", "kuai", "guan", "wan", "ne", "gui", "jun", "jiong", "jue", "gun", "hun", "guo", "hei", "kan", "heng", "mo", "peng", "hou", "hua", "huai", "huan", "xun", "huang", "nai", "luan", "qie", "jian", "nan", "qian", "qiang", "xiang", "jiao", "zhuo", "qiao", "xiao", "si", "kai", "jin", "qin", "jing", "ying", "jiu", "zui", "juan", "suan", "yun", "qun", "ka", "kang", "keng", "kao", "ken", "yin", "kong", "ku", "kua", "kui", "kuan", "kuang", "que", "kun", "kuo", "la", "lai", "lan", "lin", "lang", "liang", "lao", "mu", "le", "lei", "sui", "lie", "leng", "ling", "lia", "liao", "liu", "lun", "lv", "lou", "mao", "long", "nong", "shuang", "shu", "shuai", "lve", "ma", "me", "mai", "man", "mi", "men", "mang", "meng", "miao", "mou", "miu", "mei", "wen", "mie", "ming", "na", "nei", "nuo", "ruo", "nang", "nao", "ni", "nen", "neng", "nin", "niao", "nie", "niang", "ning", "nu", "nv", "ru", "nuan", "nve", "re", "ou", "pao", "pou", "pen", "pie", "pin", "se", "qing", "zan", "shao", "sao", "sha", "xuan", "ran", "rang", "rao", "reng", "ri", "rou", "ruan", "run", "sa", "suo", "sai", "shui", "sang", "sen", "seng", "shai", "shang", "xing", "shou", "shuo", "su", "shua", "shuan", "shun", "song", "sou", "sun", "teng", "tie", "tu", "wai", "wang", "weng", "zhua", "yang", "xiong", "yo", "yong", "za", "zai", "zao", "zei", "zen", "zeng", "zhei", "zou", "zhuai", "zun", "dia", "nou"];
-
-  const findit = str => {
+  let punctuations = { ".": "。", ',': '，', '\'': '‘’', '\"': '“”', '!': '！', '?': '？', '<': '《', '>': '》', '\\': '、', '$': '￥', ':': '：', ';': '；' };
+  let punc = Object.keys(punctuations);
+  const getChars = str => {
     if (str.length > 0) {
       for (let i = str.length; i > 0; i--) {
         let newString = str.slice(0, i);
@@ -466,10 +467,18 @@ export const get_zh = str => {
             strL: str.length
           }
         }
+        if (punc.includes(newString)) {
+          return {
+            resultString: newString,
+            partEnd: i,
+            result: Array.from(punctuations[newString]),
+            strL: str.length
+          }
+        }
         // return null;
       }
     }
     return null;
   }
-  return findit(str);
+  return getChars(str);
 }

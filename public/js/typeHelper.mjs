@@ -451,7 +451,7 @@ const getInputML = inputHtml => {
   const inputString = input_val.slice(start, end);
 
   // const patt = new RegExp('([a-zA-Z]*)', 'g');
-  const patt = /([a-zA-Z]+)/gi;
+  const patt = /([a-zA-Z.,!?$;:\\()\'\"<>]+)/gi;
   let temp;
   let charArray = [];
   do {
