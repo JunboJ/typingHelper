@@ -205,7 +205,6 @@
     width: 15px;
     background-color: #eee;
 }
-
 /* On mouse-over, add a grey background color */
 
 .check-container:hover input~.checkmark {

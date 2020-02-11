@@ -5,6 +5,7 @@ import { get_es } from './lang/esLib.mjs';
 import { get_it } from './lang/itLib.mjs';
 import { get_el } from './lang/elLib.mjs';
 import { get_ja } from './lang/jaLib.mjs';
+import { kanjiRaw } from './lang/AutoKanjiTrie.mjs';
 
 let language = 'fr';
 let mode = '';

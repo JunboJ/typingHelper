@@ -1,8 +1,15 @@
 import { writingHelper } from './typeHelper.mjs';
+
 let language = null;
+let buttonPosLeft;
+let buttonPosTop;
+let buttonWidth;
+let buttonHeight;
+let langList;
+
 
 const addLanguageCheckingList = textInput => {
-    const languages = { 'de': 'German', 'el': 'Greek', 'en': 'English', 'es': 'Spanish', 'fr': 'French', 'id': 'Indonesian', 'it': 'Italian', /*'ja': 'Japanese',*/ 'zh': 'Chinese' }
+    const languages = { 'de': 'German', 'el': 'Greek', 'en': 'English', 'es': 'Spanish', 'fr': 'French', 'id': 'Indonesian', 'it': 'Italian', 'ja': 'Japanese', 'zh': 'Chinese' }
     const listWrapper = document.createElement('div');
     listWrapper.className = 'listWrapper';
     Object.keys(languages).map(code => {
@@ -41,25 +48,29 @@ const addLanguageCheckingList = textInput => {
     return listWrapper;
 };
 
-$(document).ready(function () {
-    const buttonPosLeft = $('#changeLanguage_btn').offset().left;
-    const buttonPosTop = $('#changeLanguage_btn').offset().top;
-    const buttonWidth = $('#changeLanguage_btn').width();
-    const buttonHeight = $('#changeLanguage_btn').height();
-    const langList = addLanguageCheckingList();
-    $(langList).addClass('listWrapper_off');
-    const langListWidth = $(langList).width();
-    const langListHeight = $(langList).height();
-    console.log(langListHeight);
-    // const buttonLeft = Math.floor(buttonWidth - langListWidth);
-    const buttonTop = Math.floor(buttonPosTop - 300 - 5);
+const reposition = langList => {
+    buttonPosLeft = $('#changeLanguage_btn').offset().left;
+    buttonPosTop = $('#changeLanguage_btn').offset().top;
+    buttonWidth = $('#changeLanguage_btn').width();
+    buttonHeight = $('#changeLanguage_btn').height();
 
+    const buttonTop = Math.floor(buttonPosTop - 300 - 5);
     $(langList).css({
         'left': buttonPosLeft - 11,
         'top': buttonTop
     });
+}
+
+$(window).resize(function () {
+    reposition(langList);
+});
+
+$(document).ready(function () {
+    langList = addLanguageCheckingList()
     $(langList).addClass('listWrapper_off');
+    reposition(langList);
     document.body.appendChild(langList);
+
     $('#changeLanguage_btn').on('click', event => {
         // const classCheck = $(langList).hasClass('listWrapper_off');
         $(langList).toggleClass('listWrapper_off');
@@ -71,7 +82,12 @@ $(document).ready(function () {
         // elementsArr.forEach(element => {
         const element = $(this);
 
-        element.parent().css({ 'display': 'flex', 'flex-flow': 'column', 'width': '100%', 'position': 'relative' });
+        element.parent().css({
+            'display': 'flex',
+            'flex-flow': 'column',
+            'width': '100%',
+            'position': 'relative'
+        });
 
         const getHelperDiv = () => {
             return $('.helperDiv')[0] || null;
@@ -146,6 +162,6 @@ $(document).ready(function () {
         //         }
         //     }
         // }
-        
+
     });
 });

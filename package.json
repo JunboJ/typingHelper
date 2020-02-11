@@ -4,6 +4,7 @@
   "description": "",
   "main": "app.js",
   "dependencies": {
+    "autokanji": "^1.0.0",
     "benchmark": "^2.1.4",
     "express": "^4.17.1",
     "nodemon": "^2.0.1",
