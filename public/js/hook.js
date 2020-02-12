@@ -1,4 +1,4 @@
-import { writingHelper } from './typeHelper.mjs';
+import { writingHelper } from './ime.js';
 
 let language = null;
 let buttonPosLeft;
@@ -6,7 +6,6 @@ let buttonPosTop;
 let buttonWidth;
 let buttonHeight;
 let langList;
-
 
 const addLanguageCheckingList = textInput => {
     const languages = { 'de': 'German', 'el': 'Greek', 'en': 'English', 'es': 'Spanish', 'fr': 'French', 'id': 'Indonesian', 'it': 'Italian', 'ja': 'Japanese', 'zh': 'Chinese' }
@@ -94,7 +93,8 @@ $(document).ready(function () {
         };
 
         const eventHandler = event => {
-            console.log('input event');
+            console.log('input event', event.cancelable);
+            // event.preventDefault();
             if (language != 'en') {
                 writingHelper(element, language);
                 return;
@@ -143,7 +143,7 @@ $(document).ready(function () {
                 arrowKeyEventHandler(event);
             }
         });
-        element.on('input', eventHandler);
+        element.on('input', () => { eventHandler(event) });
     });
 
     $('.langSwitch').on('change', event => {
