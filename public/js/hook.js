@@ -1,4 +1,4 @@
-import { writingHelper, resetCaretStart } from './ime.js';
+import { writingHelper, resetCaretStart } from "./ime.js";
 
 let language = null;
 let buttonPosLeft;
@@ -8,36 +8,57 @@ let buttonHeight;
 let langList;
 
 const addLanguageCheckingList = textInput => {
-    const languages = { 'de': 'German', 'el': 'Greek', 'en': 'English', 'es': 'Spanish', 'fr': 'French', 'id': 'Indonesian', 'it': 'Italian', 'ja': 'Japanese', 'zh': 'Chinese' }
-    const listWrapper = document.createElement('div');
-    listWrapper.className = 'listWrapper';
+    const languages = {
+        de: "German",
+        el: "Greek",
+        en: "English",
+        es: "Spanish",
+        fr: "French",
+        id: "Indonesian",
+        it: "Italian",
+        ja: "Japanese",
+        zh: "Chinese"
+    };
+    const listWrapper = document.createElement("div");
+    listWrapper.className = "listWrapper";
     Object.keys(languages).map(code => {
-        const langLabel = document.createElement('label');
-        langLabel.className = 'listItems';
-        langLabel.classList.add('check-container');
-        $(langLabel).css({ 'height': '1rem', 'margin': '0.5rem', });
-        langLabel.innerText = languages[code];
+        const x = document.createElement("IMG");
+        x.className = "flagIcon";
+        x.setAttribute("src", "/images/icons/" + code + '.png');
+        x.setAttribute("alt", code);
 
-        const langSwitch = document.createElement('input');
-        langSwitch.className = 'langSwitch';
-        langSwitch.name = 'lang';
-        langSwitch.type = 'radio';
-        if (code === 'en') langSwitch.checked = true;
-        $(langSwitch).on('click', () => {
+        const languageFullName = document.createElement("span");
+        languageFullName.className = 'languageFullName';
+        var t = document.createTextNode(languages[code]);
+        languageFullName.appendChild(t);
+
+        const langLabel = document.createElement("label");
+        langLabel.className = "listItems";
+        langLabel.classList.add("check-container");
+        $(langLabel).css({ height: "1rem", margin: "0.5rem" });
+
+        const langSwitch = document.createElement("input");
+        langSwitch.className = "langSwitch";
+        langSwitch.name = "lang";
+        langSwitch.type = "radio";
+        if (code === "en") langSwitch.checked = true;
+        $(langSwitch).on("click", () => {
             setTimeout(() => {
-                $(listWrapper).toggleClass('listWrapper_off');
-                $(listWrapper).toggleClass('listWrapper_on');
+                $(listWrapper).toggleClass("listWrapper_off");
+                $(listWrapper).toggleClass("listWrapper_on");
             }, 50);
         });
 
-        const langCode = document.createElement('input');
-        langCode.className = 'langCode';
-        langCode.type = 'hidden';
+        const langCode = document.createElement("input");
+        langCode.className = "langCode";
+        langCode.type = "hidden";
         langCode.value = code;
 
-        const mark = document.createElement('span');
-        mark.className = 'checkmark';
+        const mark = document.createElement("span");
+        mark.className = "checkmark";
 
+        langLabel.appendChild(x);
+        langLabel.appendChild(languageFullName);
         langLabel.appendChild(langSwitch);
         langLabel.appendChild(langCode);
         langLabel.appendChild(mark);
@@ -48,54 +69,56 @@ const addLanguageCheckingList = textInput => {
 };
 
 const reposition = langList => {
-    buttonPosLeft = $('#changeLanguage_btn').offset().left;
-    buttonPosTop = $('#changeLanguage_btn').offset().top;
-    buttonWidth = $('#changeLanguage_btn').width();
-    buttonHeight = $('#changeLanguage_btn').height();
+    buttonPosLeft = $("#changeLanguage_btn").offset().left;
+    buttonPosTop = $("#changeLanguage_btn").offset().top;
+    buttonWidth = $("#changeLanguage_btn").width();
+    buttonHeight = $("#changeLanguage_btn").height();
 
     const buttonTop = Math.floor(buttonPosTop - 300 - 5);
     $(langList).css({
-        'left': buttonPosLeft - 11,
-        'top': buttonTop
+        left: buttonPosLeft - 11,
+        top: buttonTop
     });
-}
+};
 
 $(window).resize(function () {
     reposition(langList);
 });
 
 $(document).ready(function () {
-    langList = addLanguageCheckingList()
-    $(langList).addClass('listWrapper_off');
+    langList = addLanguageCheckingList();
+    $(langList).addClass("listWrapper_off");
     reposition(langList);
     document.body.appendChild(langList);
 
-    $('#changeLanguage_btn').on('click', event => {
+    $("#changeLanguage_btn").on("click", event => {
         // const classCheck = $(langList).hasClass('listWrapper_off');
-        $(langList).toggleClass('listWrapper_off');
-        $(langList).toggleClass('listWrapper_on');
+        $(langList).toggleClass("listWrapper_off");
+        $(langList).toggleClass("listWrapper_on");
+        $(".LanguageSwitchArrow").toggleClass("LanguageSwitchArrow_off");
+        $(".LanguageSwitchArrow").toggleClass("LanguageSwitchArrow_on");
     });
-    language = $('.langSwitch:checked + .langCode').val();
+    language = $(".langSwitch:checked + .langCode").val();
     console.log(language);
-    $('.writingHelper').each(function (index, object) {
+    $(".writingHelper").each(function (index, object) {
         // elementsArr.forEach(element => {
         const element = $(this);
 
         element.parent().css({
-            'display': 'flex',
-            'flex-flow': 'column',
-            'width': '100%',
-            'position': 'relative'
+            display: "flex",
+            "flex-flow": "column",
+            width: "100%",
+            position: "relative"
         });
 
         const getHelperDiv = () => {
-            return $('.helperDiv')[0] || null;
+            return $(".helperDiv")[0] || null;
         };
 
         const eventHandler = (event, isTyping = false) => {
-            console.log('input event', isTyping);
+            console.log("input event", isTyping);
             // event.preventDefault();
-            if (language != 'en') {
+            if (language != "en") {
                 writingHelper(element, language, isTyping);
                 return;
             }
@@ -103,7 +126,7 @@ $(document).ready(function () {
 
         const run = () => {
             // console.log(event.which);
-            if (language != 'en') {
+            if (language != "en") {
                 writingHelper(element, language);
             }
         };
@@ -111,10 +134,7 @@ $(document).ready(function () {
         const arrowKeyEventHandler = event => {
             const div = getHelperDiv();
             if (div) {
-                if (
-                    event.which == 37 ||
-                    event.which == 39
-                ) {
+                if (event.which == 37 || event.which == 39) {
                     run();
                 }
             } else {
@@ -135,12 +155,12 @@ $(document).ready(function () {
             }
         };
 
-        element.on('click', eventHandler);
-        element.on('keydown', (event) => {
+        element.on("click", eventHandler);
+        element.on("keydown", event => {
             const helperdiv = getHelperDiv();
             if (event.which == 8 || event.which == 46) {
                 if (helperdiv) {
-                    console.log('helperdiv on backspace');
+                    console.log("helperdiv on backspace");
                     setTimeout(() => {
                         eventHandler(event, true);
                     }, 50);
@@ -157,7 +177,7 @@ $(document).ready(function () {
                 }
             }
         });
-        element.on('keyup', (event) => {
+        element.on("keyup", event => {
             if (
                 event.which == 37 ||
                 event.which == 38 ||
@@ -167,11 +187,13 @@ $(document).ready(function () {
                 arrowKeyEventHandler(event);
             }
         });
-        element.on('input', () => { eventHandler(event, true) });
+        element.on("input", () => {
+            eventHandler(event, true);
+        });
     });
 
-    $('.langSwitch').on('change', event => {
-        language = $('.langSwitch:checked + .langCode').val();
+    $(".langSwitch").on("change", event => {
+        language = $(".langSwitch:checked + .langCode").val();
         // const inputElList = document.querySelectorAll('.writingHelper');
         // for (const inputEl of inputElList) {
         //     if (language == 'ja') {
@@ -186,6 +208,5 @@ $(document).ready(function () {
         //         }
         //     }
         // }
-
     });
 });

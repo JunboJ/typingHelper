@@ -205,6 +205,7 @@
     width: 15px;
     background-color: #eee;
 }
+
 /* On mouse-over, add a grey background color */
 
 .check-container:hover input~.checkmark {
@@ -262,4 +263,23 @@
     flex-flow: column;
     background-color: white;
     box-shadow: 0px 0px 6px 2px rgb(0, 0, 0, 0.6);
+}
+
+.LanguageSwitchArrow {
+    position: absolute;
+    left: 93px;
+    top: 16px;
+}
+
+.LanguageSwitchArrow_off {
+    transform: rotate(0deg);
+}
+
+.LanguageSwitchArrow_on {
+    transform: rotate(180deg);
+}
+
+.flagIcon {
+    height: 12px;
+    margin-right: 3px;
 }
