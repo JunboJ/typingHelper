@@ -9,8 +9,6 @@ import { get_ja } from "./lang/jaLib.js";
 let language = "fr";
 let mode = "";
 let autoSelect = false;
-let pageNum = 0;
-let highlightOption = 49;
 
 let helperDiv = $(".helperDiv")[0] ? $(".helperDiv")[0] : null;
 let cloneField = null;
@@ -22,8 +20,11 @@ let inputParent_Html = null;
 let inputParent_Jq = null;
 let inputValue = null;
 let getCurrentCharacter = null;
+
 let currentCharacter = null;
 let pages = [];
+let pageNum = 0;
+let highlightOption = 49;
 
 let helperContent = null;
 let btnSet = null;
@@ -38,10 +39,11 @@ let settingMenu = null;
 let settingMenuContent = null;
 let settingMenuContentText = null;
 
+let stringStart = null;
 let cursorStart = null;
 let cursorEnd = null;
 
-export const writingHelper = (input, lang) => {
+export const writingHelper = (input, lang, isTyping = false) => {
     language = lang;
     input_Jq = input;
     input_Html = input[0];
@@ -52,6 +54,10 @@ export const writingHelper = (input, lang) => {
 
     helperDiv = $(".helperDiv")[0] ? $(".helperDiv")[0] : null;
 
+    resetVariables();
+    isTyping ? null : resetCaretStart();
+    console.log('stringStart', stringStart);
+
     if (language === "zh" || language === "ja") {
         getCurrentCharacter = () => getInputML();
     } else {
@@ -59,7 +65,7 @@ export const writingHelper = (input, lang) => {
     }
 
     if (inputValue) {
-        ({ currentCharacter, cursorStart, cursorEnd } = getCurrentCharacter());
+        currentCharacter = getCurrentCharacter();
     }
 
     if (currentCharacter !== null) {
@@ -69,7 +75,7 @@ export const writingHelper = (input, lang) => {
             options = result;
             console.log('options: ', options);
             if (options !== null && options.result !== null) {
-                console.log('options.result.length: ', options.result.length);
+                // console.log('options.result.length: ', options.result.length);
                 updatePageList(options.result.length);
                 const copyStyle = getComputedStyle(input_Html);
                 createAuxElement();
@@ -187,21 +193,33 @@ export const writingHelper = (input, lang) => {
                 helperDiv.style.left = `${leftPosition}px`;
                 helperDiv.style.top = `${topPosition + 8}px`;
             } else {
-                pages = [];
-                currentCharacter = null;
+                // resetVariables();
                 if (helperDiv !== null) {
                     removeHelper();
                 }
             }
         });
     } else {
-        pages = [];
-        currentCharacter = null;
+        // resetVariables();
         if (helperDiv !== null) {
             removeHelper();
         }
     }
 };
+
+export const resetCaretStart = () => {
+    console.log('resetCaretStart');
+
+    const { cursorStart: start } = getCaretPosition();
+    stringStart = start;
+}
+
+const resetVariables = () => {
+    currentCharacter = null;
+    pages = [];
+    pageNum = 0;
+    highlightOption = 49;
+}
 
 const createUIElements = () => {
     helperDiv = document.createElement("div");
@@ -233,7 +251,6 @@ const createUIElements = () => {
         input_Jq.off("blur");
     });
     $(prevPage).on("mouseup", event => {
-        console.log("prev");
         prevPageEventHandler(event, () => {
             setFocus(input_Jq);
             createOptions("pageChange");
@@ -339,42 +356,22 @@ const getInputValue = () => {
 
 const getInputSL = () => {
     let cursorStart, cursorEnd;
-    if (input_Html.tagName == "DIV") {
-        ({ cursorStart, cursorEnd } = getCaretPosition());
-        console.log("getpos: ", cursorStart);
-    } else {
-        ({ cursorStart, cursorEnd } = {
-            cursorStart: input_Html.selectionStart,
-            cursorEnd: input_Html.selectionEnd
-        });
-    }
+    ({ cursorStart, cursorEnd } = getCaretPosition());
     // get the character under caret
     if (cursorStart == cursorEnd)
         cursorStart = cursorEnd == 0 ? 0 : cursorStart - 1;
     const inputString = getInputValue(input_Html);
     const currentCharacter = inputString.slice(cursorStart, cursorEnd);
-    // console.log(currentCharacter);
-
     return {
-        currentCharacter: currentCharacter,
-        cursorStart: cursorStart,
-        cursorEnd: cursorEnd
+        currentCharacter: currentCharacter
     };
 };
 
 const getInputML = () => {
-    let cursorStart, cursorEnd;
-    if (input_Html.tagName == "DIV") {
-        ({ cursorStart, cursorEnd } = getCaretPosition());
-    } else {
-        ({ cursorStart, cursorEnd } = {
-            cursorStart: input_Html.selectionStart,
-            cursorEnd: input_Html.selectionEnd
-        });
-    }
     let start, end;
+    ({ cursorStart, cursorEnd } = getCaretPosition());
     if (cursorStart == cursorEnd) {
-        start = 0;
+        start = stringStart;
         end = cursorEnd;
     } else {
         start = cursorStart;
@@ -407,11 +404,7 @@ const getInputML = () => {
         currentCharacter = null;
     }
 
-    return {
-        currentCharacter: currentCharacter,
-        cursorStart: cursorStart,
-        cursorEnd: cursorEnd
-    };
+    return currentCharacter;
 };
 
 const getCaretPosition = () => {
@@ -419,24 +412,31 @@ const getCaretPosition = () => {
         caretEndPos = 0,
         selection,
         range;
-    if (window.getSelection) {
-        selection = window.getSelection();
-        console.log("getSelection: ", selection);
-
-        if (selection.rangeCount) {
-            range = selection.getRangeAt(0);
-            if (range.commonAncestorContainer.parentNode == input_Html) {
-                caretStartPos = range.endOffset;
-                if (range.startOffset) caretStartPos = range.startOffset;
-                caretEndPos = range.endOffset;
+    if (input_Html.tagName == "DIV") {
+        if (window.getSelection) {
+            selection = window.getSelection();
+            if (selection.rangeCount) {
+                range = selection.getRangeAt(0);
+                if (range.commonAncestorContainer.parentNode == input_Html) {
+                    caretStartPos = range.endOffset;
+                    if (range.startOffset) caretStartPos = range.startOffset;
+                    caretEndPos = range.endOffset;
+                }
             }
         }
+    } else {
+        ({ caretStartPos, caretEndPos } = {
+            caretStartPos: input_Html.selectionStart,
+            caretEndPos: input_Html.selectionEnd
+        });
     }
     return { cursorStart: caretStartPos, cursorEnd: caretEndPos };
 };
 
 // focus on element function
 const setFocus = () => {
+    console.log('set focus!');
+
     let element = input_Html;
     if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {
         element.focus();
@@ -457,7 +457,7 @@ const setFocus = () => {
 
 // get options from library
 const getOptions = (str, callback) => {
-    console.log('str in getOptions: ', str);
+    // console.log('str in getOptions: ', str);
     const reset = () => {
         autoSelect = false;
     };
@@ -486,7 +486,7 @@ const getOptions = (str, callback) => {
             case "zh":
                 reset();
                 const result = get_zh(str);
-                console.log('get_zh', result);
+                // console.log('get_zh', result);
                 callback(result);
                 break;
             case "ja":
@@ -515,7 +515,7 @@ const updatePageList = resLength => {
                 index++;
             } else {
                 if (pageStart == resLength - 1) {
-                    return;
+                    pages[index] = [pageStart + a, resLength - 1];
                 } else {
                     pages[index] = [pageStart + a, resLength - 1];
                 }
@@ -722,7 +722,7 @@ const keyupEventHandler = event => {
             input_Jq.off(".basicKeyEvents");
             helperDiv.remove();
             if (language == "zh") {
-                writingHelper(input_Jq, language);
+                writingHelper(input_Jq, language, true);
             }
         }
     }
@@ -731,7 +731,7 @@ const keyupEventHandler = event => {
         if (language == "el" || language == "zh" || language == "ja") {
             // event.preventDefault();
             $("#" + highlightOption).mouseup();
-            writingHelper(input_Jq, language);
+            writingHelper(input_Jq, language, true);
         }
         if (
             (language == "de" ||

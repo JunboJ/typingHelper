@@ -1,4 +1,4 @@
-import { writingHelper } from './ime.js';
+import { writingHelper, resetCaretStart } from './ime.js';
 
 let language = null;
 let buttonPosLeft;
@@ -92,11 +92,11 @@ $(document).ready(function () {
             return $('.helperDiv')[0] || null;
         };
 
-        const eventHandler = event => {
-            console.log('input event', event.cancelable);
+        const eventHandler = (event, isTyping = false) => {
+            console.log('input event', isTyping);
             // event.preventDefault();
             if (language != 'en') {
-                writingHelper(element, language);
+                writingHelper(element, language, isTyping);
                 return;
             }
         };
@@ -128,11 +128,35 @@ $(document).ready(function () {
                 }
             }
             if (event.which == 27) {
-                if (div) div.remove();
+                if (div) {
+                    div.remove();
+                    resetCaretStart();
+                }
             }
         };
 
         element.on('click', eventHandler);
+        element.on('keydown', (event) => {
+            const helperdiv = getHelperDiv();
+            if (event.which == 8 || event.which == 46) {
+                if (helperdiv) {
+                    console.log('helperdiv on backspace');
+                    setTimeout(() => {
+                        eventHandler(event, true);
+                    }, 50);
+                } else {
+                    setTimeout(() => {
+                        eventHandler(event);
+                    }, 50);
+                }
+            }
+            if (event.which == 27) {
+                if (helperdiv) {
+                    helperdiv.remove();
+                    resetCaretStart();
+                }
+            }
+        });
         element.on('keyup', (event) => {
             if (
                 event.which == 37 ||
@@ -143,7 +167,7 @@ $(document).ready(function () {
                 arrowKeyEventHandler(event);
             }
         });
-        element.on('input', () => { eventHandler(event) });
+        element.on('input', () => { eventHandler(event, true) });
     });
 
     $('.langSwitch').on('change', event => {

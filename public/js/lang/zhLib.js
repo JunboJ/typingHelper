@@ -454,7 +454,7 @@ let keysOnly = ["a", "e", "ai", "ei", "xi", "yi", "an", "han", "ang", "ao", "wa"
 let punctuations = { ".": "。", ',': '，', '\'': '‘’', '\"': '“”', '!': '！', '?': '？', '<': '《', '>': '》', '\\': '、', '$': '￥', ':': '：', ';': '；' };
 let punc = Object.keys(punctuations);
 export const get_zh = str => {
-  console.log('did not make into string length check', str);
+  // console.log('did not make into string length check', str);
   const getChars = str => {
     if (str.length > 0) {
       for (let i = str.length; i > 0; i--) {
