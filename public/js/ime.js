@@ -45,7 +45,7 @@ let cursorStart = null;
 let cursorEnd = null;
 
 // assign space key's function as entering a blank space by language
-const SPACE_KEY_SPACE_LANGUAGE_LIST = ["de", "es", "fr", "it", 'pinyin'];
+const SPACE_KEY_SPACE_LANGUAGE_LIST = ["de", "es", "fr", "it", "pinyin"];
 
 // assign space key's function as selecting a option by language
 const SPACE_KEY_SELECT_LANGUAGE_LIST = ["el", "zh", "ja"];

@@ -6,6 +6,7 @@ let buttonPosTop;
 let buttonWidth;
 let buttonHeight;
 let langList;
+const listWrapper = document.createElement("div");
 
 const addLanguageCheckingList = textInput => {
     const languages = {
@@ -20,7 +21,7 @@ const addLanguageCheckingList = textInput => {
         zh: "Chinese",
         pinyin: "Chinese(Pinyin)"
     };
-    const listWrapper = document.createElement("div");
+    // const listWrapper = document.createElement("div");
     listWrapper.className = "listWrapper";
     Object.keys(languages).map(code => {
         const x = document.createElement("IMG");
@@ -73,9 +74,9 @@ const reposition = langList => {
     buttonPosLeft = $("#changeLanguage_btn").offset().left;
     buttonPosTop = $("#changeLanguage_btn").offset().top;
     buttonWidth = $("#changeLanguage_btn").width();
-    buttonHeight = $("#changeLanguage_btn").height();
+    buttonHeight = $(langList).height();
 
-    const buttonTop = Math.floor(buttonPosTop - 300 - 5);
+    const buttonTop = Math.floor(buttonPosTop - buttonHeight - 15);
     $(langList).css({
         left: buttonPosLeft - 11,
         top: buttonTop
@@ -89,7 +90,6 @@ $(window).resize(function () {
 $(document).ready(function () {
     langList = addLanguageCheckingList();
     $(langList).addClass("listWrapper_off");
-    reposition(langList);
     document.body.appendChild(langList);
 
     $("#changeLanguage_btn").on("click", event => {
@@ -98,6 +98,7 @@ $(document).ready(function () {
         $(langList).toggleClass("listWrapper_on");
         $(".LanguageSwitchArrow").toggleClass("LanguageSwitchArrow_off");
         $(".LanguageSwitchArrow").toggleClass("LanguageSwitchArrow_on");
+        reposition(langList);
     });
     language = $(".langSwitch:checked + .langCode").val();
     console.log(language);
