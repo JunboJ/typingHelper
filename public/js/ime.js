@@ -44,6 +44,15 @@ let stringStart = null;
 let cursorStart = null;
 let cursorEnd = null;
 
+// assign space key's function as entering a blank space by language
+const SPACE_KEY_SPACE_LANGUAGE_LIST = ["de", "es", "fr", "it", 'pinyin'];
+
+// assign space key's function as selecting a option by language
+const SPACE_KEY_SELECT_LANGUAGE_LIST = ["el", "zh", "ja"];
+
+// language list that take multiple input
+const MULTIPLE_LETTER_LANGUAGE_LIST = ["zh", "ja"];
+
 export const writingHelper = (input, lang, isTyping = false) => {
     language = lang;
     input_Jq = input;
@@ -57,17 +66,11 @@ export const writingHelper = (input, lang, isTyping = false) => {
 
     resetVariables();
     isTyping ? null : resetCaretStart();
-    console.log('stringStart', stringStart);
+    console.log('stringStart/cursorStart/cursorEnd', stringStart, cursorStart, cursorEnd);
 
-    if (language === "zh" || language === "ja") {
-        getCurrentCharacter = () => getInputML();
-    } else {
-        getCurrentCharacter = () => getInputSL();
-    }
+    MULTIPLE_LETTER_LANGUAGE_LIST.includes(language) ? getCurrentCharacter = () => getInputML() : getCurrentCharacter = () => getInputSL();
 
-    if (inputValue) {
-        currentCharacter = getCurrentCharacter();
-    }
+    inputValue ? currentCharacter = getCurrentCharacter() : null;
 
     if (currentCharacter !== null) {
         console.log('currentCharacter: ', currentCharacter);
@@ -356,8 +359,10 @@ const getInputValue = () => {
 };
 
 const getInputSL = () => {
-    let cursorStart, cursorEnd;
+    // let cursorStart, cursorEnd;
     ({ cursorStart, cursorEnd } = getCaretPosition());
+    console.log('SL cursor pos: ', { cursorStart, cursorEnd });
+
     // get the character under caret
     if (cursorStart == cursorEnd)
         cursorStart = cursorEnd == 0 ? 0 : cursorStart - 1;
@@ -369,6 +374,7 @@ const getInputSL = () => {
 const getInputML = () => {
     let start, end;
     ({ cursorStart, cursorEnd } = getCaretPosition());
+    console.log('ML cursor pos: ', { cursorStart, cursorEnd });
     if (cursorStart == cursorEnd) {
         start = stringStart;
         end = cursorEnd;
@@ -414,11 +420,11 @@ const getCaretPosition = () => {
     if (input_Html.tagName == "DIV") {
         if (window.getSelection) {
             selection = window.getSelection();
-            console.log('selection: ', selection);
+            // console.log('selection: ', selection);
             if (selection.rangeCount) {
                 range = selection.getRangeAt(0);
-                console.log('range: ', range);
-                
+                // console.log('range: ', range);
+
                 if (range.commonAncestorContainer.parentNode == input_Html) {
                     caretStartPos = range.endOffset;
                     if (range.startOffset) caretStartPos = range.startOffset;
@@ -488,15 +494,16 @@ const getOptions = (str, callback) => {
             case "zh":
                 reset();
                 const result = get_zh(str);
-                // console.log('get_zh', result);
                 callback(result);
                 break;
             case "pinyin":
                 reset();
-                get_pinyin(str).then(res => callback(res)).catch(err => console.log(err));
-
+                get_pinyin(str)
+                    .then(res => callback(res))
+                    .catch(err => console.log(err));
+                break;
             case "ja":
-                autoSelect = false;
+                reset();
                 callback(get_ja(str) || null);
                 break;
             default:
@@ -661,11 +668,7 @@ const keydownEventHandler = event => {
     // space key and enter key pressed
     if (keycode == 32 || keycode == 13) {
         console.log(language);
-        if (
-            (language == "de" ||
-                language == "es" ||
-                language == "fr" ||
-                language == "it") &&
+        if (SPACE_KEY_SPACE_LANGUAGE_LIST.includes(language) &&
             highlightOption == 49
         ) {
             console.log("add a space!!!");
@@ -734,19 +737,12 @@ const keyupEventHandler = event => {
     }
     if (keycode == 32 || keycode == 13) {
         console.log("highlight option: ", highlightOption);
-        if (language == "el" || language == "zh" || language == "ja") {
+        if (SPACE_KEY_SELECT_LANGUAGE_LIST.includes(language)) {
             // event.preventDefault();
             $("#" + highlightOption).mouseup();
             writingHelper(input_Jq, language, true);
         }
-        if (
-            (language == "de" ||
-                language == "es" ||
-                language == "fr" ||
-                language == "it") &&
-            highlightOption == 49
-        ) {
-        }
+        // if (SPACE_KEY_SPACE_LANGUAGE_LIST.includes(language) && highlightOption == 49) { }
         if (highlightOption != 49) {
             event.preventDefault();
             $("#" + highlightOption).mouseup();
@@ -818,11 +814,14 @@ const mouseUpHandler = event => {
     input_Jq.off("blur");
     event.stopPropagation();
     let wordStart, wordEnd, newString;
+    console.log('cursorStart', cursorStart, 'cursorEnd', cursorEnd);
     if (cursorStart == cursorEnd) {
         // only japanese and Chinese have strL
         let strLength = options.strL || 0;
         wordStart = cursorStart - strLength;
         wordEnd = wordStart + options.partEnd;
+        console.log('wordStart', wordStart, 'wordEnd', wordEnd);
+
         newString =
             inputValue.slice(0, wordStart) +
             event.muAssets.char +
