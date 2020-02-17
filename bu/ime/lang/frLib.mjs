@@ -1,6 +1,4 @@
 export const get_fr = character => {
-    console.log(character);
-    
     const fr = {
         a: ['a', 'à', 'â', 'æ'],
         A: ['A', 'À', 'Â', 'Æ'],

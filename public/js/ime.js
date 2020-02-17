@@ -5,6 +5,7 @@ import { get_es } from "./lang/esLib.js";
 import { get_it } from "./lang/itLib.js";
 import { get_el } from "./lang/elLib.js";
 import { get_ja } from "./lang/jaLib.js";
+import { get_pinyin } from "./lang/pinyinLib.js";
 
 let language = "fr";
 let mode = "";
@@ -362,9 +363,7 @@ const getInputSL = () => {
         cursorStart = cursorEnd == 0 ? 0 : cursorStart - 1;
     const inputString = getInputValue(input_Html);
     const currentCharacter = inputString.slice(cursorStart, cursorEnd);
-    return {
-        currentCharacter: currentCharacter
-    };
+    return currentCharacter;
 };
 
 const getInputML = () => {
@@ -415,8 +414,11 @@ const getCaretPosition = () => {
     if (input_Html.tagName == "DIV") {
         if (window.getSelection) {
             selection = window.getSelection();
+            console.log('selection: ', selection);
             if (selection.rangeCount) {
                 range = selection.getRangeAt(0);
+                console.log('range: ', range);
+                
                 if (range.commonAncestorContainer.parentNode == input_Html) {
                     caretStartPos = range.endOffset;
                     if (range.startOffset) caretStartPos = range.startOffset;
@@ -489,6 +491,10 @@ const getOptions = (str, callback) => {
                 // console.log('get_zh', result);
                 callback(result);
                 break;
+            case "pinyin":
+                reset();
+                get_pinyin(str).then(res => callback(res)).catch(err => console.log(err));
+
             case "ja":
                 autoSelect = false;
                 callback(get_ja(str) || null);

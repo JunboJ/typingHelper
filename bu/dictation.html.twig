@@ -1,0 +1,616 @@
+{% extends 'base.html.twig' %}
+
+{% set titleSuffix = lesson.title|capitalize %}
+
+{% block metas %}
+	<meta name="description" content="{{ lesson.language.title }} {{ lesson.title }}"/>
+	<meta name="keywords" content="Immerseme {{ lesson.language.title }} {{ lesson.title }}"/>
+	<meta name="author" content="Immerseme"/>
+	<meta name="theme-color" content="#000000">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="white">
+	<meta name="apple-mobile-web-app-title" content="ImmerseMe">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="google" content="notranslate">
+{% endblock %}
+
+
+{% block javascripts %}
+	{{ parent() }}
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/3.5.0/diff.js"></script>
+	<script src="{{ asset('assets/fuzzyset.js') }}"></script>
+	<script src="{{ asset('assets/wanakana.min.js') }}"></script>
+	<script src="{{ asset('assets/ime.js') }}"></script>
+	<script src="https://aframe.io/releases/0.8.2/aframe.min.js"></script>
+	<script>
+		let THRESHOLD = 1;
+		const TIMEOUT = 20;
+		const CLEAN = /[\uFF5F-\uFF9F\u3000-\u303F\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]+/iug;
+		const MODE = '{{ mode|escape('js') }}';
+
+
+		jQuery(function($) {
+			const $video = $('#lesson-video');
+			const lesson = $('[lesson-controller]')[0];
+			const ACTIVITY_ENDPOINT  = $('#player-container').data('activity');
+
+			AFRAME.registerComponent('lesson-controller', {
+				init: function () {
+					console.group('lessonController.init()');
+
+					this.onEnter = this.onEnter.bind(this);
+					this.onExit = this.onExit.bind(this);
+
+					this.onRewind = this.onRewind.bind(this);
+					this.onTranscript = this.onTranscript.bind(this);
+
+					this.setSpeed = this.setSpeed.bind(this);
+					this.progress = this.progress.bind(this);
+					this.onOptionNavClick = this.onOptionNavClick.bind(this);
+
+					this.video = this.el.querySelector('#lesson-video');
+
+					this.body = document.querySelector('body');
+					this._stt = document.querySelector('#stt');
+
+					this.section = null;
+					this.segment = null;
+					this.promptCompleted = false;
+
+					this._branches = Array.from(document.querySelectorAll('div.option'));
+					this.branches = Array.from(document.querySelectorAll('div.option nav > p'));
+					this.options = document.querySelector('div.branches');
+
+					this._prompt = document.querySelector('#prompt');
+					this.prompt = document.querySelector('#prompt p');
+					this.inputField_aux = document.querySelector('#input_aux');
+					this.promptPlayIcon = document.querySelector('#prompt button.audio > i');
+
+					this._transcript = document.querySelector('#transcript');
+					this._feedback = document.querySelector('.transcript > i');
+
+					this.langId = '{{ lesson.language.id }}';
+					this.lang = '{{ lesson.language.id }}-{{ lesson.language.country|upper }}';
+					this.recording = false;
+					this.cue = null;
+					this.playbackRate = 1;
+					this.advancing = false;
+
+					//flip controls on touch devices.
+					if (!("ontouchstart" in document.documentElement)) {
+						console.log('Reversing pan controls');
+						document.querySelector('a-camera').setAttribute('reverse-mouse-drag', 'true');
+					}
+
+					console.groupEnd();
+				},
+				play: async function () {
+					console.group('lessonControlle.play()');
+
+					this._transcript.addEventListener('keyup', this.onTranscript, false);
+
+					this._prompt.querySelector('.audio').addEventListener('click', this.onRewind, false);
+					document.querySelector('.globals .fa-turtle').addEventListener('change', this.setSpeed, false);
+					document.querySelector('.branches').addEventListener('click', this.onOptionNavClick, false);
+
+					this._stt.classList.remove('is-loading');
+
+					this.progress('start', { platform: navigator.platform });
+					console.groupEnd();
+				},
+				tick: function () {
+					//Generater / display diff ?
+				},
+				onOptionNavClick: function (e) {
+					if (e.target.matches('.fa-play-circle')) {
+						if (this.recording){
+							this.onStop();
+						}
+						const sample = e.target.closest('.option').dataset['audio'];
+						console.log("playing: ", sample);
+
+						const audio = document.getElementById(sample);
+						console.log(audio);
+
+						e.target.classList.add('active');
+
+						if(audio.paused) {
+							audio.playbackRate = this.playbackRate;
+							audio.play();
+
+							$(audio).one('ended pause', () => {
+								console.log("finished: ", sample);
+								e.target.classList.remove('active');
+								audio.currentTime = 0;
+							})
+						}
+
+						this.progress('event', {
+							'section': this.cue.id,
+							'audio': sample
+						});
+					} else if (e.target.matches('.fa-keyboard:not(.active)')) {
+						e.target.classList.add('active');
+						const i = $(e.target).closest('.option').data('index');
+						this.segment = this.section.exit[i];
+
+						console.log("selecting: ", i, this.segment);
+
+						// Show the hints
+						const branch = this.segment;
+						branch._inputAux = this.inputField_aux;
+						const fragment_placeholder = document.createDocumentFragment();
+						while (branch._inputAux.firstChild) {
+							branch._inputAux.removeChild(branch._inputAux.firstChild);
+						}
+						fragment_placeholder.appendChild(
+								$('<span/>', {
+									'class': 'fake_placeholder',
+									'html': this.langId == 'zh' ? this.segment.latin : this.segment.native
+								}).get(0)
+						);
+						branch._inputAux.appendChild(fragment_placeholder);
+
+						$('.branches .option').hide();
+						$(this._branches[i]).show();
+						this._transcript.setAttribute('contentEditable', 'true');
+						this._transcript.focus();
+					} else if (e.target.matches('.fa-keyboard.active')) {
+						e.target.classList.remove('active');
+						console.log("unselect: ", e.target);
+
+						//Reset input area
+						if (this.inputField_aux) {
+							while (this.inputField_aux.firstChild) {
+								this.inputField_aux.removeChild(this.inputField_aux.firstChild);
+							}
+						}
+						while (this._transcript.firstChild) {
+							this._transcript.removeChild(this._transcript.firstChild);
+						}
+						this._transcript.innerHTML = "";
+						this._transcript.setAttribute('contentEditable', 'false');
+						this.segment = null;
+					}
+					console.groupEnd();
+				},
+				setSpeed: function (e) {
+					this.video.playbackRate = e.target.checked ? parseFloat(e.target.value) : 1;
+					this.playbackRate = e.target.checked ? parseFloat(e.target.value) : 1;
+
+					this.progress('event', {'speed': this.playbackRate});
+				},
+				onEnter: function (e) {
+					console.group('controller.lesson.onEnter()');
+
+					this.promptPlayIcon.classList.add('active');
+					this.options.classList.add('inactive');
+
+					console.log('Clearing branch panels');
+					for (let i = 0; i < 4; i++) {
+						this._branches[i].removeAttribute('data-native');
+						this._branches[i].removeAttribute('data-audio');
+						this._branches[i].removeAttribute('data-next');
+						this._branches[i].classList.remove('completed');
+						this.branches[i].innerHTML = '';
+					}
+
+					this.cue = e.target;
+					this.section = JSON.parse(e.target.text) || [];
+
+					console.log('Section: %o', this.section, this.cue);
+
+					this.progress('section.enter', {
+						'id': this.cue.id
+					});
+
+					console.groupEnd();
+				},
+				onExit: function (e) {
+					console.group('controller.lesson.onExit()');
+
+					console.log('Pausing scene');
+					this.video.pause();
+					this.promptPlayIcon.classList.remove('active');
+					this._transcript.focus();
+
+					const metadata = JSON.parse(e.target.text) || [];
+
+					if (!this.section) {
+						console.log('Exiting Section: %o', this.section);
+						console.log('Target Section: %o', metadata);
+						this.section = metadata;
+					}
+
+					console.log('Actor %s segments %o', MODE, this.section.enter);
+					const answer = this.langId == 'zh' ? this.section.enter.latin : this.section.enter.native
+					this._prompt.setAttribute('data-native', answer);
+					this.section.enter._matcher = new FuzzySet([
+						answer
+					]);
+
+					this.section.enter._result = this.prompt;
+					this.section.enter._inputAux = this.inputField_aux;
+					this.segment = this.section.enter;
+
+					console.log('Options %s segments %o', MODE, this.section.exit);
+
+					const branch = this.section.enter;
+					const fragment_placeholder = document.createDocumentFragment();
+
+					// Show the hints
+					while (branch._inputAux.firstChild) {
+						branch._inputAux.removeChild(branch._inputAux.firstChild);
+					}
+					fragment_placeholder.appendChild(
+							$('<span/>', {
+								'class': 'fake_placeholder',
+								'html': answer
+							}).get(0)
+					);
+					branch._inputAux.appendChild(fragment_placeholder);
+
+					for (let i = 0; i < this.section.exit.length; i++) {
+						const segment = this.section.exit[i];
+						const answer = this.langId == 'zh' ? segment.latin : segment.native;
+						this._branches[i].setAttribute('data-index', `${i}`);
+						this._branches[i].setAttribute('data-native', answer);
+						if (segment.audio) {
+							this._branches[i].setAttribute('data-audio', segment.audio);
+						}
+
+						if (segment.completed) {
+							this._branches[i].classList.add('completed');
+						}
+
+						this.section.exit[i]._matcher = new FuzzySet([answer]);
+						this.section.exit[i]._result = this.branches[i];
+
+						if (segment.next) {
+							this._branches[i].setAttribute('data-next', segment.next || '');
+						}
+					}
+
+					if (!this.section.exit.length) {
+						$('#lesson-end').css('display', 'flex');
+					}
+
+					//Activating segment.
+					this.progress('section.exit', {
+						'id': this.cue.id
+					});
+
+					$('.branches .option[data-native]').show();
+					$('.branches .fa-keyboard.active').removeClass('active');
+
+					this._transcript.setAttribute('contentEditable', 'true');
+
+					console.groupEnd();
+				},
+				onRewind: async function () {
+					if (!this.video.paused) {
+						this.video.pause();
+					}
+
+					console.log('Rewind timestamp: %s', this.cue.startTime);
+					this.video.currentTime = this.cue.startTime;
+					this.video.play();
+				},
+				onTranscript: async function (e) {
+					console.group('lesson.controller.onTranscript()');
+					console.log('lesson: ', this.langId);
+					const input = e.target.innerText.trim();
+					const str_length = e.target.innerText.length;
+					const branch = this.segment;
+					const answer = this.langId == 'zh' ? branch.latin : branch.native;
+					const answer_length = answer.length;
+					const answer_compare = answer.slice(0, str_length);
+					const match = branch._matcher.get(input, false, THRESHOLD);
+					const fragment = document.createDocumentFragment();
+					const fragment_placeholder = document.createDocumentFragment();
+					const fragment_hintSpaces = document.createDocumentFragment();
+					const fragment_inputContent = document.createDocumentFragment();
+					const diff = JsDiff.diffWords(input, answer_compare, {ignoreCase: false});
+					const hints = answer.replace(/\s/g, '_');
+					let slicedHints_visible = hints.slice(str_length, answer_length);
+					slicedHints_visible = slicedHints_visible.replace(/\_/g, '&nbsp');
+					let slicedHints_invisible = hints.slice(0, str_length);
+
+					console.log('Transcript: "%s"', input);
+					console.log('Selected branch %o', branch);
+					console.log('Branch match: %o', match);
+					console.log(this.segment);
+
+					/*
+                     * Calculate and render the diff between actual phrase and transcript...
+                     */
+					while (branch._result.firstChild) {
+						branch._result.removeChild(branch._result.firstChild);
+					}
+
+					while (branch._inputAux.firstChild) {
+						branch._inputAux.removeChild(branch._inputAux.firstChild);
+					}
+
+					/*while (e.target.firstChild) {
+                        e.target.removeChild(e.target.firstChild);
+                    }*/
+					let count;
+					let punctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~';
+					diff.forEach((p) => {
+						console.log(p);
+						if (p.added)  {
+							if (punctuation.includes(p.value)) {
+								fragment_placeholder.appendChild(
+										$('<span/>', {
+											'class': 'fake_placeholder_invisible_err',
+											'id': 'addedones',
+											'html': p.value
+										}).get(0)
+								);
+							}
+							return
+						} else {
+							fragment_placeholder.appendChild(
+									$('<span/>', {
+										'class': p.removed ? 'fake_placeholder_invisible_err' : 'fake_placeholder_invisible',
+										'html': p.value
+									}).get(0)
+							);
+						}
+
+						fragment.appendChild(
+								$(`<span/>`, {
+									'class': p.removed ? 'has-text-danger' : '',
+									'html': p.value
+								}).get(0)
+						);
+
+					});
+
+					fragment_placeholder.appendChild(
+							$('<span/>', {
+								'class': 'fake_placeholder',
+								'html': slicedHints_visible
+							}).get(0)
+					);
+
+					branch._result.appendChild(fragment);
+					branch._inputAux.appendChild(fragment_placeholder);
+
+					if (match && match.length) {
+						console.log('Fuzzyset matched, %o', match);
+					} else {
+						this.progress('section.result', {
+							'id': this.cue.id,
+							'transcript': input
+						});
+
+						console.log('No match from fuzzy matcher!');
+						console.groupEnd();
+						return;
+					}
+
+					this.progress('section.result', {
+						'id': this.cue.id,
+						'transcript': input,
+						'match': 1,
+						'option': branch.id
+					});
+
+					console.log('Section completed');
+
+					//Reset input area
+					while (branch._inputAux.firstChild) {
+						branch._inputAux.removeChild(branch._inputAux.firstChild);
+					}
+					while (this._transcript.firstChild) {
+						this._transcript.removeChild(this._transcript.firstChild);
+					}
+					this._transcript.value = "";
+					this._transcript.setAttribute('contentEditable', 'false');
+					this.segment = null;
+
+					if (!this.promptCompleted) {
+						//Disable prompt portion
+						this.promptCompleted = true;
+						this._prompt.classList.add('inactive');
+						// Show user options.
+						this.options.classList.remove('inactive');
+						return;
+					} else if (branch.next) {
+						console.log('Next section %s', branch.next);
+
+						const cue = this.video.textTracks[0].cues.getCueById(branch.next);
+
+						console.log('Next cue %o', cue);
+
+						this.video.currentTime = cue.startTime;
+						this.video.play();
+						this.promptCompleted = false;
+						this.prompt.innerHTML = '';
+						this._prompt.classList.remove('inactive');
+
+						console.groupEnd();
+						return;
+					}
+
+					setTimeout(() => {
+						console.log('Returning to lesson script');
+						window.history.back();
+					}, 2000);
+
+					console.log('LESSON FINISHED!');
+					this.progress('complete');
+					console.groupEnd();
+				},
+				progress: async function (type, payload) {
+					payload = payload || {};
+
+					fetch(ACTIVITY_ENDPOINT, {
+						credentials: 'include',
+						headers: {
+							'Accept': 'application/json',
+							'Content-Type': 'application/json'
+						},
+						method: 'POST',
+						body: JSON.stringify(Object.assign({}, {
+							type: `lesson.${type}`,
+							mode: MODE
+						}, payload))
+					});
+				}
+			});
+
+			AFRAME.registerComponent('play-on-window-click', {
+				init: function () {
+					this.onClick = this.onClick.bind(this);
+				},
+				play: function () {
+					window.addEventListener('click', this.onClick);
+				},
+				pause: function () {
+					window.removeEventListener('click', this.onClick);
+				},
+				onClick: function (evt) {
+					$('#click-to-start').remove();
+					const video = this.el.components.material.material.map.image;
+
+					if (!video) {
+						return;
+					}
+
+					$('track').each(function () {
+						for (let j = 0; j < this.track.cues.length; ++j) {
+							$(this.track.cues[j])
+									.on('enter', (e) => { lesson.components["lesson-controller"].onEnter(e); })
+									.on('exit', (e) => {  lesson.components["lesson-controller"].onExit(e); });
+						}
+					});
+
+					video.play();
+					window.removeEventListener('click', this.onClick);
+				}
+			});
+
+			if (navigator.platform === 'iPad' || navigator.platform === 'iPhone') {
+				$('#click-to-start').css('z-index', -1);
+			}
+
+			$('#lesson-end')
+					.on('click', '.reload', function () { window.location.reload(true); })
+					.on('click', '.back', function () { window.history.back(); });
+		});
+	</script>
+{% endblock %}
+
+	{% block player %}
+		<div id="player-container" class="player-container {{ mode }}" data-return="{{ path('app_default_lesson', {'id': lesson.id}) }}" data-activity="{{ path('api_lesson_activity', {'id' : lesson.id}) }}">
+			<div id="click-to-start" class="overlay">
+				<i class="fal fa-play-circle"></i>
+			</div>
+			<div id="lesson-end" class="overlay">
+				<i class="fal fa-undo reload"></i>
+				<i class="fal fa-home back"></i>
+			</div>
+			<a-scene lesson-controller vr-mode-ui="enabled: false" renderer="maxCanvasWidth: 1280; maxCanvasHeight: 720; precision: low;" light="defaultLightsEnabled: false">
+				<a-assets>
+					<video id="lesson-video" src="{{ asset('lessons/' ~ lesson.language.id ~ '/' ~ lesson.number ~ '/' ~ (optimizedVideo ?: lesson.video)) }}" preload="auto" playsinline>
+						<track kind="metadata" label="{{ lesson.title }}" src="{{ path('app_default_metadata', { 'id': lesson.id, 'mode': mode }) }}" default/>
+					</video>
+					{% for section in lesson.sections %}
+						{% for segment in section.options if segment.audio %}
+							<audio id="{{ segment.audio|lower|replace({'.mp3': '', '.': '', '_': '-'}) }}" src="{{ asset('lessons/' ~ lesson.language.id ~ '/' ~ lesson.number ~ '/' ~ segment.audio) }}"></audio>
+						{% endfor %}
+					{% endfor %}
+				</a-assets>
+
+				<a-videosphere
+						height="1024"
+						width="2048"
+						src="#lesson-video"
+						rotation="0 -87 0"
+						material="side: back"
+						play-on-window-click
+				></a-videosphere>
+
+				<a-camera></a-camera>
+			</a-scene>
+
+			<div class="actor">
+				<div id="prompt" class="dialog-panel">
+					<nav>
+						<button class="audio" title="Replay"><i class="fal fa-play-circle"></i></button>
+						<p></p>
+					</nav>
+				</div>
+			</div>
+
+			<div class="branches">
+				<div class="dialog-panel option a">
+					<ul class="variants"></ul>
+					<nav>
+						<button class="audio" title="Listen"><i class="fal fa-play-circle"></i></button>
+						<p></p>
+						<button class="variants" title="Select"><i class="fal fa-keyboard"></i></button>
+					</nav>
+				</div>
+
+				<div class="dialog-panel option b">
+					<ul class="variants"></ul>
+					<nav>
+						<button class="audio" title="Listen"><i class="fal fa-play-circle"></i></button>
+						<p></p>
+						<button class="variants" title="Select"><i class="fal fa-keyboard"></i></button>
+					</nav>
+				</div>
+
+				<div class="dialog-panel option c">
+					<ul class="variants"></ul>
+					<nav>
+						<button class="audio" title="Listen"><i class="fal fa-play-circle"></i></button>
+						<p></p>
+						<button class="variants" title="Select"><i class="fal fa-keyboard"></i></button>
+					</nav>
+				</div>
+
+				<div class="dialog-panel option d">
+					<ul class="variants"></ul>
+					<nav>
+						<button class="audio" title="Listen"><i class="fal fa-play-circle"></i></button>
+						<p></p>
+						<button class="variants" title="Select"><i class="fal fa-keyboard"></i></button>
+					</nav>
+				</div>
+			</div>
+
+			<div class="globals">
+				<input class="fal fa-turtle" type="checkbox" value="0.75" title="Play media at 75% speed"/>
+			</div>
+		</div>
+		<footer class="footer">
+			<button id="stt" class="button speak is-loading" disabled>
+				<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+					<g><circle id="timer" r="30px" cy="31px" cx="31px" stroke-width="6" stroke="white" fill="none"/></g>
+				</svg>
+				<span class="icon is-large">
+	                <i class="fas fa-2x has-text-black fa-volume"></i>
+	            </span>
+			</button>
+
+			<div class="columns">
+				<div class="column is-paddingless">
+					<article class="transcript box is-radiusless">
+						<button type="button" id="changeLanguage_btn"><i class="fal fa-2x fa-keyboard"></i></button>
+						<div id="ime_background">
+							{# <textarea type="text" id="transcript" class="writingHelper" value="" placeholder=""></textarea> #}
+							<div id="transcript" class="writingHelper" contentEditable="false" spellcheck="false"></div>
+							<div id="input_aux"></div>
+						</div>
+						<input id="langId" type="hidden" value="{{ lesson.language.id }}"/>
+					</article>
+				</div>
+			</div>
+		</footer>
+	{% endblock %}

@@ -1,0 +1,289 @@
+{% extends 'base.html.twig' %}
+
+{% set titleSuffix = (language.title|capitalize ~ ' - ' ~ lesson.title|capitalize) %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style media="print">
+	.no-print {
+		display: none !important;
+	}
+
+	body.lesson {
+		background: #fff;
+	}
+
+	body.lesson .box.lesson .title {
+		max-width: unset;
+	}
+
+	#us_report_button {
+		display: none !important;
+	}
+
+	.section.body {
+		top: 0 !important;
+		padding-top: 0;
+		padding-bottom: 0;
+	}
+
+	.navbar-brand>.navbar-item:not(:first-child),
+	.navbar-end {
+		display: none !important;
+	}
+
+	.box>.section {
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+
+	.hero-body {
+		padding: 1em 1em 0 !important;
+		background: #fff !important;
+	}
+
+	.hero-body:before {
+		background: none !important;
+	}
+
+	.has-text-white {
+		color: #000 !important;
+	}
+
+	.script {
+		padding-top: 0;
+		padding-bottom: 0;
+		margin-top: 0;
+		margin-bottom: 0;
+	}
+
+	body.lesson .box.lesson .section {
+		padding-top: 0;
+		padding-bottom: 0;
+	}
+
+	body.lesson aside .field {
+		margin-bottom: 0;
+		margin-top: 1em;
+	}
+
+	.divider.is-print {
+		display: block !important;
+
+	}
+
+	.title.is-print {
+		display: block !important;
+	}
+
+	.script.is-hidden {
+		display: block !important;
+	}
+
+	.tabs {
+		display: none;
+	}
+
+	.container {
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+
+	.box {
+		border-width: 0 !important;
+		border-radius: 0 !important;
+		box-shadow: none !important;
+		padding: 0 !important;
+	}
+</style>
+{% endblock %}
+
+{% trans_default_domain 'lessons' %}
+
+{% set levels = {
+    1: 'lesson.label.beginner',
+    10: 'lesson.label.intermediate',
+    50: 'lesson.label.advanced'
+} %}
+
+{% block hero %}
+<div class="hero-body"
+	{#style="background-image: url({{ asset('images/location/header/' ~ lesson.title|sonata_slugify('-') ~ '.jpg') }})"#}>
+	<div class="container is-fluid">
+		<article class="level lesson-language">
+			<div class="level-left">
+				<div class="level-item">
+					<img src="{{ asset('images/flags/' ~ language.country|upper ~ '.jpg') }}" class="flag">
+				</div>
+				<div class="level-item">
+					<p class="title has-text-white is-size-1 has-text-weight-normal">{{ language.title }}</p>
+				</div>
+			</div>
+		</article>
+	</div>
+</div>
+{% endblock %}
+
+{% block body %}
+{% set baseLang = language.id == 'en' ? 'zh' : 'en' %}
+
+<div class="box lesson">
+	<section class="section">
+		<div class="columns">
+			<div class="column is-radiusless">
+				{#<h2 class="title is-size-2 has-text-weight-normal">{{ lesson.location.title }}</h2>#}
+			</div>
+		</div>
+
+		<div class="columns is-multiline">
+			<div class="column is-radiusless is-four-fifth-tablet">
+				<div class="box">
+					<nav class="level-from-desktop">
+						<div class="level-left">
+							<div>
+								<h2 class="heading">{{ lesson.level|capitalize }}</h2>
+								<h3 class="title">{{ lesson.title }}</h3>
+							</div>
+						</div>
+						<div class="level-right">
+							<div class="tabs is-toggle">
+								<ul>
+									<li class="{{ language.id }} is-active">
+										<a
+											href="#{{ language.id }}">{{ ('language.title.' ~ language.id)|trans(domain='messages', locale=language.id) }}</a>
+									</li>
+									<li class="{{ baseLang }}">
+										<a
+											href="#{{ baseLang }}">{{ ('language.title.' ~ baseLang)|trans(domain='messages', locale=baseLang) }}</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</nav>
+					<hr class="divider">
+
+					{% for lang in [lesson.language.id, baseLang] %}
+					<div id="{{ lang }}" class="section content script {{ loop.first ? '' : 'is-hidden' }}">
+						<p class="title is-size-3 is-print">
+							{{ ('language.title.' ~ lang)|trans(domain='messages', locale=lang) }}</p>
+
+						{% set prop = cycle(['content', 'help'], loop.index0) %}
+
+						{% for section in lesson.sections -%}
+						{% if section.prompt %}
+						<p class="transcript listen" data-divider="">{{ attribute(section.prompt, prop) }}</p>
+						{% endif %}
+
+						{% for segment in section.options %}
+						<p class="transcript speak" data-divider="">
+							{% if section.options|length > 1 %}
+							{#{{ cycle(['A.', 'B)', '3', 'IV'], loop.index0) }}#}
+							{% endif %}
+							{{ attribute(segment, prop) }}
+						</p>
+						{% endfor %}
+						{%- endfor %}
+
+						{% if loop.first %}
+						<hr class="divider is-print" />
+						{% endif %}
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+			<aside class="column is-one-fifth-tablet" id="sidebar">
+				<div class="field no-print">
+					<p class="is-size-4 has-text-weight-bold">Lesson Mode</p>
+					<a href="{{ path('app_default_view', {"id": lesson.id, "mode": "pronunciation"}) }}"
+						class="button is-large is-fullwidth start is-block">
+						<span class="icon is-pulled-left">
+							<i class="fal fa-microphone-alt"></i>
+						</span>
+						<span>{{ 'lesson.label.start.pronunciation'|trans(locale='en') }}</span>
+						<progress max="{{ lesson.segmentsCount }}"
+							value="{{ progress.pronunciation|length }}"></progress>
+					</a>
+					{% if language.id not in ['ja'] and lesson.sections.first().prompt %}
+					<br />
+					<a href="{{ path('app_default_view', {"id": lesson.id, "mode": "dictation"}) }}"
+						class="button is-large is-fullwidth start is-block">
+						<span class="icon is-pulled-left">
+							<i class="fal fa-keyboard"></i>
+						</span>
+						<span>{{ 'lesson.label.start.dictation'|trans(locale='en') }}
+							<span class="badge badge-danger">NEW</span>
+						</span>
+						<progress max="{{ lesson.segmentsCount }}" value="{{ progress.dictation|length }}"></progress>
+					</a>
+					{% endif %}
+					<br />
+					<a href="{{ path('app_default_view', {"id": lesson.id, "mode": "translation"}) }}"
+						class="button is-large is-fullwidth start is-block">
+						<span class="icon is-pulled-left">
+							<i class="fal fa-arrows-h"></i>
+						</span>
+						<span>{{ 'lesson.label.start.translation'|trans(locale='en') }}</span>
+						<progress max="{{ lesson.segmentsCount }}" value="{{ progress.translation|length }}"></progress>
+					</a>
+					{% if lesson.immersionMode %}
+					<br />
+					<a href="{{ path('app_default_view', {"id": lesson.id, "mode": "immersion"}) }}"
+						class="button is-large is-fullwidth start is-block">
+						<span class="icon is-pulled-left">
+							<i class="fal fa-users-crown"></i>
+						</span>
+						<span>{{ 'lesson.label.start.immersion'|trans(locale='en') }}</span>
+						<progress max="{{ lesson.segmentsCount }}" value="{{ progress.immersion|length }}"></progress>
+					</a>
+					{% endif %}
+				</div>
+
+
+				{% if lesson.vocabulary %}
+				<hr class="divider is-hidden-mobile" />
+				<div class="field">
+					<p class="is-size-4 has-text-weight-bold">{{ 'lesson.label.vocab'|trans(locale='en') }}</p>
+					<p>{{ lesson.vocabulary }}</p>
+				</div>
+				{% endif %}
+				{% if lesson.grammar %}
+				<div class="field">
+					<p class="is-size-4 has-text-weight-bold">{{ 'lesson.label.grammar'|trans(locale='en') }}</p>
+					<p>{{ lesson.grammar }}</p>
+				</div>
+				<hr class="divider is-hidden-mobile  no-print" />
+				{% endif %}
+
+				<div class="field is-hidden-mobile no-print">
+					<a class="button is-fullwidth print" onclick="window.print(); return false;">
+						<span class="icon">
+							<i class="fas fa-download"></i>
+						</span>
+						<span>{{ 'lesson.label.download'|trans(locale='en') }}</span>
+					</a>
+				</div>
+
+			</aside>
+		</div>
+	</section>
+</div>{% endblock %}{% block javascripts %}{{ parent() }}
+<script>window.addEventListener('DOMContentLoaded', function () {
+		const $tabs = $(`.tabs li`);
+		const $cards = $(`.script`);
+
+		$tabs.find('a').on('click', function (e) {
+			e.preventDefault();
+
+			const active = this.getAttribute('href');
+			$tabs.removeClass('is-active').filter(`.${
+				active.slice(1)
+				}`).addClass('is-active');
+
+			$cards.removeClass('is-hidden').not(active).addClass('is-hidden')
+		});
+
+
+		if (performance.navigation.type === 2) {
+			location.reload(true);
+		}
+	});</script>{% endblock %}
