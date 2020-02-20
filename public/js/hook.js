@@ -26,7 +26,7 @@ const addLanguageCheckingList = textInput => {
     Object.keys(languages).map(code => {
         const x = document.createElement("IMG");
         x.className = "flagIcon";
-        x.setAttribute("src", "/images/icons/" + code + '.png');
+        x.setAttribute("src", "public/images/icons/" + code + '.png');
         x.setAttribute("alt", code);
 
         const languageFullName = document.createElement("span");
