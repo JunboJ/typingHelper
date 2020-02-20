@@ -48,6 +48,15 @@ const addLanguageCheckingList = textInput => {
             setTimeout(() => {
                 $(listWrapper).toggleClass("listWrapper_off");
                 $(listWrapper).toggleClass("listWrapper_on");
+                $('#changeLanguage_btn')[0].innerText = '';
+                $('#changeLanguage_btn')[0].innerHtml = '';
+                let code = $(".langSwitch:checked + .langCode").val();
+                const x = document.createElement("IMG");
+                x.className = "flagIcon";
+                x.setAttribute("src", "/images/icons/" + code + '.png');
+                x.setAttribute("alt", code);
+                $('#changeLanguage_btn')[0].innerText = languages[code].toUpperCase() + ' ';
+                $('#changeLanguage_btn').append(x);
             }, 50);
         });
 

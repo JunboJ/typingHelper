@@ -1,0 +1,27 @@
+#changeLanguage_btn:focus {
+    outline: none;
+}
+
+#changeLanguage_btn {
+    display: flex;
+    align-items: center;
+    border: 1px solid #c2c2c2aa;
+}
+
+#changeLanguage_btn img {
+    margin-left: 3px;
+    box-shadow: 1px 1px 2px grey;
+}
+
+h5 {
+    padding-left: 10%;
+}
+
+.languageSwitch_wrapper {
+    height: auto;
+    display: flex;
+    justify-content: flex-start;
+    margin: 20px;
+    padding-left: calc(10% - 20px);
+    align-items: center;
+}
