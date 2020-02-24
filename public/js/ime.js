@@ -68,7 +68,7 @@ export const writingHelper = (input, lang, isTyping = false) => {
     isTyping ? null : resetCaretStart();
     console.log('stringStart/cursorStart/cursorEnd', stringStart, cursorStart, cursorEnd);
 
-    MULTIPLE_LETTER_LANGUAGE_LIST.includes(language) ? getCurrentCharacter = () => getInputML() : getCurrentCharacter = () => getInputSL();
+    MULTIPLE_LETTER_LANGUAGE_LIST.includes(language) ? getCurrentCharacter = getInputML : getCurrentCharacter = getInputSL;
 
     inputValue ? currentCharacter = getCurrentCharacter() : null;
 
