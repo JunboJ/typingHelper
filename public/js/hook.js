@@ -7,20 +7,21 @@ let buttonWidth;
 let buttonHeight;
 let langList;
 const listWrapper = document.createElement("div");
+const ARROWKEY_CODES = [37, 38, 39, 40];
+const languages = {
+    de: "German",
+    el: "Greek",
+    en: "English",
+    es: "Spanish",
+    fr: "French",
+    id: "Indonesian",
+    it: "Italian",
+    ja: "Japanese",
+    zh: "Chinese",
+    pinyin: "Chinese(Pinyin)"
+};
 
 const addLanguageCheckingList = textInput => {
-    const languages = {
-        de: "German",
-        el: "Greek",
-        en: "English",
-        es: "Spanish",
-        fr: "French",
-        id: "Indonesian",
-        it: "Italian",
-        ja: "Japanese",
-        zh: "Chinese",
-        pinyin: "Chinese(Pinyin)"
-    };
     // const listWrapper = document.createElement("div");
     listWrapper.className = "listWrapper";
     Object.keys(languages).map(code => {
@@ -149,21 +150,16 @@ $(document).ready(function () {
                     run();
                 }
             } else {
-                if (
-                    event.which == 37 ||
-                    event.which == 38 ||
-                    event.which == 39 ||
-                    event.which == 40
-                ) {
+                if (ARROWKEY_CODES.includes(event.which)) {
                     run();
                 }
             }
-            if (event.which == 27) {
-                if (div) {
-                    div.remove();
-                    resetCaretStart();
-                }
-            }
+            // if (event.which == 27) {
+            //     if (div) {
+            //         div.remove();
+            //         resetCaretStart();
+            //     }
+            // }
         };
 
         element.on("click", eventHandler);
@@ -189,12 +185,7 @@ $(document).ready(function () {
             }
         });
         element.on("keyup", event => {
-            if (
-                event.which == 37 ||
-                event.which == 38 ||
-                event.which == 39 ||
-                event.which == 40
-            ) {
+            if (ARROWKEY_CODES.includes(event.which)) {
                 arrowKeyEventHandler(event);
             }
         });
@@ -205,19 +196,5 @@ $(document).ready(function () {
 
     $(".langSwitch").on("change", event => {
         language = $(".langSwitch:checked + .langCode").val();
-        // const inputElList = document.querySelectorAll('.writingHelper');
-        // for (const inputEl of inputElList) {
-        //     if (language == 'ja') {
-        //         wanakana.bind(inputEl);
-        //         console.log('bind');
-        //     } else {
-        //         try {
-        //             wanakana.unbind(inputEl);
-        //             console.log('unbind');
-        //         } catch (error) {
-        //             return;
-        //         }
-        //     }
-        // }
     });
 });

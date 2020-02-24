@@ -212,18 +212,18 @@ export const writingHelper = (input, lang, isTyping = false) => {
 };
 
 export const resetCaretStart = () => {
-    console.log('resetCaretStart');
+    console.log('reset string start');
 
     const { cursorStart: start } = getCaretPosition();
     stringStart = start;
-}
+};
 
 const resetVariables = () => {
     currentCharacter = null;
     pages = [];
     pageNum = 0;
     highlightOption = 49;
-}
+};
 
 const createUIElements = () => {
     helperDiv = document.createElement("div");
@@ -339,7 +339,7 @@ const togglePageControllers = () => {
     } else {
         pageCtrl.style.display = "inline-flex";
     }
-}
+};
 
 // get input_Jq value
 const getInputValue = () => {
@@ -372,9 +372,16 @@ const getInputSL = () => {
 };
 
 const getInputML = () => {
+    let currentCharacter;
+    const patt = /([a-zA-Z.,!?$;:\\()\'\"<>]+)/gi;
+    // const kanaPatt = /([\u3040-\u30ff]*)/g;
+    let temp;
+    let charArray = [];
     let start, end;
+
     ({ cursorStart, cursorEnd } = getCaretPosition());
     console.log('ML cursor pos: ', { cursorStart, cursorEnd });
+
     if (cursorStart == cursorEnd) {
         start = stringStart;
         end = cursorEnd;
@@ -382,11 +389,9 @@ const getInputML = () => {
         start = cursorStart;
         end = cursorEnd;
     }
+
     let inputValue = getInputValue(input_Html);
     const inputString = inputValue.slice(start, end);
-    const patt = /([a-zA-Z.,!?$;:\\()\'\"<>]+)/gi;
-    let temp;
-    let charArray = [];
     do {
         temp = patt.exec(inputString);
         if (temp) {
@@ -398,7 +403,6 @@ const getInputML = () => {
         }
     } while (temp);
 
-    let currentCharacter;
     if (charArray.length > 0) {
         if (charArray[charArray.length - 1].index !== inputString.length) {
             currentCharacter = null;
@@ -504,7 +508,9 @@ const getOptions = (str, callback) => {
                 break;
             case "ja":
                 reset();
-                callback(get_ja(str) || null);
+                get_ja(str)
+                    .then(res => callback(res))
+                    .catch(err => console.log(err));
                 break;
             default:
                 return null;
@@ -691,7 +697,7 @@ const keydownEventHandler = event => {
             $("#prevPageCtrl").mouseup();
             // }
         }
-        console.log("highlight option: ", highlightOption);
+        // console.log("highlight option: ", highlightOption);
         return;
     }
 

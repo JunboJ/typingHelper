@@ -1,3 +1,9 @@
+body {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
 #changeLanguage_btn:focus {
     outline: none;
 }
@@ -24,4 +30,13 @@ h5 {
     margin: 20px;
     padding-left: calc(10% - 20px);
     align-items: center;
+}
+
+.input_wrapper {
+
+}
+
+.writingHelper {
+    width: 80%;
+    margin: auto;
 }

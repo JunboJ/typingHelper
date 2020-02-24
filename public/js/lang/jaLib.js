@@ -1,22 +1,24 @@
 console.log('wanakana: ', wanakana);
 
 export const get_ja = str => {
-  const res = [];
+  const result = [];
   const convertToKana = str => {
     return wanakana.toKana(str);
   };
-  if (str.length > 0) {
-    const converted = convertToKana(str);
-    res[0] = converted ? converted : null;
-    return {
-      resultString: str,
-      partEnd: str.length,
-      result: res,
-      strL: str.length
+  return new Promise((res, rej) => {
+    if (str.length > 0) {
+      const converted = convertToKana(str);
+      result[0] = converted ? converted : null;
+      res({
+        resultString: str,
+        partEnd: str.length,
+        result: result,
+        strL: str.length
+      });
+    } else {
+      rej(Error(err));
     }
-  } else {
-    return null;
-  }
+  });
 };
 
 
