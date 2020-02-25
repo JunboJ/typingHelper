@@ -128,7 +128,7 @@ $(document).ready(function () {
         };
 
         const eventHandler = (event, isTyping = false) => {
-            console.log("input event", isTyping);
+            // console.log("input event", isTyping);
             // event.preventDefault();
             if (language != "en") {
                 writingHelper(element, language, isTyping);

@@ -32,11 +32,25 @@ h5 {
     align-items: center;
 }
 
-.input_wrapper {
-
+#transcript {
+    padding: 4px;
+    border: 1px solid grey;
+    font-size: 1rem;
+    border-radius: 0.2rem;
+    -moz-transition: box-shadow .3s, border .3s;
+    -ms-transition: box-shadow .3s, border .3s;
+    -o-transition: box-shadow .3s, border .3s;
+    -webkit-transition: box-shadow .3s, border .3s;
+    transition: box-shadow .3s, border .3s;
 }
 
-.writingHelper {
+#transcript:focus {
+    outline: none;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.4);
+    border: 1px solid white;
+}
+
+.writingHelper, #transcript {
     width: 80%;
     margin: auto;
 }
