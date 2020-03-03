@@ -509,9 +509,8 @@ const getCaretPosition = () => {
 };
 
 // focus on element function
-export const setFocus = (el = null) => {
-    let element
-    el === null ? element = input_Html : element = el;
+export const setFocus = () => {
+    let element = input_Html;
     if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {
         element.focus();
     } else {
