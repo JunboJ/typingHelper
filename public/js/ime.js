@@ -45,185 +45,206 @@ let cursorStart = null;
 let cursorEnd = null;
 
 // assign space key's function as entering a blank space by language
-const SPACE_KEY_SPACE_LANGUAGE_LIST = ["de", "es", "fr", "it", "pinyin"];
+const SPACE_KEY_SPACE_LANGUAGE_LIST = ["de", "es", "fr", "it", "pinyin", "ja"];
 
 // assign space key's function as selecting a option by language
-const SPACE_KEY_SELECT_LANGUAGE_LIST = ["el", "zh", "ja"];
+const SPACE_KEY_SELECT_LANGUAGE_LIST = ["el", "zh"];
 
 // language list that take multiple input
 const MULTIPLE_LETTER_LANGUAGE_LIST = ["zh", "ja"];
 
-export const writingHelper = (input, lang, isTyping = false) => {
+// character type list
+const CHARACTER_TYPE_LIST = ["latin", "kana", "romaji"];
+
+export const writingHelper = (input, lang, isTyping = false, event = null) => {
+    // console.log(event.code);
+
     language = lang;
     input_Jq = input;
     input_Html = input[0];
     inputParent_Jq = input.parent()
     inputParent_Html = inputParent_Jq[0];
     inputValue = getInputValue();
+    helperDiv = $(".helperDiv")[0] || null;
     helperContent = $(".helperContent")[0] || null;
-
-    helperDiv = $(".helperDiv")[0] ? $(".helperDiv")[0] : null;
+    let resultCounter = 0;
 
     resetVariables();
+
     isTyping ? null : resetCaretStart();
-    console.log('stringStart/cursorStart/cursorEnd', stringStart, cursorStart, cursorEnd);
 
-    MULTIPLE_LETTER_LANGUAGE_LIST.includes(language) ? getCurrentCharacter = () => getInputML() : getCurrentCharacter = () => getInputSL();
+    MULTIPLE_LETTER_LANGUAGE_LIST.includes(language) ? getCurrentCharacter = getInputML : getCurrentCharacter = getInputSL;
 
-    inputValue ? currentCharacter = getCurrentCharacter() : null;
-
-    if (currentCharacter !== null) {
-        console.log('currentCharacter: ', currentCharacter);
-
-        getOptions(currentCharacter, result => {
-            options = result;
-            console.log('options: ', options);
-            if (options !== null && options.result !== null) {
-                // console.log('options.result.length: ', options.result.length);
-                updatePageList(options.result.length);
-                const copyStyle = getComputedStyle(input_Html);
-                createAuxElement();
-                for (const prop of copyStyle) {
-                    cloneField.style[prop] = copyStyle[prop];
-                }
-                if (input_Html.tagName === "TEXTAREA")
-                    cloneField.style.height = "auto";
-                if (input_Html.tagName === "INPUT")
-                    cloneField.style.width = "auto";
-
-                // create span to mark the position of caret
-                let replacedInputValue = input_Html.tagName === "INPUT" ? inputValue.replace(/ /g, '.') : inputValue;
-                let textContent = replacedInputValue.substr(0, cursorEnd).slice(0, -1);
-                // assign content
-                cloneField.textContent = textContent;
-                caretMarkSpan.textContent = inputValue.substr(cursorEnd) + "." || ".";
-
-                cloneField.appendChild(caretMarkSpan);
-                inputParent_Html.appendChild(cloneField);
-
-                // get position of wrapper of the rest of cloned content
-                const {
-                    offsetLeft: spanX,
-                    offsetTop: spanY,
-                    offsetWidth: spanWidth,
-                    offsetHeight: spanHeight
-                } = caretMarkSpan;
-                const spany = $(caretMarkSpan).offset().top;
-
-                // get position of clone div
-                const {
-                    offsetLeft: cloneFieldX,
-                    offsetTop: cloneFieldY,
-                    offsetWidth: cloneFieldWidth,
-                    offsetHeight: cloneFieldHeight
-                } = cloneField;
-
-                // get position of input_Jq fields
-                const {
-                    offsetLeft: inputX,
-                    offsetTop: inputY,
-                    offsetWidth: inputWidth,
-                    offsetHeight: inputHeight
-                } = input_Html;
-
-                // get position of the parent element of input_Jq fields
-                const {
-                    offsetLeft: ipX,
-                    offsetTop: ipY,
-                    offsetWidth: ipWidth,
-                    offsetHeight: ipHeight
-                } = inputParent_Html;
-
-                const ipy = $(inputParent_Html).offset().top;
-
-                // remove clone
-                cloneField.remove();
-
-                // if helperDiv does not exist
-                if (helperDiv === null) {
-                    createUIElements();
-                    togglePageControllers();
-                    basicKeyEventListener();
-                    createOptions();
-                } else {
-                    togglePageControllers();
-                    createOptions();
-                }
-
-                const {
-                    offsetWidth: helperWidth,
-                    offsetHeight: helperHeight
-                } = helperDiv;
-                const windowWidth = window.innerWidth;
-                const windowHeight = window.innerHeight;
-                // styling and positioning
-                let leftPosition = spanX + 16;
-                let spanW = ipX + spanX + helperWidth;
-                let topPosition = cloneFieldHeight - helperHeight - spanHeight - 10;
-                let topToWindow = Math.abs(spany);
-                if (caretMarkSpan.textContent !== ".") {
-                    topToWindow = Math.abs(spany);
-                }
-                optionStyling(topToWindow, helperHeight);
-
-                if (input_Html.tagName === "INPUT") {
-                    // input field with full length string
-                    if (
-                        spanW - helperWidth >= inputWidth &&
-                        inputWidth + helperWidth < windowWidth
-                    ) {
-                        leftPosition = inputWidth;
-                    }
-                    // full width input field
-                    if (spanW >= windowWidth && inputWidth + helperWidth > windowWidth) {
-                        leftPosition = windowWidth - helperWidth - ipX;
-                    }
-                }
-
-                if (input_Html.tagName === "TEXTAREA") {
-                    // full width text area
-                    if (spanW >= windowWidth) {
-                        leftPosition = windowWidth - helperWidth - ipX;
-                    }
-                }
-
-                if (input_Html.tagName === "div") {
-                    // full width text area
-                    if (spanW >= windowWidth) {
-                        leftPosition = windowWidth - helperWidth - ipX;
-                    }
-                }
-
-                helperDiv.style.left = `${leftPosition}px`;
-                helperDiv.style.top = `${topPosition + 8}px`;
-            } else {
-                // resetVariables();
-                if (helperDiv !== null) {
-                    removeHelper();
-                }
+    inputValue ? currentCharacter = getCurrentCharacter() : { 0: null, 1: null };
+    Object.values(currentCharacter).forEach(entry => {
+        if (entry !== null) {
+            resultCounter++;
+            console.log('matchRes: ', matchRes);
+            if (entry.type === 'latin' || entry.type === 'kana') {
+                getOptions(entry.string, createInterface, entry.type);
             }
-        });
+            if (entry.type === 'romaji') {
+                console.log('romaji');
+                getOptions(entry.string, data => {
+                    options = data;
+                    console.log('data ', data);
+                    setInputValue(data.result[0]);
+                    setFocus(input_Jq);
+                    inputValue = getInputValue();
+                    inputValue ? currentCharacter = getCurrentCharacter() : { 0: null, 1: null };
+                    if (currentCharacter[1] !== null) {
+                        getOptions(currentCharacter[1].string, createInterface, 'kana');
+                    }
+                }, entry.type);
+            }
+        }
+    });
+    if (resultCounter === 0 && helperDiv !== null) {
+        removeHelper();
+    }
+};
+
+export const resetCaretStart = () => {
+    console.log('reset string start');
+
+    const { cursorStart: start } = getCaretPosition();
+    stringStart = start;
+};
+
+const createInterface = result => {
+    options = result;
+    console.log('options: ', options);
+    if (options !== null && options.result !== null) {
+        const copyStyle = getComputedStyle(input_Html);
+        updatePageList(options.result.length);
+        createAuxElement();
+        for (const prop of copyStyle) {
+            cloneField.style[prop] = copyStyle[prop];
+        }
+        if (input_Html.tagName === "TEXTAREA")
+            cloneField.style.height = "auto";
+        if (input_Html.tagName === "INPUT")
+            cloneField.style.width = "auto";
+
+        // create span to mark the position of caret
+        let replacedInputValue = input_Html.tagName === "INPUT" ? inputValue.replace(/ /g, '.') : inputValue;
+        let textContent = replacedInputValue.substr(0, cursorEnd).slice(0, -1);
+        // assign content
+        cloneField.textContent = textContent;
+        caretMarkSpan.textContent = inputValue.substr(cursorEnd) + "." || ".";
+
+        cloneField.appendChild(caretMarkSpan);
+        inputParent_Html.appendChild(cloneField);
+
+        // get position of wrapper of the rest of cloned content
+        const {
+            offsetLeft: spanX,
+            offsetTop: spanY,
+            offsetWidth: spanWidth,
+            offsetHeight: spanHeight
+        } = caretMarkSpan;
+        const spany = $(caretMarkSpan).offset().top;
+
+        // get position of clone div
+        const {
+            offsetLeft: cloneFieldX,
+            offsetTop: cloneFieldY,
+            offsetWidth: cloneFieldWidth,
+            offsetHeight: cloneFieldHeight
+        } = cloneField;
+
+        // get position of input_Jq fields
+        const {
+            offsetLeft: inputX,
+            offsetTop: inputY,
+            offsetWidth: inputWidth,
+            offsetHeight: inputHeight
+        } = input_Html;
+
+        // get position of the parent element of input_Jq fields
+        const {
+            offsetLeft: ipX,
+            offsetTop: ipY,
+            offsetWidth: ipWidth,
+            offsetHeight: ipHeight
+        } = inputParent_Html;
+
+        const ipy = $(inputParent_Html).offset().top;
+
+        // remove clone
+        cloneField.remove();
+
+        // if helperDiv does not exist
+        if (helperDiv === null) {
+            createUIElements();
+            togglePageControllers();
+            basicKeyEventListener();
+            createOptions();
+        } else {
+            togglePageControllers();
+            createOptions();
+        }
+
+        const {
+            offsetWidth: helperWidth,
+            offsetHeight: helperHeight
+        } = helperDiv;
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        // styling and positioning
+        let leftPosition = spanX + 16;
+        let spanW = ipX + spanX + helperWidth;
+        let topPosition = cloneFieldHeight - helperHeight - spanHeight - 10;
+        let topToWindow = Math.abs(spany);
+        if (caretMarkSpan.textContent !== ".") {
+            topToWindow = Math.abs(spany);
+        }
+        optionStyling(topToWindow, helperHeight);
+
+        if (input_Html.tagName === "INPUT") {
+            // input field with full length string
+            if (
+                spanW - helperWidth >= inputWidth &&
+                inputWidth + helperWidth < windowWidth
+            ) {
+                leftPosition = inputWidth;
+            }
+            // full width input field
+            if (spanW >= windowWidth && inputWidth + helperWidth > windowWidth) {
+                leftPosition = windowWidth - helperWidth - ipX;
+            }
+        }
+
+        if (input_Html.tagName === "TEXTAREA") {
+            // full width text area
+            if (spanW >= windowWidth) {
+                leftPosition = windowWidth - helperWidth - ipX;
+            }
+        }
+
+        if (input_Html.tagName === "DIV") {
+            // full width text area
+            if (spanW >= windowWidth) {
+                leftPosition = windowWidth - helperWidth - ipX;
+            }
+        }
+
+        helperDiv.style.left = `${leftPosition}px`;
+        helperDiv.style.top = `${topPosition + 8}px`;
     } else {
         // resetVariables();
         if (helperDiv !== null) {
             removeHelper();
         }
     }
-};
-
-export const resetCaretStart = () => {
-    console.log('resetCaretStart');
-
-    const { cursorStart: start } = getCaretPosition();
-    stringStart = start;
 }
 
 const resetVariables = () => {
-    currentCharacter = null;
+    currentCharacter = { 0: null, 1: null };
     pages = [];
     pageNum = 0;
     highlightOption = 49;
-}
+};
 
 const createUIElements = () => {
     helperDiv = document.createElement("div");
@@ -268,7 +289,7 @@ const createUIElements = () => {
     nextPage.innerHTML = '<i class="fas fa-caret-right"></i>';
     $(nextPage).on("mousedown", event => {
         event.stopPropagation();
-        input.off("blur");
+        input_Jq.off("blur");
     });
     $(nextPage).on("mouseup", event => {
         console.log("next");
@@ -339,7 +360,7 @@ const togglePageControllers = () => {
     } else {
         pageCtrl.style.display = "inline-flex";
     }
-}
+};
 
 // get input_Jq value
 const getInputValue = () => {
@@ -361,20 +382,25 @@ const getInputValue = () => {
 const getInputSL = () => {
     // let cursorStart, cursorEnd;
     ({ cursorStart, cursorEnd } = getCaretPosition());
-    console.log('SL cursor pos: ', { cursorStart, cursorEnd });
 
     // get the character under caret
     if (cursorStart == cursorEnd)
         cursorStart = cursorEnd == 0 ? 0 : cursorStart - 1;
     const inputString = getInputValue(input_Html);
     const currentCharacter = inputString.slice(cursorStart, cursorEnd);
-    return currentCharacter;
+    let res = currentCharacter.length == 0 ? null : { string: currentCharacter, type: 'latin' };
+    return {
+        0: res,
+        1: null
+    };
 };
 
 const getInputML = () => {
     let start, end;
+    let match_0;
+    let match_1;
     ({ cursorStart, cursorEnd } = getCaretPosition());
-    console.log('ML cursor pos: ', { cursorStart, cursorEnd });
+
     if (cursorStart == cursorEnd) {
         start = stringStart;
         end = cursorEnd;
@@ -382,35 +408,77 @@ const getInputML = () => {
         start = cursorStart;
         end = cursorEnd;
     }
+
     let inputValue = getInputValue(input_Html);
     const inputString = inputValue.slice(start, end);
-    const patt = /([a-zA-Z.,!?$;:\\()\'\"<>]+)/gi;
-    let temp;
+
+    if (inputString.length > 0) {
+        if (language == 'zh') {
+            match_0 = findMatch('latin', inputString);
+            console.log('zh match');
+            match_1 = null;
+        }
+        if (language == 'ja') {
+            console.log('ja match');
+            match_0 = findMatch('romaji', inputString);
+            match_1 = findMatch('kana', inputString);
+        }
+    } else {
+        match_0 = match_1 = null
+    }
+
+    return {
+        0: match_0,
+        1: match_1
+    };
+};
+
+const findMatch = (type, str) => {
+    const patt = /([a-zA-Z.,!?$;:\\()\'\"<>\s]+)/gi;
+    const kanaPatt = /([\u3040-\u30ff.,!?$;:\\()\'\"<>\s]+)/g;
+    let match;
     let charArray = [];
-    do {
-        temp = patt.exec(inputString);
-        if (temp) {
+    let count = 0;
+    if (type === 'kana') {
+        while ((match = kanaPatt.exec(str)) !== null && count < 10) {
+            console.log('match: ', match);
             const infoObj = {
-                string: temp[0],
+                string: match[0],
+                index: kanaPatt.lastIndex
+            };
+            charArray.push(infoObj);
+            count++;
+        }
+        console.log('charArray: ', charArray);
+        if (charArray.length > 0) {
+            let res = charArray[charArray.length - 1].string;
+            return { string: res, type: type }
+        } else {
+            return null;
+        }
+    } else {
+        while ((match = patt.exec(str)) !== null && count < 10) {
+            console.log('match: ', match);
+            const infoObj = {
+                string: match[0],
                 index: patt.lastIndex
             };
             charArray.push(infoObj);
+            count++;
         }
-    } while (temp);
-
-    let currentCharacter;
-    if (charArray.length > 0) {
-        if (charArray[charArray.length - 1].index !== inputString.length) {
-            currentCharacter = null;
+        console.log('charArray: ', charArray);
+        if (charArray.length > 0) {
+            if (charArray[charArray.length - 1].index !== str.length) {
+                return null;
+            } else {
+                let res = charArray[charArray.length - 1].string;
+                return { string: res, type: type }
+            }
         } else {
-            currentCharacter = charArray[charArray.length - 1].string;
+            return null;
         }
-    } else {
-        currentCharacter = null;
     }
-
-    return currentCharacter;
-};
+}
 
 const getCaretPosition = () => {
     var caretStartPos = 0,
@@ -442,21 +510,19 @@ const getCaretPosition = () => {
 };
 
 // focus on element function
-const setFocus = () => {
-    console.log('set focus!');
-
-    let element = input_Html;
+export const setFocus = (el = null) => {
+    let element
+    el === null ? element = input_Html : element = el;
     if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {
         element.focus();
     } else {
         let stringNode = element.childNodes[0];
         let stringLength = stringNode.length;
-        // console.log('set focus element: ', element);
+        console.log('stringLength: ', stringLength);
         let range = document.createRange();
         let selection = window.getSelection();
         range.setStart(stringNode, stringLength);
         range.collapse(true);
-        console.log("range: ", stringNode);
         selection.removeAllRanges();
         selection.addRange(range);
         element.focus();
@@ -464,8 +530,7 @@ const setFocus = () => {
 };
 
 // get options from library
-const getOptions = (str, callback) => {
-    // console.log('str in getOptions: ', str);
+const getOptions = (str, callback, type) => {
     const reset = () => {
         autoSelect = false;
     };
@@ -504,7 +569,9 @@ const getOptions = (str, callback) => {
                 break;
             case "ja":
                 reset();
-                callback(get_ja(str) || null);
+                get_ja(str, type)
+                    .then(res => callback(res))
+                    .catch(err => console.log(err));
                 break;
             default:
                 return null;
@@ -539,6 +606,8 @@ const updatePageList = resLength => {
 };
 
 const createOptions = (mode = "new") => {
+    console.log('create options');
+
     $(helperContent).empty();
     highlightOption = 49;
     if (mode == "new") pageNum = 0;
@@ -628,8 +697,6 @@ const closeBtnClickedHandler = event => {
 };
 
 const basicKeyEventListener = () => {
-    console.log('event handler has pages: ', pages);
-
     input_Jq.on("keyup.basicKeyEvents", event => {
         keyupEventHandler(event);
     });
@@ -658,11 +725,13 @@ const keydownEventHandler = event => {
     if (keycode == 189) {
         event.preventDefault();
         $("#prevPageCtrl").mouseup();
+        return;
     }
 
     if (keycode == 187) {
         event.preventDefault();
         $("#nextPageCtrl").mouseup();
+        return;
     }
 
     // space key and enter key pressed
@@ -676,6 +745,7 @@ const keydownEventHandler = event => {
         } else {
             event.preventDefault();
             $("#" + highlightOption).css({ "background-color": "rgb(78, 161, 216)" });
+            return;
         }
     }
 
@@ -691,7 +761,7 @@ const keydownEventHandler = event => {
             $("#prevPageCtrl").mouseup();
             // }
         }
-        console.log("highlight option: ", highlightOption);
+        // console.log("highlight option: ", highlightOption);
         return;
     }
 
@@ -813,18 +883,25 @@ const mouseDownHandler = event => {
 const mouseUpHandler = event => {
     input_Jq.off("blur");
     event.stopPropagation();
+
+    setInputValue(event.muAssets.char);
+    removeHelper(helperDiv, input_Jq);
+    setFocus(input_Jq);
+};
+
+// set input value
+const setInputValue = val => {
     let wordStart, wordEnd, newString;
-    console.log('cursorStart', cursorStart, 'cursorEnd', cursorEnd);
+    // console.log('cursorStart', cursorStart, 'cursorEnd', cursorEnd);
     if (cursorStart == cursorEnd) {
         // only japanese and Chinese have strL
         let strLength = options.strL || 0;
         wordStart = cursorStart - strLength;
         wordEnd = wordStart + options.partEnd;
-        console.log('wordStart', wordStart, 'wordEnd', wordEnd);
 
         newString =
             inputValue.slice(0, wordStart) +
-            event.muAssets.char +
+            val +
             inputValue.slice(wordEnd);
     } else {
         let selectedString = inputValue.slice(
@@ -833,25 +910,19 @@ const mouseUpHandler = event => {
         );
         let modifiedSelectedString = selectedString.replace(
             options.resultString,
-            event.muAssets.char
+            val
         );
         newString =
             inputValue.slice(0, cursorStart) +
             modifiedSelectedString +
             inputValue.slice(cursorEnd);
     }
-    setInputValue(newString);
-    removeHelper(helperDiv, input_Jq);
-    setFocus(input_Jq);
-};
 
-// set input value
-const setInputValue = (val) => {
     if (input_Html.tagName === "DIV") {
-        input_Html.innerText = val;
+        input_Html.innerText = newString;
     } else {
         if (input_Html.tagName === "INPUT" || input_Html.tagName === "TEXTAREA") {
-            input_Html.value = val;
+            input_Html.value = newString;
         } else {
             console.log("the element is invalid");
             return false;

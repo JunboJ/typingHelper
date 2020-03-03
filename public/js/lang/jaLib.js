@@ -1,63 +1,106 @@
-console.log('wanakana: ', wanakana);
+// console.log('wanakana: ', wanakana);
 
-export const get_ja = str => {
-  const res = [];
-  const convertToKana = str => {
-    return wanakana.toKana(str);
-  };
-  if (str.length > 0) {
-    const converted = convertToKana(str);
-    res[0] = converted ? converted : null;
-    return {
-      resultString: str,
-      partEnd: str.length,
-      result: res,
-      strL: str.length
-    }
-  } else {
-    return null;
-  }
+let Dictionary = null;
+let levelsOfLenience = 2;
+
+export const get_ja = (str, type) => {
+    let result = [];
+
+    return new Promise((res, rej) => {
+        if (str.length > 0) {
+            if (type === 'romaji') {
+                convertToKana(str)
+                    .then(data => {
+                        result[0] = data || null;
+                        res({
+                            resultString: str,
+                            partEnd: str.length,
+                            result: result,
+                            strL: str.length
+                        });
+                    });
+            }
+            if (type === 'kana') {
+                convertToKanji(str)
+                    .then(data => {
+                        // console.log('converted: ', data);
+                        result = data || null;
+                        res({
+                            resultString: str,
+                            partEnd: str.length,
+                            result: result,
+                            strL: str.length
+                        });
+                    });
+            }
+            // rej('input type error (not kana or romaji)');
+        } else {
+            rej(Error(err));
+        }
+    });
+
 };
 
+const convertToKana = str => {
+    return new Promise((res, rej) => {
+        // let data = ;
+        res(wanakana.toKana(str, { customKanaMapping: { n: 'n', nn: 'ん' } }));
+    })
+};
 
+const convertToKanji = str => {
+    return new Promise((res, rej) => {
+        import('./AutoKanjiTrie.js')
+            .then((m) => {
+                // console.log(m.kanjiRaw);
+                Dictionary = m.kanjiRaw;
+                getKanji(str)
+                    .then(kanjis => {
+                        // console.log('result: ', kanjis);
+                        // console.log('original string: ', str);
+                        if (kanjis.length > 0) {
+                            res(kanjis);
+                        } else {
+                            res(null);
+                        }
+                    })
+                    .catch(err => console.log(err));
+            })
+            .catch(err => console.log(err));
+    });
+};
 
-// const request = require('request');
-// const uuidv4 = require('uuid/v4');
+const getKanji = input => {
+    // variables
+    let results = [];
+    let currentLevel;
+    return new Promise((res, rej) => {
+        // Check if dictonary is initialized
+        if (Dictionary !== null) {
+            currentLevel = Dictionary;
 
-// // var key_var = 'TRANSLATOR_TEXT_SUBSCRIPTION_KEY';
-// // if (!process.env[key_var]) {
-// //     throw new Error('Please set/export the following environment variable: ' + key_var);
-// // }
-// var subscriptionKey = '58b60fa25e964fffaa759a72d93eaca9';
-// // var endpoint_var = 'TRANSLATOR_TEXT_ENDPOINT';
-// // if (!process.env[endpoint_var]) {
-// //     throw new Error('Please set/export the following environment variable: ' + endpoint_var);
-// // }
-// var endpoint = 'https://api.cognitive.microsofttranslator.com/transliterate?api-version=3.0';
+            // Loop through length of word 
+            for (let i = 0; i < input.length; i++) {
+                // Get letter and calculate level
+                let letter = input[i];
+                let level = input.length - i;
 
-// let options = {
-//     method: 'POST',
-//     baseUrl: endpoint,
-//     url: 'transliterate',
-//     qs: {
-//       'api-version': '3.0',
-//       'language': 'ja',
-//       'fromScript': 'latn',
-//       'toScript': 'jpan'
-//     },
-//     headers: {
-//       'Ocp-Apim-Subscription-Key': subscriptionKey,
-//       'Ocp-Apim-Subscription-Region': 'australiaeast',
-//       'Content-type': 'application/json',
-//     //   'Content-Length': 1,
-//       'X-ClientTraceId': uuidv4().toString()
-//     },
-//     body: [{
-//           Text: "wa"
-//     }],
-//     json: true,
-// };
+                // Move into currentLevel if exists otherwise break
+                if (currentLevel.hasOwnProperty(letter))
+                    currentLevel = currentLevel[letter];
+                else
+                    break;
 
-// request(options, function(err, res, body){
-//     console.log(JSON.stringify(body, null, 4));
-// });
+                // Check if inside levels of lenience then add to result
+                if (level <= levelsOfLenience && currentLevel.hasOwnProperty("v"))
+                    results = results.concat(currentLevel["v"]);
+            }
+
+            // Reverse the results array to have the most accurate answer first and return results
+            res(results.reverse());
+        }
+
+        // We errored return fail code
+        rej(Error('dictionary error'));
+    });
+};

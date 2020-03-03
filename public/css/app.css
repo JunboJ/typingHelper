@@ -1,3 +1,9 @@
+body {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
 #changeLanguage_btn:focus {
     outline: none;
 }
@@ -24,4 +30,27 @@ h5 {
     margin: 20px;
     padding-left: calc(10% - 20px);
     align-items: center;
+}
+
+#transcript {
+    padding: 4px;
+    border: 1px solid grey;
+    font-size: 1rem;
+    border-radius: 0.2rem;
+    -moz-transition: box-shadow .3s, border .3s;
+    -ms-transition: box-shadow .3s, border .3s;
+    -o-transition: box-shadow .3s, border .3s;
+    -webkit-transition: box-shadow .3s, border .3s;
+    transition: box-shadow .3s, border .3s;
+}
+
+#transcript:focus {
+    outline: none;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.4);
+    border: 1px solid white;
+}
+
+.writingHelper, #transcript {
+    width: 80%;
+    margin: auto;
 }

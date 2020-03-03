@@ -238,8 +238,8 @@
 .check-container .checkmark:after {
     left: 5px;
     top: 2px;
-    width: 4px;
-    height: 7px;
+    width: 40%;
+    height: 60%;
     border: solid white;
     border-width: 0 2px 2px 0;
     -webkit-transform: rotate(45deg);
