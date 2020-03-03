@@ -54,7 +54,7 @@ const addLanguageCheckingList = textInput => {
                 let code = $(".langSwitch:checked + .langCode").val();
                 const x = document.createElement("IMG");
                 x.className = "flagIcon";
-                x.setAttribute("src", "/images/icons/" + code + '.png');
+                x.setAttribute("src", "public/images/icons/" + code + '.png');
                 x.setAttribute("alt", code);
                 $('#changeLanguage_btn')[0].innerText = languages[code].toUpperCase() + ' ';
                 $('#changeLanguage_btn').append(x);
