@@ -204,6 +204,8 @@ $(document).ready(function () {
             }
         });
         element.on("input", () => {
+            console.log('input event');
+            
             eventHandler(event, true);
         });
     });
