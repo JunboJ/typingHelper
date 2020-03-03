@@ -79,7 +79,7 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
     Object.values(currentCharacter).forEach(entry => {
         if (entry !== null) {
             resultCounter++;
-            console.log('matchRes: ', matchRes);
+            // console.log('matchRes: ', matchRes);
             if (entry.type === 'latin' || entry.type === 'kana') {
                 getOptions(entry.string, createInterface, entry.type);
             }
