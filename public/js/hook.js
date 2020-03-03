@@ -154,12 +154,6 @@ $(document).ready(function () {
                     run();
                 }
             }
-            // if (event.which == 27) {
-            //     if (div) {
-            //         div.remove();
-            //         resetCaretStart();
-            //     }
-            // }
         };
 
         element.on("click", eventHandler);
@@ -191,9 +185,9 @@ $(document).ready(function () {
                     event.preventDefault();
                     if (element[0].tagName === 'DIV') {
                         element.text(element.text() + '　');
+                        setFocus();
                     } else {
                         element.val(element.val() + '　');
-                        setFocus(element);
                     }
                 }
             }

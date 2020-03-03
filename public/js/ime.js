@@ -79,7 +79,6 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
     Object.values(currentCharacter).forEach(entry => {
         if (entry !== null) {
             resultCounter++;
-            console.log('matchRes: ', matchRes);
             if (entry.type === 'latin' || entry.type === 'kana') {
                 getOptions(entry.string, createInterface, entry.type);
             }
@@ -510,9 +509,8 @@ const getCaretPosition = () => {
 };
 
 // focus on element function
-export const setFocus = (el = null) => {
-    let element
-    el === null ? element = input_Html : element = el;
+export const setFocus = () => {
+    let element = input_Html;
     if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {
         element.focus();
     } else {
