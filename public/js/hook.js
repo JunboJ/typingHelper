@@ -1,4 +1,4 @@
-import { writingHelper, resetCaretStart } from "./ime.js";
+import { writingHelper, resetCaretStart, setFocus } from "./ime.js";
 
 let language = null;
 let buttonPosLeft;
@@ -164,6 +164,9 @@ $(document).ready(function () {
 
         element.on("click", eventHandler);
         element.on("keydown", event => {
+            console.log('key down event keycode', event.code);
+            console.log(element[0].tagName);
+
             const helperdiv = getHelperDiv();
             if (event.which == 8 || event.which == 46) {
                 if (helperdiv) {
@@ -181,6 +184,17 @@ $(document).ready(function () {
                 if (helperdiv) {
                     helperdiv.remove();
                     resetCaretStart();
+                }
+            }
+            if (language === 'ja') {
+                if (event.code === 'Space') {
+                    event.preventDefault();
+                    if (element[0].tagName === 'DIV') {
+                        element.text(element.text() + '　');
+                    } else {
+                        element.val(element.val() + '　');
+                        setFocus(element);
+                    }
                 }
             }
         });

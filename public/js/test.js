@@ -42,7 +42,7 @@ import('./lang/AutoKanjiTrie.js')
     .then((m) => {
         // console.log(m.kanjiRaw);
         Dictionary = m.kanjiRaw;
-        getKanji('こん')
+        getKanji('こんい ')
             .then(result => {
                 console.log('result: ', result);
             })

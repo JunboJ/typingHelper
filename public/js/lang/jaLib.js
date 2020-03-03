@@ -23,7 +23,7 @@ export const get_ja = (str, type) => {
             if (type === 'kana') {
                 convertToKanji(str)
                     .then(data => {
-                        console.log('converted: ', data);
+                        // console.log('converted: ', data);
                         result = data || null;
                         res({
                             resultString: str,
@@ -56,8 +56,8 @@ const convertToKanji = str => {
                 Dictionary = m.kanjiRaw;
                 getKanji(str)
                     .then(kanjis => {
-                        console.log('result: ', kanjis);
-                        console.log('original string: ', str);
+                        // console.log('result: ', kanjis);
+                        // console.log('original string: ', str);
                         if (kanjis.length > 0) {
                             res(kanjis);
                         } else {
