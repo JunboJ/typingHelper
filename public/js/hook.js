@@ -47,13 +47,14 @@ const addLanguageCheckingList = textInput => {
         if (code === "en") langSwitch.checked = true;
         $(langSwitch).on("click", () => {
             setTimeout(() => {
-                $(listWrapper).toggleClass("listWrapper_off");
-                $(listWrapper).toggleClass("listWrapper_on");
+                // $(listWrapper).toggleClass("listWrapper_off");
+                // $(listWrapper).toggleClass("listWrapper_on");
                 $('#changeLanguage_btn')[0].innerText = '';
                 $('#changeLanguage_btn')[0].innerHtml = '';
                 let code = $(".langSwitch:checked + .langCode").val();
                 const x = document.createElement("IMG");
                 x.className = "flagIcon";
+                x.style.pointerEvents = "none";
                 x.setAttribute("src", "/images/icons/" + code + '.png');
                 x.setAttribute("alt", code);
                 $('#changeLanguage_btn')[0].innerText = languages[code].toUpperCase() + ' ';
@@ -95,6 +96,16 @@ const reposition = langList => {
 
 $(window).resize(function () {
     reposition(langList);
+});
+
+$(window).click(e => {
+    console.log(e);
+    if (!e.target.matches('#changeLanguage_btn')) {
+        $(langList).addClass("listWrapper_off");
+        $(langList).removeClass("listWrapper_on");
+        $(".LanguageSwitchArrow").addClass("LanguageSwitchArrow_off");
+        $(".LanguageSwitchArrow").removeClass("LanguageSwitchArrow_on");
+    }
 });
 
 $(document).ready(function () {
