@@ -30,6 +30,7 @@ let highlightOption = 49;
 let helperContent = null;
 let btnSet = null;
 let pageCtrl = null;
+let pageCtrlState = null;
 let prevPage = null;
 let nextPage = null;
 let closeBtn = null;
@@ -356,8 +357,10 @@ const optionStyling = (a, b) => {
 const togglePageControllers = () => {
     if (pages.length <= 1) {
         pageCtrl.style.display = "none";
+        pageCtrlState = false;
     } else {
         pageCtrl.style.display = "inline-flex";
+        pageCtrlState = true;
     }
 };
 
@@ -721,15 +724,19 @@ const keydownEventHandler = event => {
     }
 
     if (keycode == 189) {
-        event.preventDefault();
-        $("#prevPageCtrl").mouseup();
-        return;
+        if (pageCtrlState) {
+            event.preventDefault();
+            $("#prevPageCtrl").mouseup();
+            return;
+        }
     }
 
     if (keycode == 187) {
-        event.preventDefault();
-        $("#nextPageCtrl").mouseup();
-        return;
+        if (pageCtrlState) {
+            event.preventDefault();
+            $("#nextPageCtrl").mouseup();
+            return;
+        }
     }
 
     // space key and enter key pressed
