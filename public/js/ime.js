@@ -6,6 +6,7 @@ import { get_it } from "./lang/itLib.js";
 import { get_el } from "./lang/elLib.js";
 import { get_ja } from "./lang/jaLib.js";
 import { get_pinyin } from "./lang/pinyinLib.js";
+import { get_romaji } from "./lang/romajiLib.js";
 
 let language = "fr";
 let mode = "";
@@ -571,6 +572,12 @@ const getOptions = (str, callback, type) => {
             case "ja":
                 reset();
                 get_ja(str, type)
+                    .then(res => callback(res))
+                    .catch(err => console.log(err));
+                break;
+            case "romaji":
+                reset();
+                get_romaji(str)
                     .then(res => callback(res))
                     .catch(err => console.log(err));
                 break;
