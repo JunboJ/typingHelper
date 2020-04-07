@@ -17,6 +17,7 @@ const languages = {
     id: "Indonesian",
     it: "Italian",
     ja: "Japanese",
+    romaji: "Romaji",
     zh: "Chinese",
     pinyin: "Chinese(Pinyin)"
 };
