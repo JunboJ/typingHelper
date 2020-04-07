@@ -28,7 +28,7 @@ const addLanguageCheckingList = textInput => {
     Object.keys(languages).map(code => {
         const x = document.createElement("IMG");
         x.className = "flagIcon";
-        x.setAttribute("src", "public/images/icons/" + code + '.png');
+        x.setAttribute("src", "/images/icons/" + code + '.png');
         x.setAttribute("alt", code);
 
         const languageFullName = document.createElement("span");
@@ -56,7 +56,7 @@ const addLanguageCheckingList = textInput => {
                 const x = document.createElement("IMG");
                 x.className = "flagIcon";
                 x.style.pointerEvents = "none";
-                x.setAttribute("src", "public/images/icons/" + code + '.png');
+                x.setAttribute("src", "/images/icons/" + code + '.png');
                 x.setAttribute("alt", code);
                 $('#changeLanguage_btn')[0].innerText = languages[code].toUpperCase() + ' ';
                 $('#changeLanguage_btn').append(x);
