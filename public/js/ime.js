@@ -47,10 +47,16 @@ let cursorStart = null;
 let cursorEnd = null;
 
 // assign space key's function as entering a blank space by language
-const SPACE_KEY_SPACE_LANGUAGE_LIST = ["de", "es", "fr", "it", "pinyin", "ja"];
+const SPACE_KEY_SPACE_LANGUAGE_LIST = ["de", "es", "fr", "it", "pinyin"];
 
 // assign space key's function as selecting a option by language
-const SPACE_KEY_SELECT_LANGUAGE_LIST = ["el", "zh"];
+const SPACE_KEY_SELECT_LANGUAGE_LIST = ["el", "zh", "ja"];
+
+// assign ENTER key's function as selecting a option by language
+const ENTER_KEY_SELECT_LANGUAGE_LIST = ["ja", "zh", "el"];
+
+// Reset caret start on selecting
+const RESET_CARET_ON_SELECTING_LIST = ["ja"];
 
 // language list that take multiple input
 const MULTIPLE_LETTER_LANGUAGE_LIST = ["zh", "ja"];
@@ -59,8 +65,6 @@ const MULTIPLE_LETTER_LANGUAGE_LIST = ["zh", "ja"];
 const CHARACTER_TYPE_LIST = ["latin", "kana", "romaji"];
 
 export const writingHelper = (input, lang, isTyping = false, event = null) => {
-    // console.log(event.code);
-
     language = lang;
     input_Jq = input;
     input_Html = input[0];
@@ -107,7 +111,6 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
 
 export const resetCaretStart = () => {
     console.log('reset string start');
-
     const { cursorStart: start } = getCaretPosition();
     stringStart = start;
 };
@@ -700,8 +703,7 @@ const closeBtnMouseDownHandler = event => {
 };
 
 const closeBtnClickedHandler = event => {
-    if (helperDiv) helperDiv.remove();
-    input_Jq.off(".basicKeyEvents");
+    removeHelper();
 };
 
 const basicKeyEventListener = () => {
@@ -747,8 +749,8 @@ const keydownEventHandler = event => {
     }
 
     // space key and enter key pressed
-    if (keycode == 32 || keycode == 13) {
-        console.log(language);
+    if (keycode == 32) {
+        // console.log(language);
         if (SPACE_KEY_SPACE_LANGUAGE_LIST.includes(language) &&
             highlightOption == 49
         ) {
@@ -758,6 +760,16 @@ const keydownEventHandler = event => {
             event.preventDefault();
             $("#" + highlightOption).css({ "background-color": "rgb(78, 161, 216)" });
             return;
+        }
+    }
+
+    // ENTER key pressed
+    if (keycode == 13) {
+        // Disable starting a new line
+        event.preventDefault();
+        if (ENTER_KEY_SELECT_LANGUAGE_LIST.includes(language)) {
+            event.preventDefault();
+            $("#" + highlightOption).css({ "background-color": "rgb(78, 161, 216)" });
         }
     }
 
@@ -817,12 +829,33 @@ const keyupEventHandler = event => {
             }
         }
     }
-    if (keycode == 32 || keycode == 13) {
-        console.log("highlight option: ", highlightOption);
+    if (keycode == 32) {
+        // console.log("highlight option: ", highlightOption);
         if (SPACE_KEY_SELECT_LANGUAGE_LIST.includes(language)) {
             // event.preventDefault();
             $("#" + highlightOption).mouseup();
-            writingHelper(input_Jq, language, true);
+            if (RESET_CARET_ON_SELECTING_LIST.includes(language)) {
+                resetCaretStart();
+            } else {
+                writingHelper(input_Jq, language, true);
+            }
+        }
+        // if (SPACE_KEY_SPACE_LANGUAGE_LIST.includes(language) && highlightOption == 49) { }
+        if (highlightOption != 49) {
+            event.preventDefault();
+            $("#" + highlightOption).mouseup();
+        }
+    }
+    if (keycode == 13) {
+        // console.log("highlight option: ", highlightOption);
+        if (ENTER_KEY_SELECT_LANGUAGE_LIST.includes(language)) {
+            event.preventDefault();
+            $("#" + highlightOption).mouseup();
+            if (RESET_CARET_ON_SELECTING_LIST.includes(language)) {
+                resetCaretStart();
+            } else {
+                writingHelper(input_Jq, language, true);
+            }
         }
         // if (SPACE_KEY_SPACE_LANGUAGE_LIST.includes(language) && highlightOption == 49) { }
         if (highlightOption != 49) {
@@ -834,7 +867,7 @@ const keyupEventHandler = event => {
 
 // remove helperDiv function
 const removeHelper = () => {
-    helperDiv.remove();
+    if (helperDiv) helperDiv.remove();
     input_Jq.off(".basicKeyEvents");
 };
 

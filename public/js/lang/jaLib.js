@@ -1,5 +1,3 @@
-// console.log('wanakana: ', wanakana);
-
 let Dictionary = null;
 let levelsOfLenience = 2;
 
@@ -95,7 +93,7 @@ const getKanji = input => {
                 if (level <= levelsOfLenience && currentLevel.hasOwnProperty("v"))
                     results = results.concat(currentLevel["v"]);
             }
-
+            results.push(input);
             // Reverse the results array to have the most accurate answer first and return results
             res(results.reverse());
         }

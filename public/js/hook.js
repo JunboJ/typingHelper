@@ -192,14 +192,26 @@ $(document).ready(function () {
                     resetCaretStart();
                 }
             }
+            if (event.which == 13) {
+                // Disable new line function on ENTER
+                if (!helperdiv) {
+                    event.preventDefault();
+                }
+            }
             if (language === 'ja') {
                 if (event.code === 'Space') {
                     event.preventDefault();
-                    if (element[0].tagName === 'DIV') {
-                        element.text(element.text() + '　');
-                        setFocus();
-                    } else {
-                        element.val(element.val() + '　');
+                    console.log('space!!!!!');
+                    if (event.code === 'Space') {
+                        event.preventDefault();
+                        if (!helperdiv) {
+                            if (element[0].tagName === 'DIV') {
+                                element.text(element.text() + '　');
+                                setFocus();
+                            } else {
+                                element.val(element.val() + '　');
+                            }
+                        }
                     }
                 }
             }
