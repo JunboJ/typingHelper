@@ -28,7 +28,7 @@ const addLanguageCheckingList = textInput => {
     Object.keys(languages).map(code => {
         const x = document.createElement("IMG");
         x.className = "flagIcon";
-        x.setAttribute("src", "/images/icons/" + code + '.png');
+        x.setAttribute("src", "public/images/icons/" + code + '.png');
         x.setAttribute("alt", code);
 
         const languageFullName = document.createElement("span");
@@ -56,7 +56,7 @@ const addLanguageCheckingList = textInput => {
                 const x = document.createElement("IMG");
                 x.className = "flagIcon";
                 x.style.pointerEvents = "none";
-                x.setAttribute("src", "/images/icons/" + code + '.png');
+                x.setAttribute("src", "public/images/icons/" + code + '.png');
                 x.setAttribute("alt", code);
                 $('#changeLanguage_btn')[0].innerText = languages[code].toUpperCase() + ' ';
                 $('#changeLanguage_btn').append(x);
@@ -95,7 +95,7 @@ const reposition = langList => {
     });
 };
 
-$(window).resize(function () {
+$(window).resize(function() {
     reposition(langList);
 });
 
@@ -109,7 +109,7 @@ $(window).click(e => {
     }
 });
 
-$(document).ready(function () {
+$(document).ready(function() {
     langList = addLanguageCheckingList();
     $(langList).addClass("listWrapper_off");
     document.body.appendChild(langList);
@@ -124,7 +124,7 @@ $(document).ready(function () {
     });
     language = $(".langSwitch:checked + .langCode").val();
     // console.log(language);
-    $(".writingHelper").each(function (index, object) {
+    $(".writingHelper").each(function(index, object) {
         // elementsArr.forEach(element => {
         const element = $(this);
 
@@ -223,7 +223,7 @@ $(document).ready(function () {
         });
         element.on("input", () => {
             // console.log('input event');
-            
+
             eventHandler(event, true);
         });
     });
