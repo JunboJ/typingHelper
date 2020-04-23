@@ -100,7 +100,7 @@ $(window).resize(function () {
 });
 
 $(window).click(e => {
-    console.log(e);
+    // console.log(e);
     if (!e.target.matches('#changeLanguage_btn')) {
         $(langList).addClass("listWrapper_off");
         $(langList).removeClass("listWrapper_on");
@@ -123,7 +123,7 @@ $(document).ready(function () {
         reposition(langList);
     });
     language = $(".langSwitch:checked + .langCode").val();
-    console.log(language);
+    // console.log(language);
     $(".writingHelper").each(function (index, object) {
         // elementsArr.forEach(element => {
         const element = $(this);
@@ -170,13 +170,13 @@ $(document).ready(function () {
 
         element.on("click", eventHandler);
         element.on("keydown", event => {
-            console.log('key down event keycode', event.code);
-            console.log(element[0].tagName);
+            // console.log('key down event keycode', event.code);
+            // console.log(element[0].tagName);
 
             const helperdiv = getHelperDiv();
             if (event.which == 8 || event.which == 46) {
                 if (helperdiv) {
-                    console.log("helperdiv on backspace");
+                    // console.log("helperdiv on backspace");
                     setTimeout(() => {
                         eventHandler(event, true);
                     }, 50);
@@ -201,7 +201,7 @@ $(document).ready(function () {
             if (language === 'ja') {
                 if (event.code === 'Space') {
                     event.preventDefault();
-                    console.log('space!!!!!');
+                    // console.log('space!!!!!');
                     if (event.code === 'Space') {
                         event.preventDefault();
                         if (!helperdiv) {
@@ -222,7 +222,7 @@ $(document).ready(function () {
             }
         });
         element.on("input", () => {
-            console.log('input event');
+            // console.log('input event');
             
             eventHandler(event, true);
         });

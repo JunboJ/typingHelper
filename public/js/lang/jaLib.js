@@ -1,5 +1,5 @@
 let Dictionary = null;
-let levelsOfLenience = 2;
+let levelsOfLenience = 1;
 
 export const get_ja = (str, type) => {
     let result = [];
@@ -48,8 +48,8 @@ const convertToKana = str => {
 
 const convertToKanji = str => {
     return new Promise((res, rej) => {
-        import('./AutoKanjiTrie.js')
-            .then((m) => {
+        import ('./kanji_out.js')
+        .then((m) => {
                 // console.log(m.kanjiRaw);
                 Dictionary = m.kanjiRaw;
                 getKanji(str)
@@ -90,12 +90,25 @@ const getKanji = input => {
                     break;
 
                 // Check if inside levels of lenience then add to result
-                if (level <= levelsOfLenience && currentLevel.hasOwnProperty("v"))
-                    results = results.concat(currentLevel["v"]);
+                if (level <= levelsOfLenience && currentLevel.hasOwnProperty("v")) {
+                    console.log('currentLevel ', currentLevel["v"]);
+                    currentLevel["v"].map(array => {
+                        if (Array.isArray(array) && array.length > 1) {
+                            array.map(val => {
+                                results = results.concat(new Array(val));
+                            })
+                        } else {
+                            results = results.concat(array);
+                        }
+                        // results = results.concat(currentLevel["v"]);
+                    });
+                }
             }
             results.push(input);
+            results.reverse()
             // Reverse the results array to have the most accurate answer first and return results
-            res(results.reverse());
+            // console.log(results);
+            res(results);
         }
 
         // We errored return fail code

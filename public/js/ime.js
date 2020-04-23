@@ -86,13 +86,15 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
         if (entry !== null) {
             resultCounter++;
             if (entry.type === 'latin' || entry.type === 'kana') {
-                getOptions(entry.string, createInterface, entry.type);
+                getOptions(entry.string, data => {
+                    console.log('options from library ', data);
+                    createInterface(data);
+                }, entry.type);
             }
             if (entry.type === 'romaji') {
-                console.log('romaji');
+                // console.log('romaji');
                 getOptions(entry.string, data => {
                     options = data;
-                    console.log('data ', data);
                     setInputValue(data.result[0]);
                     setFocus(input_Jq);
                     inputValue = getInputValue();
@@ -110,14 +112,14 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
 };
 
 export const resetCaretStart = () => {
-    console.log('reset string start');
+    // console.log('reset string start');
     const { cursorStart: start } = getCaretPosition();
     stringStart = start;
 };
 
 const createInterface = result => {
     options = result;
-    console.log('options: ', options);
+    // console.log('options: ', options);
     if (options !== null && options.result !== null) {
         const copyStyle = getComputedStyle(input_Html);
         updatePageList(options.result.length);
@@ -296,7 +298,7 @@ const createUIElements = () => {
         input_Jq.off("blur");
     });
     $(nextPage).on("mouseup", event => {
-        console.log("next");
+        // console.log("next");
         nextPageEventHandler(event, () => {
             setFocus(input_Jq);
             createOptions("pageChange");
@@ -421,11 +423,11 @@ const getInputML = () => {
     if (inputString.length > 0) {
         if (language == 'zh') {
             match_0 = findMatch('latin', inputString);
-            console.log('zh match');
+            // console.log('zh match');
             match_1 = null;
         }
         if (language == 'ja') {
-            console.log('ja match');
+            // console.log('ja match');
             match_0 = findMatch('romaji', inputString);
             match_1 = findMatch('kana', inputString);
         }
@@ -447,7 +449,7 @@ const findMatch = (type, str) => {
     let count = 0;
     if (type === 'kana') {
         while ((match = kanaPatt.exec(str)) !== null && count < 10) {
-            console.log('match: ', match);
+            // console.log('match: ', match);
             const infoObj = {
                 string: match[0],
                 index: kanaPatt.lastIndex
@@ -455,7 +457,7 @@ const findMatch = (type, str) => {
             charArray.push(infoObj);
             count++;
         }
-        console.log('charArray: ', charArray);
+        // console.log('charArray: ', charArray);
         if (charArray.length > 0) {
             let res = charArray[charArray.length - 1].string;
             return { string: res, type: type }
@@ -464,7 +466,7 @@ const findMatch = (type, str) => {
         }
     } else {
         while ((match = patt.exec(str)) !== null && count < 10) {
-            console.log('match: ', match);
+            // console.log('match: ', match);
             const infoObj = {
                 string: match[0],
                 index: patt.lastIndex
@@ -472,7 +474,7 @@ const findMatch = (type, str) => {
             charArray.push(infoObj);
             count++;
         }
-        console.log('charArray: ', charArray);
+        // console.log('charArray: ', charArray);
         if (charArray.length > 0) {
             if (charArray[charArray.length - 1].index !== str.length) {
                 return null;
@@ -523,7 +525,7 @@ export const setFocus = () => {
     } else {
         let stringNode = element.childNodes[0];
         let stringLength = stringNode.length;
-        console.log('stringLength: ', stringLength);
+        // console.log('stringLength: ', stringLength);
         let range = document.createRange();
         let selection = window.getSelection();
         range.setStart(stringNode, stringLength);
@@ -617,7 +619,7 @@ const updatePageList = resLength => {
 };
 
 const createOptions = (mode = "new") => {
-    console.log('create options');
+    // console.log('create options');
 
     $(helperContent).empty();
     highlightOption = 49;
@@ -631,7 +633,7 @@ const createOptions = (mode = "new") => {
 const mapOptionToBtn = () => {
     const start = pages[pageNum][0];
     const end = pages[pageNum][1] + 1;
-    console.log(pageNum + "/" + start + "/" + end);
+    // console.log(pageNum + "/" + start + "/" + end);
 
     if (helperContent) {
         options.result.slice(start, end).map((char, index) => {
@@ -754,7 +756,7 @@ const keydownEventHandler = event => {
         if (SPACE_KEY_SPACE_LANGUAGE_LIST.includes(language) &&
             highlightOption == 49
         ) {
-            console.log("add a space!!!");
+            // console.log("add a space!!!");
             return;
         } else {
             event.preventDefault();
