@@ -91,7 +91,6 @@ const getKanji = input => {
 
                 // Check if inside levels of lenience then add to result
                 if (level <= levelsOfLenience && currentLevel.hasOwnProperty("v")) {
-                    console.log('currentLevel ', currentLevel["v"]);
                     currentLevel["v"].map(array => {
                         if (Array.isArray(array) && array.length > 1) {
                             array.map(val => {
@@ -106,8 +105,8 @@ const getKanji = input => {
             }
             results.push(input);
             results.reverse()
-            // Reverse the results array to have the most accurate answer first and return results
-            // console.log(results);
+                // Reverse the results array to have the most accurate answer first and return results
+                // console.log(results);
             res(results);
         }
 

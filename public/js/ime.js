@@ -600,13 +600,14 @@ const updatePageList = resLength => {
     let pageStart = 0;
     for (let i = 0; i < resLength; i++) {
         let a = 0;
-        if (i != 0) a = 1;
-        if (i % 6 == 0) {
-            if (pageStart + 6 + a <= resLength - 1) {
-                pages[index] = [pageStart + a, pageStart + 6 + a];
-                pageStart = pageStart + 6 + a;
+        if (i > 0) a = 1;
+        if (i % 7 == 0) {
+            if (pageStart + a + 6 <= resLength - 1) {
+                pages[index] = [pageStart + a, pageStart + a + 6];
+                pageStart = pageStart + a + 6;
                 index++;
             } else {
+                console.log('pageStart + a + 6 > resLength - 1')
                 if (pageStart == resLength - 1) {
                     pages[index] = [pageStart + a, resLength - 1];
                 } else {
@@ -615,6 +616,7 @@ const updatePageList = resLength => {
             }
         }
     }
+    console.log(pages);
     return;
 };
 
@@ -823,6 +825,9 @@ const keyupEventHandler = event => {
             event.preventDefault();
             // console.log(`#${keycode}`);
             $(`#${keycode}`).mouseup();
+            if (RESET_CARET_ON_SELECTING_LIST.includes(language)) {
+                resetCaretStart();
+            }
             $("body").off(".basicKeyEvents");
             input_Jq.off(".basicKeyEvents");
             helperDiv.remove();
