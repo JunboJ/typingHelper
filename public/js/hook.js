@@ -95,7 +95,7 @@ const reposition = langList => {
     });
 };
 
-$(window).resize(function () {
+$(window).resize(function() {
     reposition(langList);
 });
 
@@ -109,7 +109,7 @@ $(window).click(e => {
     }
 });
 
-$(document).ready(function () {
+$(document).ready(function() {
     langList = addLanguageCheckingList();
     $(langList).addClass("listWrapper_off");
     document.body.appendChild(langList);
@@ -124,7 +124,7 @@ $(document).ready(function () {
     });
     language = $(".langSwitch:checked + .langCode").val();
     // console.log(language);
-    $(".writingHelper").each(function (index, object) {
+    $(".writingHelper").each(function(index, object) {
         // elementsArr.forEach(element => {
         const element = $(this);
 
@@ -168,7 +168,7 @@ $(document).ready(function () {
             }
         };
 
-        element.on("click", eventHandler);
+        element.on("click", e => eventHandler(e, true));
         element.on("keydown", event => {
             // console.log('key down event keycode', event.code);
             // console.log(element[0].tagName);
@@ -223,7 +223,7 @@ $(document).ready(function () {
         });
         element.on("input", () => {
             // console.log('input event');
-            
+
             eventHandler(event, true);
         });
     });

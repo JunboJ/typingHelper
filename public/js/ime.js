@@ -73,7 +73,6 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
     inputValue = getInputValue();
     helperDiv = $(".helperDiv")[0] || null;
     helperContent = $(".helperContent")[0] || null;
-    let resultCounter = 0;
 
     resetVariables();
 
@@ -81,34 +80,10 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
 
     MULTIPLE_LETTER_LANGUAGE_LIST.includes(language) ? getCurrentCharacter = getInputML : getCurrentCharacter = getInputSL;
 
-    inputValue ? currentCharacter = getCurrentCharacter() : { 0: null, 1: null };
-    Object.values(currentCharacter).forEach(entry => {
-        if (entry !== null) {
-            resultCounter++;
-            if (entry.type === 'latin' || entry.type === 'kana') {
-                getOptions(entry.string, data => {
-                    console.log('options from library ', data);
-                    createInterface(data);
-                }, entry.type);
-            }
-            if (entry.type === 'romaji') {
-                // console.log('romaji');
-                getOptions(entry.string, data => {
-                    options = data;
-                    setInputValue(data.result[0]);
-                    setFocus(input_Jq);
-                    inputValue = getInputValue();
-                    inputValue ? currentCharacter = getCurrentCharacter() : { 0: null, 1: null };
-                    if (currentCharacter[1] !== null) {
-                        getOptions(currentCharacter[1].string, createInterface, 'kana');
-                    }
-                }, entry.type);
-            }
-        }
-    });
-    if (resultCounter === 0 && helperDiv !== null) {
-        removeHelper();
-    }
+    inputValue ? currentCharacter = getCurrentCharacter() : currentCharacter = { 0: null, 1: null };
+
+    getOptionsByType(currentCharacter);
+
 };
 
 export const resetCaretStart = () => {
@@ -117,9 +92,50 @@ export const resetCaretStart = () => {
     stringStart = start;
 };
 
+const getOptionsByType = currentCharacter => {
+    let resultCounter = 0;
+    let entry = currentCharacter;
+    Object.values(currentCharacter).forEach(entry => {
+        if (entry !== null) {
+            resultCounter++;
+        }
+    });
+    if (entry[0] != null) {
+        if (entry[0].type === 'latin') {
+            getOptions(entry[0].string, data => {
+                createInterface(data);
+            }, entry[0].type);
+        } else if (entry[0].type === 'romaji') {
+            // console.log('romaji');
+            getOptions(entry[0].string, data => {
+                options = data;
+                setInputValue(data.result[0])
+                    .then(() => {
+                        setFocus(input_Jq);
+                        resetVariables();
+                        inputValue = getInputValue();
+                        inputValue ? currentCharacter = getCurrentCharacter() : currentCharacter = { 0: null, 1: null };
+                        console.log(currentCharacter);
+                        if (currentCharacter[1] !== null) {
+                            getOptions(currentCharacter[1].string, createInterface, 'kana');
+                        }
+                    });
+            }, entry[0].type);
+        }
+    } else if (entry[0] == null && entry[1] != null && entry[1].type === 'kana') {
+        getOptions(entry[1].string, data => {
+            createInterface(data);
+        }, entry[1].type);
+    }
+
+    if (resultCounter === 0 && helperDiv !== null) {
+        removeHelper();
+    }
+};
+
 const createInterface = result => {
     options = result;
-    // console.log('options: ', options);
+    console.log('options: ', options);
     if (options !== null && options.result !== null) {
         const copyStyle = getComputedStyle(input_Html);
         updatePageList(options.result.length);
@@ -246,6 +262,7 @@ const createInterface = result => {
 }
 
 const resetVariables = () => {
+    console.log('reset pages list')
     currentCharacter = { 0: null, 1: null };
     pages = [];
     pageNum = 0;
@@ -607,12 +624,7 @@ const updatePageList = resLength => {
                 pageStart = pageStart + a + 6;
                 index++;
             } else {
-                console.log('pageStart + a + 6 > resLength - 1')
-                if (pageStart == resLength - 1) {
-                    pages[index] = [pageStart + a, resLength - 1];
-                } else {
-                    pages[index] = [pageStart + a, resLength - 1];
-                }
+                pages[index] = [pageStart + a, resLength - 1];
             }
         }
     }
@@ -796,7 +808,7 @@ const keydownEventHandler = event => {
     if (keycode == 40) {
         event.preventDefault();
         // console.log(pages[pageNum][1], pages[pageNum][0], highlightOption);
-        console.log(pageNum);
+        // console.log(pageNum);
         if ((highlightOption - 49) < (pages[pageNum][1] - pages[pageNum][0])) {
             // event.preventDefault();
             highlightOption = highlightOption + 1;
@@ -805,7 +817,7 @@ const keydownEventHandler = event => {
         } else {
             // event.preventDefault();
             $("#nextPageCtrl").mouseup();
-            console.log('end');
+            // console.log('end');
         }
         // console.log("highlight option: ", highlightOption);
         // console.log(event.pages + '/' + pageNum + '/' + event.pages[pageNum][1] + '/' + highlightOption);
@@ -943,41 +955,46 @@ const mouseUpHandler = event => {
 
 // set input value
 const setInputValue = val => {
-    let wordStart, wordEnd, newString;
-    // console.log('cursorStart', cursorStart, 'cursorEnd', cursorEnd);
-    if (cursorStart == cursorEnd) {
-        // only japanese and Chinese have strL
-        let strLength = options.strL || 0;
-        wordStart = cursorStart - strLength;
-        wordEnd = wordStart + options.partEnd;
+    return new Promise((res, rej) => {
+        let wordStart, wordEnd, newString;
+        // console.log('cursorStart', cursorStart, 'cursorEnd', cursorEnd);
+        if (cursorStart == cursorEnd) {
+            // only japanese and Chinese have strL
+            let strLength = options.strL || 0;
+            wordStart = cursorStart - strLength;
+            wordEnd = wordStart + options.partEnd;
 
-        newString =
-            inputValue.slice(0, wordStart) +
-            val +
-            inputValue.slice(wordEnd);
-    } else {
-        let selectedString = inputValue.slice(
-            cursorStart,
-            cursorEnd
-        );
-        let modifiedSelectedString = selectedString.replace(
-            options.resultString,
-            val
-        );
-        newString =
-            inputValue.slice(0, cursorStart) +
-            modifiedSelectedString +
-            inputValue.slice(cursorEnd);
-    }
-
-    if (input_Html.tagName === "DIV") {
-        input_Html.innerText = newString;
-    } else {
-        if (input_Html.tagName === "INPUT" || input_Html.tagName === "TEXTAREA") {
-            input_Html.value = newString;
+            newString =
+                inputValue.slice(0, wordStart) +
+                val +
+                inputValue.slice(wordEnd);
         } else {
-            console.log("the element is invalid");
-            return false;
+            let selectedString = inputValue.slice(
+                cursorStart,
+                cursorEnd
+            );
+            let modifiedSelectedString = selectedString.replace(
+                options.resultString,
+                val
+            );
+            newString =
+                inputValue.slice(0, cursorStart) +
+                modifiedSelectedString +
+                inputValue.slice(cursorEnd);
         }
-    }
+
+        if (input_Html.tagName === "DIV") {
+            input_Html.innerText = newString;
+            res();
+        } else {
+            if (input_Html.tagName === "INPUT" || input_Html.tagName === "TEXTAREA") {
+                input_Html.value = newString;
+                res();
+            } else {
+                console.log("the element is invalid");
+                rej(err);
+            }
+        }
+
+    });
 };
