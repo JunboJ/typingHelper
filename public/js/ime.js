@@ -540,6 +540,7 @@ export const setFocus = () => {
     if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {
         element.focus();
     } else {
+        element.focus();
         let stringNode = element.childNodes[0];
         let stringLength = stringNode.length;
         // console.log('stringLength: ', stringLength);
@@ -549,7 +550,6 @@ export const setFocus = () => {
         range.collapse(true);
         selection.removeAllRanges();
         selection.addRange(range);
-        element.focus();
     }
 };
 
