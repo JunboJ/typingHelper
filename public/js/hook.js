@@ -168,7 +168,7 @@ $(document).ready(function() {
             }
         };
 
-        element.on("click", eventHandler);
+        element.on("click", e => eventHandler(e, true));
         element.on("keydown", event => {
             // console.log('key down event keycode', event.code);
             // console.log(element[0].tagName);
