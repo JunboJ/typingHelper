@@ -1,2 +1,8 @@
 {
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/34e63b8a-958c-4af6-8066-d1a4362434fa/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/Typing-Helper",
+    "appService.deploySubpath": ""
 }
