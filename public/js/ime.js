@@ -678,8 +678,6 @@ const mapOptionToBtn = () => {
                 event.muAssets = {
                     char: char
                 };
-                // console.log('event.muAssets: ', event.muAssets);
-
                 mouseUpHandler(event);
             });
 
