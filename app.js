@@ -11,4 +11,4 @@ app.use('/', (req, res, next) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen(3000);
+app.listen(process.env.PORT || 3000);
