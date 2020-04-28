@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Writing System Demo</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="/css/helperDiv.css">
     <link rel="stylesheet" type="text/css" href="/css/all.css">
     <link rel="stylesheet" type="text/css" href="/css/app.css">
@@ -16,41 +15,45 @@
             text-align: right;
         }
     </style>
-    <script type="text/javascript" src="https://www.bugherd.com/sidebarv2.js?apikey=qdzdfmd53oczophae18fgg"
-        async="true"></script>
+    <script type="text/javascript" src="https://www.bugherd.com/sidebarv2.js?apikey=qdzdfmd53oczophae18fgg" async="true"></script>
     <script type="text/javascript" src="/js/lang/wanakana.min.js"></script>
 </head>
 
 <body class="container">
-    <div style="width: 100%;">
-        <h5>INPUT_FIELD:</h5>
-        <div class="input_wrapper">
-            <input class="writingHelper" id="ja_ime"></input>
+    <main>
+        <div style="width: 100%;">
+            <h5>INPUT_FIELD:</h5>
+            <div class="input_wrapper">
+                <input class="writingHelper" id="ja_ime"></input>
+            </div>
+            <h5>DIV:</h5>
+            <div>
+                <div id="transcript" class="writingHelper" contentEditable="true" spellcheck="false">
+                </div>
+            </div>
+            <div class="languageSwitch_wrapper">
+                <button class="btn btn-light" type="button" id="changeLanguage_btn">Language Switch</button>
+            </div>
+            <input type="hidden" class="testtest"></input>
         </div>
-        <h5>DIV:</h5>
+
+        <div style="position: fixed; right: 20px; top: 0;">
+            <h2>Writing System Demo</h2>
+            <h5 class="notes">New Pinyin IME</h5>
+            <h5 class="notes">Japanese: Kana to Kanji added!</h5>
+        </div>
+    </main>
+
+    <footer>
         <div>
             <div id="transcript" class="writingHelper" contentEditable="true" spellcheck="false">
             </div>
         </div>
-        <div class="languageSwitch_wrapper">
-            <button class="btn btn-light" type="button" id="changeLanguage_btn">Language Switch</button>
-        </div>
-        <input type="hidden" class="testtest"></input>
-    </div>
-
-    <div style="position: fixed; right: 20px; top: 0;">
-        <h2>Writing System Demo</h2>
-        <h5 class="notes">New Pinyin IME</h5>
-        <h5 class="notes">Japanese: Kana to Kanji added!</h5>
-    </div>
+    </footer>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-        crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <script type="module" src="/js/hook.js"></script>
     <!-- <script type="module" src="/js/test.js"></script> -->
 </body>
