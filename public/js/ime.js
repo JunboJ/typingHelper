@@ -294,11 +294,11 @@ const createUIElements = () => {
     prevPage.className = "pageCtrl";
     prevPage.id = "prevPageCtrl";
     prevPage.innerHTML = '<i class="fas fa-caret-left"></i>';
-    $(prevPage).on("mousedown", event => {
+    $(prevPage).on("mousedown touchstart", event => {
         event.stopPropagation();
         input_Jq.off("blur");
     });
-    $(prevPage).on("mouseup", event => {
+    $(prevPage).on("mouseup touchend", event => {
         prevPageEventHandler(event, () => {
             setFocus(input_Jq);
             createOptions("pageChange");
@@ -310,11 +310,11 @@ const createUIElements = () => {
     nextPage.className = "pageCtrl";
     nextPage.id = "nextPageCtrl";
     nextPage.innerHTML = '<i class="fas fa-caret-right"></i>';
-    $(nextPage).on("mousedown", event => {
+    $(nextPage).on("mousedown touchstart", event => {
         event.stopPropagation();
         input_Jq.off("blur");
     });
-    $(nextPage).on("mouseup", event => {
+    $(nextPage).on("mouseup touchend", event => {
         // console.log("next");
         nextPageEventHandler(event, () => {
             setFocus(input_Jq);
@@ -328,10 +328,10 @@ const createUIElements = () => {
     closeBtn.className = "helperCloseBtn";
     closeBtn.innerHTML = '<i class="fas fa-times"></i>';
     btnSet.appendChild(closeBtn);
-    closeBtn.addEventListener("mousedown", event => {
+    closeBtn.addEventListener("mousedown touchstart", event => {
         closeBtnMouseDownHandler(event);
     });
-    closeBtn.addEventListener("mouseup", event => {
+    closeBtn.addEventListener("mouseup touchend", event => {
         closeBtnClickedHandler(event);
     });
 
@@ -549,6 +549,7 @@ export const setFocus = () => {
         let selection = window.getSelection();
         selection.removeAllRanges();
         selection.addRange(range);
+        element.focus();
     }
 };
 
@@ -670,10 +671,10 @@ const mapOptionToBtn = () => {
 
             helperOptions.prepend(tip);
 
-            $(helperOptions).on("mousedown", () => {
+            $(helperOptions).on("mousedown touchstart", () => {
                 mouseDownHandler(event);
             });
-            $(helperOptions).on("mouseup", event => {
+            $(helperOptions).on("mouseup touchend", event => {
                 event.muAssets = {
                     char: char
                 };
@@ -946,8 +947,8 @@ const mouseUpHandler = event => {
     event.stopPropagation();
 
     setInputValue(event.muAssets.char);
-    removeHelper(helperDiv, input_Jq);
     setFocus(input_Jq);
+    removeHelper(helperDiv, input_Jq);
 };
 
 // set input value
