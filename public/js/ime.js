@@ -545,6 +545,7 @@ export const setFocus = () => {
         // let stringLength = stringNode.length;
         let range = document.createRange();
         range.selectNodeContents(element);
+        console.log(element);
         range.collapse(false);
         let selection = window.getSelection();
         selection.removeAllRanges();
