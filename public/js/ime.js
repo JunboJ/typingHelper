@@ -344,10 +344,14 @@ const createUIElements = () => {
 
     // add eventlisteners
     $(helperDiv).on("mousedown touchstart", e => {
+        console.log('mouse down event ', e.target);
         e.stopPropagation();
         input_Jq.off("blur");
     });
     $(helperDiv).on("mouseup touchend", e => {
+        console.log('mouse up event ', e.target);
+        e.stopPropagation();
+        // input_Jq.off("blur");
         if ($(e.target).is('#prevPageCtrl') || $(e.target).is('#nextPageCtrl')) {
             prevPageEventHandler(e, () => {
                 setFocus(input_Jq);
