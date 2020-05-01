@@ -1,4 +1,4 @@
-import { writingHelper, resetCaretStart, setFocus } from "./ime.js";
+import { writingHelper, resetCaretStart } from "./ime.js";
 
 let language = null;
 let buttonPosLeft;
@@ -95,6 +95,20 @@ const reposition = langList => {
     });
 };
 
+const setFocus = (element) => {
+    if (element.tagName === "DIV") {
+        let stringNode = element;
+        let range = document.createRange();
+        range.selectNodeContents(stringNode);
+        range.collapse();
+        let selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            selection.removeAllRanges();
+        }
+        selection.addRange(range);
+    }
+};
+
 $(window).resize(function() {
     reposition(langList);
 });
@@ -110,6 +124,9 @@ $(window).click(e => {
 });
 
 $(document).ready(function() {
+    $(window).on('mouseup', e => {
+        console.log(e.target);
+    })
     langList = addLanguageCheckingList();
     $(langList).addClass("listWrapper_off");
     document.body.appendChild(langList);
@@ -140,8 +157,7 @@ $(document).ready(function() {
         };
 
         const eventHandler = (event, isTyping = false) => {
-            // console.log("input event", isTyping);
-            // event.preventDefault();
+            setFocus(element[0]);
             if (language != "en") {
                 writingHelper(element, language, isTyping);
                 return;
@@ -201,7 +217,6 @@ $(document).ready(function() {
             if (language === 'ja') {
                 if (event.code === 'Space') {
                     event.preventDefault();
-                    // console.log('space!!!!!');
                     if (event.code === 'Space') {
                         event.preventDefault();
                         if (!helperdiv) {

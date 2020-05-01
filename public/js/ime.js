@@ -251,7 +251,8 @@ const createInterface = result => {
         }
 
         helperDiv.style.left = `${leftPosition}px`;
-        helperDiv.style.top = `${topPosition + 8}px`;
+        helperDiv.style.top = `${topPosition}px`;
+
     } else {
         // resetVariables();
         if (helperDiv !== null) {
@@ -271,6 +272,7 @@ const resetVariables = () => {
 const createUIElements = () => {
     helperDiv = document.createElement("div");
     helperDiv.className = "helperDiv";
+    $(helperDiv).css({ 'z-index': '9999' });
     helperContent = document.createElement("div");
     helperContent.className = "helperContent";
     // button set container
@@ -304,7 +306,6 @@ const createUIElements = () => {
     closeBtn = document.createElement("button");
     closeBtn.className = "helperCloseBtn";
     closeBtn.innerHTML = '<i class="fas fa-times"></i>';
-    $(closeBtn).children('i.fa-times').css({ 'pointer-events': 'none' });
     btnSet.appendChild(closeBtn);
 
     // setting menu container
@@ -316,17 +317,26 @@ const createUIElements = () => {
     settingMenuContentText = document.createTextNode("More coming");
 
     // add eventlisteners
-    $(helperDiv).on("mousedown touchstart", e => {
-        console.log('mouse down event ', e.target);
-        // e.stopPropagation();
-        if (!TS_PLATFORM.includes(navigator.platform)) {
-            console.log('with off(blur)');
-            input_Jq.off("blur");
-        }
+    input_Jq.on('focusout.keepFocus', e => {
+        $(e.target).focus();
+    })
+    $(window).on("touchstart.helperMU mousedown.helperMU", e => {
+        console.log('mouse down event ', $(e.target).closest('.helperDiv').length == 0);
+        // if ($(e.target).closest('.helperDiv').length = 0) {
+        //     input_Jq.off('.keepFocus');
+        //     // if (!TS_PLATFORM.includes(navigator.platform)) {
+        //     //     input_Jq.off("blur");
+        //     // }
+        // }
     });
-    $(helperDiv).on("mouseup touchend", e => {
-        console.log('mouse up event ', e.target);
-        // e.stopPropagation();
+    $(window).on("touchend.helperMU mouseup.helperMU", e => {
+        console.log('mouse up event ', $(e.target).attr('class'));
+        e.stopPropagation();
+        if ($(e.target).closest('.helperDiv').length == 0) {
+            removeHelper();
+            console.log('removing');
+
+        }
         if ($(e.target).is('#prevPageCtrl') || $(e.target).is('#nextPageCtrl')) {
             prevPageEventHandler(e, () => {
                 setFocus(input_Jq);
@@ -342,16 +352,13 @@ const createUIElements = () => {
             });
         }
         if ($(e.target).is('.helperOptions')) {
-            let char = $(e.target).attr('data');
+            // input_Jq.focus();
             mouseUpHandler(e);
+            setFocus(input_Jq);
+            removeHelper();
         }
         if ($(e.target).is('.helperCloseBtn')) {
             closeBtnClickedHandler(e);
-        }
-        if (TS_PLATFORM.includes(navigator.platform)) {
-            console.log('with off(blur)');
-            e.stopPropagation();
-            input_Jq.off("blur");
         }
     });
 
@@ -366,6 +373,7 @@ const createUIElements = () => {
     settingMenu.appendChild(settingMenuContent);
     settingMenuWrapper.appendChild(settingMenu);
     helperDiv.append(settingMenuWrapper);
+    $(helperDiv).find('i').css({ 'pointer-events': 'none' });
     inputParent_Jq.append(helperDiv);
 };
 
@@ -550,9 +558,9 @@ const getCaretPosition = () => {
 export const setFocus = () => {
     let element = input_Html;
     if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {
-        element.focus();
+        // element.focus();
     } else {
-        element.focus();
+        // element.focus();
         let stringNode = element;
         let range = document.createRange();
         range.selectNodeContents(stringNode);
@@ -693,8 +701,7 @@ const mapOptionToBtn = () => {
 
 // pagination event handlers
 const prevPageEventHandler = (event, callback) => {
-    event.stopPropagation();
-    input_Jq.off("blur");
+    // event.stopPropagation();
     if (pages.length > 1) {
         if (pageNum - 1 >= 0) {
             pageNum = pageNum - 1;
@@ -704,8 +711,7 @@ const prevPageEventHandler = (event, callback) => {
 };
 
 const nextPageEventHandler = (event, callback) => {
-    event.stopPropagation();
-    input_Jq.off("blur");
+    // event.stopPropagation();
     if (pages.length > 1) {
         if (pageNum + 1 <= pages.length - 1) {
             pageNum = pageNum + 1;
@@ -725,11 +731,11 @@ const basicKeyEventListener = () => {
     input_Jq.on("keydown.basicKeyEvents", event => {
         keydownEventHandler(event);
     });
-    if (mode !== "test") {
-        input_Jq.one("blur", event => {
-            removeHelper();
-        });
-    }
+    // if (mode !== "test") {
+    //     input_Jq.one("blur", event => {
+    //         removeHelper();
+    //     });
+    // }
 };
 
 // key down
@@ -879,7 +885,8 @@ const keyupEventHandler = event => {
 // remove helperDiv function
 const removeHelper = () => {
     if (helperDiv) helperDiv.remove();
-    input_Jq.off(".basicKeyEvents");
+    input_Jq.off(".basicKeyEvents .keepFocus");
+    $(window).off(".helperMU");
 };
 
 const keyValidityCheck = keycode => {
@@ -931,12 +938,8 @@ const setHighlight = (option = 49) => {
 };
 
 const mouseUpHandler = event => {
-    // input_Jq.off("blur");
-    // event.stopPropagation();
     let char = $(event.target).attr('data');
     setInputValue(char);
-    setFocus(input_Jq);
-    removeHelper(helperDiv, input_Jq);
 };
 
 // set input value
