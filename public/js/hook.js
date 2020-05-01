@@ -157,7 +157,7 @@ $(document).ready(function() {
         };
 
         const eventHandler = (event, isTyping = false) => {
-            setFocus(element[0]);
+            // setFocus(element[0]);
             if (language != "en") {
                 writingHelper(element, language, isTyping);
                 return;
@@ -186,7 +186,7 @@ $(document).ready(function() {
 
         element.on("click", e => eventHandler(e, true));
         element.on("keydown", event => {
-            // console.log('key down event keycode', event.code);
+            console.log('key down event keycode', event.code);
             // console.log(element[0].tagName);
 
             const helperdiv = getHelperDiv();
@@ -237,8 +237,6 @@ $(document).ready(function() {
             }
         });
         element.on("input", () => {
-            // console.log('input event');
-
             eventHandler(event, true);
         });
     });

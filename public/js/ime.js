@@ -306,6 +306,7 @@ const createUIElements = () => {
     closeBtn = document.createElement("button");
     closeBtn.className = "helperCloseBtn";
     closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+    $(closeBtn).children('i.fa-times').css({ 'pointer-events': 'none' });
     btnSet.appendChild(closeBtn);
 
     // setting menu container
@@ -330,7 +331,7 @@ const createUIElements = () => {
         // }
     });
     $(window).on("touchend.helperMU mouseup.helperMU", e => {
-        console.log('mouse up event ', $(e.target).attr('class'));
+        // console.log('mouse up event ', $(e.target).attr('class'));
         e.stopPropagation();
         if ($(e.target).closest('.helperDiv').length == 0) {
             removeHelper();
@@ -352,9 +353,8 @@ const createUIElements = () => {
             });
         }
         if ($(e.target).is('.helperOptions')) {
-            // input_Jq.focus();
             mouseUpHandler(e);
-            setFocus(input_Jq);
+            setFocus();
             removeHelper();
         }
         if ($(e.target).is('.helperCloseBtn')) {
@@ -558,9 +558,8 @@ const getCaretPosition = () => {
 export const setFocus = () => {
     let element = input_Html;
     if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {
-        // element.focus();
+
     } else {
-        // element.focus();
         let stringNode = element;
         let range = document.createRange();
         range.selectNodeContents(stringNode);
@@ -653,8 +652,6 @@ const updatePageList = resLength => {
 };
 
 const createOptions = (mode = "new") => {
-    // console.log('create options');
-
     $(helperContent).empty();
     highlightOption = 49;
     if (mode == "new") pageNum = 0;
@@ -731,11 +728,6 @@ const basicKeyEventListener = () => {
     input_Jq.on("keydown.basicKeyEvents", event => {
         keydownEventHandler(event);
     });
-    // if (mode !== "test") {
-    //     input_Jq.one("blur", event => {
-    //         removeHelper();
-    //     });
-    // }
 };
 
 // key down
