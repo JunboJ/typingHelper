@@ -327,11 +327,6 @@ const createUIElements = () => {
     $(helperDiv).on("mouseup touchend", e => {
         console.log('mouse up event ', e.target);
         // e.stopPropagation();
-        if (TS_PLATFORM.includes(navigator.platform)) {
-            console.log('with off(blur)');
-            input_Jq.off("blur");
-        }
-        // input_Jq.off("blur");
         if ($(e.target).is('#prevPageCtrl') || $(e.target).is('#nextPageCtrl')) {
             prevPageEventHandler(e, () => {
                 setFocus(input_Jq);
@@ -352,6 +347,11 @@ const createUIElements = () => {
         }
         if ($(e.target).is('.helperCloseBtn')) {
             closeBtnClickedHandler(e);
+        }
+        if (TS_PLATFORM.includes(navigator.platform)) {
+            console.log('with off(blur)');
+            e.stopPropagation();
+            input_Jq.off("blur");
         }
     });
 
