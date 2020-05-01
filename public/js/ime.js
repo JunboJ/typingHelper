@@ -53,7 +53,7 @@ const SPACE_KEY_SPACE_LANGUAGE_LIST = ["de", "es", "fr", "it", "pinyin", "romaji
 const SPACE_KEY_SELECT_LANGUAGE_LIST = ["el", "zh", "ja"];
 
 // assign ENTER key's function as selecting a option by language
-const ENTER_KEY_SELECT_LANGUAGE_LIST = ["ja", "zh", "el"];
+const ENTER_KEY_SELECT_LANGUAGE_LIST = ["ja", "zh", "el", "romaji"];
 
 // Reset caret start on selecting
 const RESET_CARET_ON_SELECTING_LIST = ["ja"];
@@ -63,6 +63,9 @@ const MULTIPLE_LETTER_LANGUAGE_LIST = ["zh", "ja"];
 
 // character type list
 const CHARACTER_TYPE_LIST = ["latin", "kana", "romaji"];
+
+// touch screen platform
+const TS_PLATFORM = ["Linux armv8l", "iPad", "iPhone"];
 
 export const writingHelper = (input, lang, isTyping = false, event = null) => {
     language = lang;
@@ -75,17 +78,13 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
     helperContent = $(".helperContent")[0] || null;
 
     resetVariables();
-
     isTyping ? null : resetCaretStart();
-
     MULTIPLE_LETTER_LANGUAGE_LIST.includes(language) ? getCurrentCharacter = getInputML : getCurrentCharacter = getInputSL;
 
     inputValue ? currentCharacter = getCurrentCharacter() : currentCharacter = { 0: null, 1: null };
 
     getOptionsByType(currentCharacter);
-
 };
-
 export const resetCaretStart = () => {
     // console.log('reset string start');
     const { cursorStart: start } = getCaretPosition();
@@ -294,45 +293,19 @@ const createUIElements = () => {
     prevPage.className = "pageCtrl";
     prevPage.id = "prevPageCtrl";
     prevPage.innerHTML = '<i class="fas fa-caret-left"></i>';
-    // $(prevPage).on("mousedown touchstart", event => {
-    //     event.stopPropagation();
-    //     input_Jq.off("blur");
-    // });
-    // $(prevPage).on("mouseup touchend", event => {
-    //     prevPageEventHandler(event, () => {
-    //         setFocus(input_Jq);
-    //         createOptions("pageChange");
-    //         optionStyling();
-    //     });
-    // });
+
     // page down button
     nextPage = document.createElement("button");
     nextPage.className = "pageCtrl";
     nextPage.id = "nextPageCtrl";
     nextPage.innerHTML = '<i class="fas fa-caret-right"></i>';
-    // $(nextPage).on("mousedown touchstart", event => {
-    //     event.stopPropagation();
-    //     input_Jq.off("blur");
-    // });
-    // $(nextPage).on("mouseup touchend", event => {
-    //     nextPageEventHandler(event, () => {
-    //         setFocus(input_Jq);
-    //         createOptions("pageChange");
-    //         optionStyling();
-    //     });
-    // });
 
     // closeBtn
     closeBtn = document.createElement("button");
     closeBtn.className = "helperCloseBtn";
     closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+    $(closeBtn).children('i.fa-times').css({ 'pointer-events': 'none' });
     btnSet.appendChild(closeBtn);
-    // closeBtn.addEventListener("mousedown touchstart", event => {
-    //     closeBtnMouseDownHandler(event);
-    // });
-    // closeBtn.addEventListener("mouseup touchend", event => {
-    //     closeBtnClickedHandler(event);
-    // });
 
     // setting menu container
     settingMenuWrapper = document.createElement("div");
@@ -345,12 +318,19 @@ const createUIElements = () => {
     // add eventlisteners
     $(helperDiv).on("mousedown touchstart", e => {
         console.log('mouse down event ', e.target);
-        e.stopPropagation();
-        input_Jq.off("blur");
+        // e.stopPropagation();
+        if (!TS_PLATFORM.includes(navigator.platform)) {
+            console.log('with off(blur)');
+            input_Jq.off("blur");
+        }
     });
     $(helperDiv).on("mouseup touchend", e => {
         console.log('mouse up event ', e.target);
-        e.stopPropagation();
+        // e.stopPropagation();
+        if (TS_PLATFORM.includes(navigator.platform)) {
+            console.log('with off(blur)');
+            input_Jq.off("blur");
+        }
         // input_Jq.off("blur");
         if ($(e.target).is('#prevPageCtrl') || $(e.target).is('#nextPageCtrl')) {
             prevPageEventHandler(e, () => {
@@ -368,7 +348,6 @@ const createUIElements = () => {
         }
         if ($(e.target).is('.helperOptions')) {
             let char = $(e.target).attr('data');
-            console.log(char);
             mouseUpHandler(e);
         }
         if ($(e.target).is('.helperCloseBtn')) {
@@ -575,7 +554,6 @@ export const setFocus = () => {
     } else {
         element.focus();
         let stringNode = element;
-        // let stringLength = stringNode.length;
         let range = document.createRange();
         range.selectNodeContents(stringNode);
         range.collapse();
@@ -735,12 +713,6 @@ const nextPageEventHandler = (event, callback) => {
         }
     }
 };
-
-// closeBtn event handler
-// const closeBtnMouseDownHandler = event => {
-//     event.stopPropagation();
-//     input_Jq.off("blur");
-// };
 
 const closeBtnClickedHandler = event => {
     removeHelper();
@@ -958,15 +930,9 @@ const setHighlight = (option = 49) => {
     $("#" + option).css({ "background-color": "rgb(78, 161, 216)" });
 };
 
-// add click event listener
-// const mouseDownHandler = event => {
-//     input_Jq.off("blur");
-//     event.stopPropagation();
-// };
-
 const mouseUpHandler = event => {
-    input_Jq.off("blur");
-    event.stopPropagation();
+    // input_Jq.off("blur");
+    // event.stopPropagation();
     let char = $(event.target).attr('data');
     setInputValue(char);
     setFocus(input_Jq);
