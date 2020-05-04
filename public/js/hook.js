@@ -1,4 +1,4 @@
-import { writingHelper, resetCaretStart } from "./ime.js";
+import { writingHelper, resetCaretStart, setFocus, helperDivMouseDownHandler, helperDivMouseUpHandler } from "./ime.js";
 
 let language = null;
 let buttonPosLeft;
@@ -95,26 +95,26 @@ const reposition = langList => {
     });
 };
 
-const setFocus = (element) => {
-    if (element.tagName === "DIV") {
-        let stringNode = element;
-        let range = document.createRange();
-        range.selectNodeContents(stringNode);
-        range.collapse();
-        let selection = window.getSelection();
-        if (selection.rangeCount > 0) {
-            selection.removeAllRanges();
-        }
-        selection.addRange(range);
-    }
-};
+// const setFocus = (element) => {
+//     if (element.tagName === "DIV") {
+//         let stringNode = element;
+//         let range = document.createRange();
+//         range.selectNodeContents(stringNode);
+//         range.collapse();
+//         let selection = window.getSelection();
+//         if (selection.rangeCount > 0) {
+//             selection.removeAllRanges();
+//         }
+//         selection.addRange(range);
+//     }
+// };
 
 $(window).resize(function() {
     reposition(langList);
 });
 
 $(window).click(e => {
-    // console.log(e);
+    console.log(e.target);
     if (!e.target.matches('#changeLanguage_btn')) {
         $(langList).addClass("listWrapper_off");
         $(langList).removeClass("listWrapper_on");
@@ -124,12 +124,12 @@ $(window).click(e => {
 });
 
 $(document).ready(function() {
-    $(window).on('mouseup', e => {
-        console.log(e.target);
-    })
     langList = addLanguageCheckingList();
     $(langList).addClass("listWrapper_off");
     document.body.appendChild(langList);
+
+    $(window).on("touchstart.helperMU mousedown.helperMU", e => helperDivMouseDownHandler(e));
+    $(window).on("touchend.helperMU mouseup.helperMU", e => helperDivMouseUpHandler(e));
 
     $("#changeLanguage_btn").on("click", event => {
         // const classCheck = $(langList).hasClass('listWrapper_off');

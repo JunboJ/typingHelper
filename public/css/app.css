@@ -42,7 +42,7 @@ h5 {
     align-items: center;
 }
 
-#transcript {
+.transcript {
     padding: 4px;
     border: 1px solid grey;
     font-size: 1rem;
@@ -54,14 +54,14 @@ h5 {
     transition: box-shadow .3s, border .3s;
 }
 
-#transcript:focus {
+.transcript:focus {
     outline: none;
     box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.4);
     border: 1px solid white;
 }
 
 .writingHelper,
-#transcript {
+.transcript {
     width: 80%;
     margin: auto;
 }

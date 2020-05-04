@@ -134,7 +134,7 @@ const getOptionsByType = currentCharacter => {
 
 const createInterface = result => {
     options = result;
-    console.log('options: ', options);
+    // console.log('options: ', options);
     if (options !== null && options.result !== null) {
         const copyStyle = getComputedStyle(input_Html);
         updatePageList(options.result.length);
@@ -262,7 +262,7 @@ const createInterface = result => {
 }
 
 const resetVariables = () => {
-    console.log('reset pages list')
+    // console.log('reset pages list');
     currentCharacter = { 0: null, 1: null };
     pages = [];
     pageNum = 0;
@@ -319,24 +319,46 @@ const createUIElements = () => {
 
     // add eventlisteners
     input_Jq.on('focusout.keepFocus', e => {
+        console.log('focus out');
         $(e.target).focus();
     })
-    $(window).on("touchstart.helperMU mousedown.helperMU", e => {
-        console.log('mouse down event ', $(e.target).closest('.helperDiv').length == 0);
-        // if ($(e.target).closest('.helperDiv').length = 0) {
-        //     input_Jq.off('.keepFocus');
-        //     // if (!TS_PLATFORM.includes(navigator.platform)) {
-        //     //     input_Jq.off("blur");
-        //     // }
-        // }
-    });
-    $(window).on("touchend.helperMU mouseup.helperMU", e => {
-        // console.log('mouse up event ', $(e.target).attr('class'));
+
+    // append elements
+    firstRowWrapper.append(helperContent);
+    firstRowWrapper.append(pageCtrl);
+    firstRowWrapper.append(btnSet);
+    pageCtrl.append(prevPage);
+    pageCtrl.append(nextPage);
+    helperDiv.append(firstRowWrapper);
+    settingMenuContent.appendChild(settingMenuContentText);
+    settingMenu.appendChild(settingMenuContent);
+    settingMenuWrapper.appendChild(settingMenu);
+    helperDiv.append(settingMenuWrapper);
+    $(helperDiv).find('i').css({ 'pointer-events': 'none' });
+    inputParent_Jq.append(helperDiv);
+};
+
+export const helperDivMouseDownHandler = (e, input_el) => {
+    console.log('mouse down event ', $(e.target).closest('.helperDiv').length == 0);
+    if (input_Jq) {
+        if ($(e.target).closest('.helperDiv').length == 0) {
+            input_Jq.off('.keepFocus');
+            // if (!TS_PLATFORM.includes(navigator.platform)) {
+            //     input_Jq.off("blur");
+            // }
+        }
+    }
+}
+
+export const helperDivMouseUpHandler = e => {
+    // console.log('mouse up event ', $(e.target).attr('class'));
+    console.log('ime mouse up', e.target.tagName, e.type, $(e.target).closest('.helperDiv').length == 0);
+    if (input_Jq) {
         e.stopPropagation();
         if ($(e.target).closest('.helperDiv').length == 0) {
             removeHelper();
+            input_Jq.blur();
             console.log('removing');
-
         }
         if ($(e.target).is('#prevPageCtrl') || $(e.target).is('#nextPageCtrl')) {
             prevPageEventHandler(e, () => {
@@ -360,22 +382,8 @@ const createUIElements = () => {
         if ($(e.target).is('.helperCloseBtn')) {
             closeBtnClickedHandler(e);
         }
-    });
-
-    // append elements
-    firstRowWrapper.append(helperContent);
-    firstRowWrapper.append(pageCtrl);
-    firstRowWrapper.append(btnSet);
-    pageCtrl.append(prevPage);
-    pageCtrl.append(nextPage);
-    helperDiv.append(firstRowWrapper);
-    settingMenuContent.appendChild(settingMenuContentText);
-    settingMenu.appendChild(settingMenuContent);
-    settingMenuWrapper.appendChild(settingMenu);
-    helperDiv.append(settingMenuWrapper);
-    $(helperDiv).find('i').css({ 'pointer-events': 'none' });
-    inputParent_Jq.append(helperDiv);
-};
+    }
+}
 
 const createAuxElement = () => {
     cloneField = document.createElement("div");
@@ -647,7 +655,7 @@ const updatePageList = resLength => {
             }
         }
     }
-    console.log(pages);
+    // console.log(pages);
     return;
 };
 
@@ -846,6 +854,7 @@ const keyupEventHandler = event => {
             if (RESET_CARET_ON_SELECTING_LIST.includes(language)) {
                 resetCaretStart();
             } else {
+                console.log('run again');
                 writingHelper(input_Jq, language, true);
             }
         }
