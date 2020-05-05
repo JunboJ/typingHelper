@@ -271,6 +271,7 @@ const resetVariables = () => {
 };
 
 const createUIElements = () => {
+    console.log('createUIElements');
     helperDiv = document.createElement("div");
     helperDiv.className = "helperDiv";
     $(helperDiv).css({ 'z-index': '9999' });
@@ -355,7 +356,7 @@ export const helperDivMouseUpHandler = e => {
     if (input_Jq && helperDiv) {
         console.log('1');
         e.stopPropagation();
-        if ($(e.target).closest('.helperDiv').length == 0 && !$(e.target).is('.writingHelper')) {
+        if ($(e.target).closest('.helperDiv').length == 0 && !$(e.target).is(input_Jq)) {
             removeHelper();
             input_Jq.blur();
             console.log('removing');
@@ -445,7 +446,7 @@ const getInputValue = () => {
 const getInputSL = () => {
     // let cursorStart, cursorEnd;
     ({ cursorStart, cursorEnd } = getCaretPosition());
-    console.log('getInputSL', cursorStart, cursorEnd);
+    // console.log('getInputSL', cursorStart, cursorEnd);
     // get the character under caret
     if (cursorStart == cursorEnd)
         cursorStart = cursorEnd == 0 ? 0 : cursorStart - 1;
@@ -463,7 +464,7 @@ const getInputML = () => {
     let match_0;
     let match_1;
     ({ cursorStart, cursorEnd } = getCaretPosition());
-    console.log('getInputML', cursorStart, cursorEnd, 'string start ', stringStart);
+    // console.log('getInputML', cursorStart, cursorEnd, 'string start ', stringStart);
     if (cursorStart == cursorEnd) {
         start = stringStart;
         end = cursorEnd;
@@ -554,13 +555,13 @@ const getCaretPosition = () => {
             // console.log('selection: ', selection);
             if (selection.rangeCount) {
                 range = selection.getRangeAt(0);
-                console.log('range: ', range, 'input_Jq', input_Jq);
-                console.log('range.commonAncestorContainer.parentNode == input_Html: ', $(range.commonAncestorContainer.parentNode).children(input_Jq).length > 0);
+                // console.log('range: ', range, 'input_Jq', input_Jq);
+                // console.log('range.commonAncestorContainer.parentNode == input_Html: ', $(range.commonAncestorContainer.parentNode).children(input_Jq).length > 0);
                 if ($(range.commonAncestorContainer.parentNode).is(input_Jq) || $(range.commonAncestorContainer.parentNode).children(input_Jq).length > 0) {
-                    console.log('range.endOffset: ', range.endOffset);
+                    // console.log('range.endOffset: ', range.endOffset);
                     caretStartPos = range.endOffset;
                     if (range.startOffset) caretStartPos = range.startOffset;
-                    console.log('range.endOffset: ', range.endOffset);
+                    // console.log('range.endOffset: ', range.endOffset);
                     caretEndPos = range.endOffset;
                 }
             }
@@ -580,11 +581,11 @@ export const setFocus = () => {
     if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {
 
     } else {
-        console.log(element, element.childNodes[0]);
+        // console.log(element, element.childNodes[0]);
         let stringNode = element.childNodes[0];
         let range = document.createRange();
         range.selectNodeContents(stringNode);
-        console.log('setFocus', range, stringNode.nodeType);
+        // console.log('setFocus', range, stringNode.nodeType);
         range.collapse();
         let selection = window.getSelection();
         if (selection.rangeCount > 0) {
