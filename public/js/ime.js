@@ -42,7 +42,7 @@ let settingMenu = null;
 let settingMenuContent = null;
 let settingMenuContentText = null;
 
-let stringStart = null;
+let stringStart = 0;
 let cursorStart = null;
 let cursorEnd = null;
 
@@ -78,6 +78,7 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
     helperContent = $(".helperContent")[0] || null;
 
     resetVariables();
+    console.log('is typing ? ', isTyping);
     isTyping ? null : resetCaretStart();
     MULTIPLE_LETTER_LANGUAGE_LIST.includes(language) ? getCurrentCharacter = getInputML : getCurrentCharacter = getInputSL;
 
@@ -86,7 +87,7 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
     getOptionsByType(currentCharacter);
 };
 export const resetCaretStart = () => {
-    // console.log('reset string start');
+    console.log('reset string start');
     const { cursorStart: start } = getCaretPosition();
     stringStart = start;
 };
@@ -110,11 +111,11 @@ const getOptionsByType = currentCharacter => {
                 options = data;
                 setInputValue(data.result[0])
                     .then(() => {
-                        setFocus(input_Jq);
+                        setFocus();
                         resetVariables();
                         inputValue = getInputValue();
-                        inputValue ? currentCharacter = getCurrentCharacter() : currentCharacter = { 0: null, 1: null };
-                        console.log(currentCharacter);
+                        inputValue.length > 0 ? currentCharacter = getCurrentCharacter() : currentCharacter = { 0: null, 1: null };
+                        console.log(currentCharacter, inputValue);
                         if (currentCharacter[1] !== null) {
                             getOptions(currentCharacter[1].string, createInterface, 'kana');
                         }
@@ -319,7 +320,7 @@ const createUIElements = () => {
 
     // add eventlisteners
     input_Jq.on('focusout.keepFocus', e => {
-        console.log('focus out');
+        console.log('focusout', e.target);
         $(e.target).focus();
     })
 
@@ -340,7 +341,7 @@ const createUIElements = () => {
 
 export const helperDivMouseDownHandler = (e, input_el) => {
     console.log('mouse down event ', $(e.target).closest('.helperDiv').length == 0);
-    if (input_Jq) {
+    if (input_Jq && helperDiv) {
         if ($(e.target).closest('.helperDiv').length == 0) {
             input_Jq.off('.keepFocus');
             // if (!TS_PLATFORM.includes(navigator.platform)) {
@@ -351,16 +352,15 @@ export const helperDivMouseDownHandler = (e, input_el) => {
 }
 
 export const helperDivMouseUpHandler = e => {
-    // console.log('mouse up event ', $(e.target).attr('class'));
-    console.log('ime mouse up', e.target.tagName, e.type, $(e.target).closest('.helperDiv').length == 0);
-    if (input_Jq) {
+    if (input_Jq && helperDiv) {
+        console.log('1');
         e.stopPropagation();
-        if ($(e.target).closest('.helperDiv').length == 0) {
+        if ($(e.target).closest('.helperDiv').length == 0 && !$(e.target).is('.writingHelper')) {
             removeHelper();
             input_Jq.blur();
             console.log('removing');
         }
-        if ($(e.target).is('#prevPageCtrl') || $(e.target).is('#nextPageCtrl')) {
+        if ($(e.target).is('#prevPageCtrl')) {
             prevPageEventHandler(e, () => {
                 setFocus(input_Jq);
                 createOptions("pageChange");
@@ -378,11 +378,21 @@ export const helperDivMouseUpHandler = e => {
             mouseUpHandler(e);
             setFocus();
             removeHelper();
+            if (RESET_CARET_ON_SELECTING_LIST.includes(language)) {
+                resetCaretStart();
+            } else {
+                console.log('run again');
+                writingHelper(input_Jq, language, true);
+            }
         }
         if ($(e.target).is('.helperCloseBtn')) {
             closeBtnClickedHandler(e);
         }
     }
+    // else if (!$(e.target).is('.writingHelper') && input_Jq && !helperDiv) {
+    //     console.log('2');
+    //     input_Jq.blur();
+    // }
 }
 
 const createAuxElement = () => {
@@ -435,7 +445,7 @@ const getInputValue = () => {
 const getInputSL = () => {
     // let cursorStart, cursorEnd;
     ({ cursorStart, cursorEnd } = getCaretPosition());
-
+    console.log('getInputSL', cursorStart, cursorEnd);
     // get the character under caret
     if (cursorStart == cursorEnd)
         cursorStart = cursorEnd == 0 ? 0 : cursorStart - 1;
@@ -453,7 +463,7 @@ const getInputML = () => {
     let match_0;
     let match_1;
     ({ cursorStart, cursorEnd } = getCaretPosition());
-
+    console.log('getInputML', cursorStart, cursorEnd, 'string start ', stringStart);
     if (cursorStart == cursorEnd) {
         start = stringStart;
         end = cursorEnd;
@@ -544,11 +554,13 @@ const getCaretPosition = () => {
             // console.log('selection: ', selection);
             if (selection.rangeCount) {
                 range = selection.getRangeAt(0);
-                // console.log('range: ', range);
-
-                if (range.commonAncestorContainer.parentNode == input_Html) {
+                console.log('range: ', range, 'input_Jq', input_Jq);
+                console.log('range.commonAncestorContainer.parentNode == input_Html: ', $(range.commonAncestorContainer.parentNode).children(input_Jq).length > 0);
+                if ($(range.commonAncestorContainer.parentNode).is(input_Jq) || $(range.commonAncestorContainer.parentNode).children(input_Jq).length > 0) {
+                    console.log('range.endOffset: ', range.endOffset);
                     caretStartPos = range.endOffset;
                     if (range.startOffset) caretStartPos = range.startOffset;
+                    console.log('range.endOffset: ', range.endOffset);
                     caretEndPos = range.endOffset;
                 }
             }
@@ -568,9 +580,11 @@ export const setFocus = () => {
     if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {
 
     } else {
-        let stringNode = element;
+        console.log(element, element.childNodes[0]);
+        let stringNode = element.childNodes[0];
         let range = document.createRange();
         range.selectNodeContents(stringNode);
+        console.log('setFocus', range, stringNode.nodeType);
         range.collapse();
         let selection = window.getSelection();
         if (selection.rangeCount > 0) {
@@ -840,7 +854,7 @@ const keyupEventHandler = event => {
             }
             $("body").off(".basicKeyEvents");
             input_Jq.off(".basicKeyEvents");
-            helperDiv.remove();
+            if (helperDiv) helperDiv.remove();
             if (language == "zh") {
                 writingHelper(input_Jq, language, true);
             }
@@ -886,8 +900,9 @@ const keyupEventHandler = event => {
 // remove helperDiv function
 const removeHelper = () => {
     if (helperDiv) helperDiv.remove();
+    helperDiv = null;
     input_Jq.off(".basicKeyEvents .keepFocus");
-    $(window).off(".helperMU");
+    console.log('eventlistener removed');
 };
 
 const keyValidityCheck = keycode => {

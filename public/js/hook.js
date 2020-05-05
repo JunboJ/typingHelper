@@ -46,22 +46,6 @@ const addLanguageCheckingList = textInput => {
         langSwitch.name = "lang";
         langSwitch.type = "radio";
         if (code === "en") langSwitch.checked = true;
-        $(langSwitch).on("click", () => {
-            setTimeout(() => {
-                // $(listWrapper).toggleClass("listWrapper_off");
-                // $(listWrapper).toggleClass("listWrapper_on");
-                $('#changeLanguage_btn')[0].innerText = '';
-                $('#changeLanguage_btn')[0].innerHtml = '';
-                let code = $(".langSwitch:checked + .langCode").val();
-                const x = document.createElement("IMG");
-                x.className = "flagIcon";
-                x.style.pointerEvents = "none";
-                x.setAttribute("src", "/images/icons/" + code + '.png');
-                x.setAttribute("alt", code);
-                $('#changeLanguage_btn')[0].innerText = languages[code].toUpperCase() + ' ';
-                $('#changeLanguage_btn').append(x);
-            }, 50);
-        });
 
         const langCode = document.createElement("input");
         langCode.className = "langCode";
@@ -95,32 +79,8 @@ const reposition = langList => {
     });
 };
 
-// const setFocus = (element) => {
-//     if (element.tagName === "DIV") {
-//         let stringNode = element;
-//         let range = document.createRange();
-//         range.selectNodeContents(stringNode);
-//         range.collapse();
-//         let selection = window.getSelection();
-//         if (selection.rangeCount > 0) {
-//             selection.removeAllRanges();
-//         }
-//         selection.addRange(range);
-//     }
-// };
-
 $(window).resize(function() {
     reposition(langList);
-});
-
-$(window).click(e => {
-    console.log(e.target);
-    if (!e.target.matches('#changeLanguage_btn')) {
-        $(langList).addClass("listWrapper_off");
-        $(langList).removeClass("listWrapper_on");
-        $(".LanguageSwitchArrow").addClass("LanguageSwitchArrow_off");
-        $(".LanguageSwitchArrow").removeClass("LanguageSwitchArrow_on");
-    }
 });
 
 $(document).ready(function() {
@@ -128,17 +88,40 @@ $(document).ready(function() {
     $(langList).addClass("listWrapper_off");
     document.body.appendChild(langList);
 
-    $(window).on("touchstart.helperMU mousedown.helperMU", e => helperDivMouseDownHandler(e));
-    $(window).on("touchend.helperMU mouseup.helperMU", e => helperDivMouseUpHandler(e));
-
-    $("#changeLanguage_btn").on("click", event => {
-        // const classCheck = $(langList).hasClass('listWrapper_off');
-        $(langList).toggleClass("listWrapper_off");
-        $(langList).toggleClass("listWrapper_on");
-        $(".LanguageSwitchArrow").toggleClass("LanguageSwitchArrow_off");
-        $(".LanguageSwitchArrow").toggleClass("LanguageSwitchArrow_on");
-        reposition(langList);
+    // $(window).on("touchstart.helperMU mousedown.helperMU", e => {
+    //     console.log('lang list', e.target);
+    //     helperDivMouseDownHandler(e)
+    // });
+    // $(window).on("touchend.helperMU mouseup.helperMU", e => {
+    $(window).on("mouseup.helperMU", e => {
+        if (!e.target.matches('#changeLanguage_btn') && !e.target.matches('.langSwitch')) {
+            $(langList).addClass("listWrapper_off");
+            $(langList).removeClass("listWrapper_on");
+            $(".LanguageSwitchArrow").addClass("LanguageSwitchArrow_off");
+            $(".LanguageSwitchArrow").removeClass("LanguageSwitchArrow_on");
+        } else if (e.target.matches('.langSwitch')) {
+            setTimeout(() => {
+                $('#changeLanguage_btn')[0].innerText = '';
+                $('#changeLanguage_btn')[0].innerHtml = '';
+                let code = $(".langSwitch:checked + .langCode").val();
+                const x = document.createElement("IMG");
+                x.className = "flagIcon";
+                x.style.pointerEvents = "none";
+                x.setAttribute("src", "/images/icons/" + code + '.png');
+                x.setAttribute("alt", code);
+                $('#changeLanguage_btn')[0].innerText = languages[code].toUpperCase() + ' ';
+                $('#changeLanguage_btn').append(x);
+            }, 50);
+        } else {
+            $(langList).toggleClass("listWrapper_off");
+            $(langList).toggleClass("listWrapper_on");
+            $(".LanguageSwitchArrow").toggleClass("LanguageSwitchArrow_off");
+            $(".LanguageSwitchArrow").toggleClass("LanguageSwitchArrow_on");
+            reposition(langList);
+        }
+        helperDivMouseUpHandler(e)
     });
+
     language = $(".langSwitch:checked + .langCode").val();
     // console.log(language);
     $(".writingHelper").each(function(index, object) {
@@ -217,15 +200,12 @@ $(document).ready(function() {
             if (language === 'ja') {
                 if (event.code === 'Space') {
                     event.preventDefault();
-                    if (event.code === 'Space') {
-                        event.preventDefault();
-                        if (!helperdiv) {
-                            if (element[0].tagName === 'DIV') {
-                                element.text(element.text() + '　');
-                                setFocus();
-                            } else {
-                                element.val(element.val() + '　');
-                            }
+                    if (!helperdiv) {
+                        if (element[0].tagName === 'DIV') {
+                            element.text(element.text() + '　');
+                            setFocus();
+                        } else {
+                            element.val(element.val() + '　');
                         }
                     }
                 }
