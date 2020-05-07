@@ -34,13 +34,15 @@ let pageCtrl = null;
 let pageCtrlState = null;
 let prevPage = null;
 let nextPage = null;
+let moreOption = null;
 let closeBtn = null;
 let firstRowWrapper = null;
 let options = null;
-let settingMenuWrapper = null;
+let moreOptionMenuWrapper = null;
 let settingMenu = null;
 let settingMenuContent = null;
 let settingMenuContentText = null;
+let frHeight = 0;
 
 let stringStart = 0;
 let cursorStart = null;
@@ -285,13 +287,7 @@ const createUIElements = () => {
     pageCtrl.className = "pageCtrl";
     // first row wrapper
     firstRowWrapper = document.createElement("div");
-    $(firstRowWrapper).css({
-        margin: "0",
-        padding: "0",
-        border: "none",
-        display: "inline-flex",
-        "justify-content": "space-between"
-    });
+    $(firstRowWrapper).addClass('firstRowWrapper');
     // page up button
     prevPage = document.createElement("button");
     prevPage.className = "pageCtrl";
@@ -309,15 +305,20 @@ const createUIElements = () => {
     closeBtn.className = "helperCloseBtn";
     closeBtn.innerHTML = '<i class="fas fa-times"></i>';
     $(closeBtn).children('i.fa-times').css({ 'pointer-events': 'none' });
-    btnSet.appendChild(closeBtn);
 
+    //setting button
+    moreOption = document.createElement("button");
+    $(moreOption).addClass("moreOption close");
+    moreOption.innerHTML = '<i class="fas fa-chevron-down"></i>';
+    btnSet.appendChild(moreOption);
+    btnSet.appendChild(closeBtn);
     // setting menu container
-    settingMenuWrapper = document.createElement("div");
-    settingMenuWrapper.className = "settingMenuWrapper";
+    moreOptionMenuWrapper = document.createElement("div");
+    moreOptionMenuWrapper.className = "moreOptionMenuWrapper";
     settingMenu = document.createElement("div");
-    settingMenu.className = "dropdown-menu";
+    settingMenu.className = "moreOptionList";
     settingMenuContent = document.createElement("span");
-    settingMenuContentText = document.createTextNode("More coming");
+    // settingMenuContentText = document.createTextNode("More coming");
 
     // add eventlisteners
     input_Jq.on('focusout.keepFocus', e => {
@@ -332,10 +333,10 @@ const createUIElements = () => {
     pageCtrl.append(prevPage);
     pageCtrl.append(nextPage);
     helperDiv.append(firstRowWrapper);
-    settingMenuContent.appendChild(settingMenuContentText);
+    // settingMenuContent.appendChild(settingMenuContentText);
     settingMenu.appendChild(settingMenuContent);
-    settingMenuWrapper.appendChild(settingMenu);
-    helperDiv.append(settingMenuWrapper);
+    moreOptionMenuWrapper.appendChild(settingMenu);
+    helperDiv.append(moreOptionMenuWrapper);
     $(helperDiv).find('i').css({ 'pointer-events': 'none' });
     inputParent_Jq.append(helperDiv);
 };
@@ -353,14 +354,15 @@ export const helperDivMouseDownHandler = (e, input_el) => {
 }
 
 export const helperDivMouseUpHandler = e => {
-    if (input_Jq && helperDiv) {
-        console.log('1');
+    console.log('4', !$(e.target).is('.writingHelper'), $(e.target).closest('.helperDiv').length == 0);
+    if ($('.writingHelper').length && helperDiv) {
+        console.log('5');
         e.stopPropagation();
-        if ($(e.target).closest('.helperDiv').length == 0 && !$(e.target).is(input_Jq)) {
-            removeHelper();
-            input_Jq.blur();
-            console.log('removing');
-        }
+        // if ($(e.target).closest('.helperDiv').length == 0 && !$(e.target).is(input_Jq)) {
+        //     removeHelper();
+        //     input_Jq.blur();
+        //     console.log('removing');
+        // }
         if ($(e.target).is('#prevPageCtrl')) {
             prevPageEventHandler(e, () => {
                 setFocus(input_Jq);
@@ -386,14 +388,18 @@ export const helperDivMouseUpHandler = e => {
                 writingHelper(input_Jq, language, true);
             }
         }
+        if ($(e.target).is('.moreOption')) {
+            moreOptionBtnClickedHandler(e);
+        }
         if ($(e.target).is('.helperCloseBtn')) {
             closeBtnClickedHandler(e);
         }
     }
-    // else if (!$(e.target).is('.writingHelper') && input_Jq && !helperDiv) {
-    //     console.log('2');
-    //     input_Jq.blur();
-    // }
+    if (!$(e.target).is('.writingHelper') && $(e.target).closest('.helperDiv').length == 0) {
+        console.log('2');
+        $('.writingHelper').blur();
+        if (helperDiv) removeHelper();
+    }
 }
 
 const createAuxElement = () => {
@@ -578,9 +584,7 @@ const getCaretPosition = () => {
 // focus on element function
 export const setFocus = () => {
     let element = input_Html;
-    if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {
-
-    } else {
+    if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {} else {
         // console.log(element, element.childNodes[0]);
         let stringNode = element.childNodes[0];
         let range = document.createRange();
@@ -704,7 +708,6 @@ const mapOptionToBtn = () => {
             let text = document.createTextNode(char);
             helperOptions.appendChild(text);
             helperContent.appendChild(helperOptions);
-
             // create tip spans
             let tip = document.createElement("small");
             $(tip).css({ 'pointer-events': 'none' });
@@ -717,7 +720,26 @@ const mapOptionToBtn = () => {
             setHighlight();
         });
     }
+    if (settingMenu) {
+        options.result.map((char, index) => {
+            let helperOptions = document.createElement("button");
+            helperOptions.className = 'helperOptions';
+            helperOptions.setAttribute('data', char);
+            $(helperOptions).css({ 'font-size': '1rem', 'min-height': '2.5rem', 'min-width': '2.5rem' });
+
+            let text = document.createTextNode(char);
+            helperOptions.appendChild(text);
+            settingMenu.appendChild(helperOptions);
+        });
+    }
+    resetHeights();
 };
+
+const resetHeights = () => {
+    frHeight = $('.firstRowWrapper').height();
+    console.log('frHeight', frHeight);
+    $(helperDiv).css({ 'height': `${frHeight}px` });
+}
 
 // pagination event handlers
 const prevPageEventHandler = (event, callback) => {
@@ -900,10 +922,12 @@ const keyupEventHandler = event => {
 
 // remove helperDiv function
 const removeHelper = () => {
-    if (helperDiv) helperDiv.remove();
-    helperDiv = null;
-    input_Jq.off(".basicKeyEvents .keepFocus");
-    console.log('eventlistener removed');
+    if (mode != 'test') {
+        if (helperDiv) helperDiv.remove();
+        helperDiv = null;
+        input_Jq.off(".basicKeyEvents .keepFocus");
+        console.log('eventlistener removed');
+    }
 };
 
 const keyValidityCheck = keycode => {
@@ -923,28 +947,43 @@ const keyValidityCheck = keycode => {
     return false;
 };
 
-// cog onclick handler
-const settingBtnClickedHandler = event => {
-    event.stopPropagation();
-    event.elements.input.off("blur");
-    let display = $(".settingMenuWrapper").css("display");
-    const position = $(".helperDiv")[0].classList.contains("helperDiv-bottom");
+// more option onclick handler
+const moreOptionBtnClickedHandler = event => {
+    // let display = $(".moreOptionMenuWrapper").css("display");
+    // const position = $(".helperDiv")[0].classList.contains("helperDiv-bottom");
 
-    if (display == "none") {
-        const menuHeight = $(".settingMenuWrapper").outerHeight();
+    // if (display == "none") {
+    //     const menuHeight = $(".moreOptionMenuWrapper").outerHeight();
+    //     let helperY = $(".helperDiv").css("top").slice(0, -2);
+    //     helperY = parseInt(helperY);
+    //     $(".moreOptionMenuWrapper").css({ display: "flex" });
+    //     const currentY = position ? helperY : helperY - menuHeight;
+    //     $(".helperDiv").css({ top: currentY });
+    // }
+    // if (display == "flex") {
+    //     const menuHeight = $(".moreOptionMenuWrapper").outerHeight();
+    //     let helperY = $(".helperDiv").css("top").slice(0, -2);
+    //     helperY = parseInt(helperY);
+    //     const currentY = position ? helperY : helperY + menuHeight;
+    //     $(".helperDiv").css({ top: currentY });
+    //     $(".moreOptionMenuWrapper").css({ display: "none" });
+    // }
+    let moHeight = $('.moreOptionMenuWrapper').height();
+    const position = $(".helperDiv")[0].classList.contains("helperDiv-bottom");
+    if ($(event.target).is('.close')) {
         let helperY = $(".helperDiv").css("top").slice(0, -2);
         helperY = parseInt(helperY);
-        $(".settingMenuWrapper").css({ display: "flex" });
-        const currentY = position ? helperY : helperY - menuHeight;
-        $(".helperDiv").css({ top: currentY });
-    }
-    if (display == "flex") {
-        const menuHeight = $(".settingMenuWrapper").outerHeight();
+        const currentY = position ? helperY : helperY - moHeight;
+        $(helperDiv).css({ 'height': `${frHeight + moHeight}px`, top: currentY });
+        $(event.target).toggleClass('close', false);
+        $(event.target).toggleClass('open', true);
+    } else if ($(event.target).is('.open')) {
         let helperY = $(".helperDiv").css("top").slice(0, -2);
         helperY = parseInt(helperY);
-        const currentY = position ? helperY : helperY + menuHeight;
-        $(".helperDiv").css({ top: currentY });
-        $(".settingMenuWrapper").css({ display: "none" });
+        const currentY = position ? helperY : helperY + moHeight;
+        $(helperDiv).css({ 'height': `${frHeight}px`, top: currentY });
+        $(event.target).toggleClass('close', true);
+        $(event.target).toggleClass('open', false);
     }
 };
 

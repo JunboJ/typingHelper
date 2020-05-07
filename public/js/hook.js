@@ -22,68 +22,12 @@ const languages = {
     pinyin: "Chinese(Pinyin)"
 };
 
-const addLanguageCheckingList = textInput => {
-    // const listWrapper = document.createElement("div");
-    listWrapper.className = "listWrapper";
-    Object.keys(languages).map(code => {
-        const x = document.createElement("IMG");
-        x.className = "flagIcon";
-        x.setAttribute("src", "/images/icons/" + code + '.png');
-        x.setAttribute("alt", code);
-
-        const languageFullName = document.createElement("span");
-        languageFullName.className = 'languageFullName';
-        var t = document.createTextNode(languages[code]);
-        languageFullName.appendChild(t);
-
-        const langLabel = document.createElement("label");
-        langLabel.className = "listItems";
-        langLabel.classList.add("check-container");
-        $(langLabel).css({ height: "auto", margin: "0.5rem" });
-
-        const langSwitch = document.createElement("input");
-        langSwitch.className = "langSwitch";
-        langSwitch.name = "lang";
-        langSwitch.type = "radio";
-        if (code === "en") langSwitch.checked = true;
-
-        const langCode = document.createElement("input");
-        langCode.className = "langCode";
-        langCode.type = "hidden";
-        langCode.value = code;
-
-        const mark = document.createElement("span");
-        mark.className = "checkmark";
-
-        langLabel.appendChild(x);
-        langLabel.appendChild(languageFullName);
-        langLabel.appendChild(langSwitch);
-        langLabel.appendChild(langCode);
-        langLabel.appendChild(mark);
-
-        listWrapper.appendChild(langLabel);
-    });
-    return listWrapper;
-};
-
-const reposition = langList => {
-    buttonPosLeft = $("#changeLanguage_btn").offset().left;
-    buttonPosTop = $("#changeLanguage_btn").offset().top;
-    buttonWidth = $("#changeLanguage_btn").width();
-    buttonHeight = $(langList).height();
-
-    const buttonTop = Math.floor(buttonPosTop - buttonHeight - 15);
-    $(langList).css({
-        left: buttonPosLeft - 11,
-        top: buttonTop
-    });
-};
-
 $(window).resize(function() {
     reposition(langList);
 });
 
 $(document).ready(function() {
+    console.log(navigator);
     langList = addLanguageCheckingList();
     $(langList).addClass("listWrapper_off");
     document.body.appendChild(langList);
@@ -93,13 +37,20 @@ $(document).ready(function() {
     //     helperDivMouseDownHandler(e)
     // });
     // $(window).on("touchend.helperMU mouseup.helperMU", e => {
-    $(window).on("mouseup.helperMU", e => {
-        if (!e.target.matches('#changeLanguage_btn') && !e.target.matches('.langSwitch')) {
+
+    $('body').on("mouseup.helperMU touchend.helperMU ", e => {
+        // e.preventDefault();
+        console.log(e);
+        if (!e.target.matches('#changeLanguage_btn') && !e.target.matches('.check-container')) {
+            console.log('1');
+
             $(langList).addClass("listWrapper_off");
             $(langList).removeClass("listWrapper_on");
             $(".LanguageSwitchArrow").addClass("LanguageSwitchArrow_off");
             $(".LanguageSwitchArrow").removeClass("LanguageSwitchArrow_on");
-        } else if (e.target.matches('.langSwitch')) {
+        } else if (e.target.matches('.check-container')) {
+            console.log('2');
+            // e.preventDefault();
             setTimeout(() => {
                 $('#changeLanguage_btn')[0].innerText = '';
                 $('#changeLanguage_btn')[0].innerHtml = '';
@@ -112,7 +63,9 @@ $(document).ready(function() {
                 $('#changeLanguage_btn')[0].innerText = languages[code].toUpperCase() + ' ';
                 $('#changeLanguage_btn').append(x);
             }, 50);
-        } else {
+        } else if (e.target.matches('#changeLanguage_btn')) {
+            console.log('3', langList);
+            e.preventDefault();
             $(langList).toggleClass("listWrapper_off");
             $(langList).toggleClass("listWrapper_on");
             $(".LanguageSwitchArrow").toggleClass("LanguageSwitchArrow_off");
@@ -165,9 +118,15 @@ $(document).ready(function() {
                     run();
                 }
             }
+            if (event.which == 27) {
+                if (div) {
+                    div.remove();
+                    resetCaretStart();
+                }
+            }
         };
 
-        element.on("click", e => eventHandler(e, true));
+        // element.on("click", e => eventHandler(e, true));
         element.on("keydown", event => {
             console.log('key down event keycode', event.code);
             // console.log(element[0].tagName);
@@ -225,3 +184,64 @@ $(document).ready(function() {
         language = $(".langSwitch:checked + .langCode").val();
     });
 });
+
+const addLanguageCheckingList = textInput => {
+    // const listWrapper = document.createElement("div");
+    listWrapper.className = "listWrapper";
+    Object.keys(languages).map(code => {
+        const x = document.createElement("IMG");
+        x.className = "flagIcon";
+        x.setAttribute("src", "/images/icons/" + code + '.png');
+        x.setAttribute("alt", code);
+
+        const languageFullName = document.createElement("span");
+        languageFullName.className = 'languageFullName';
+        var t = document.createTextNode(languages[code]);
+        languageFullName.appendChild(t);
+
+        const langLabel = document.createElement("label");
+        langLabel.className = "listItems";
+        langLabel.classList.add("check-container");
+        $(langLabel).css({ height: "auto", margin: "0.5rem" });
+
+        const langSwitch = document.createElement("input");
+        langSwitch.className = "langSwitch";
+        langSwitch.name = "lang";
+        langSwitch.type = "radio";
+        if (code === "en") langSwitch.checked = true;
+
+        const langCode = document.createElement("input");
+        langCode.className = "langCode";
+        langCode.type = "hidden";
+        langCode.value = code;
+
+        const mark = document.createElement("span");
+        mark.className = "checkmark";
+
+        langLabel.appendChild(x);
+        langLabel.appendChild(languageFullName);
+        langLabel.appendChild(langSwitch);
+        langLabel.appendChild(langCode);
+        langLabel.appendChild(mark);
+        $(langLabel).children().css({ 'pointer-events': 'none' });
+        listWrapper.appendChild(langLabel);
+    });
+    return listWrapper;
+};
+
+const reposition = langList => {
+    buttonPosLeft = $("#changeLanguage_btn").offset().left;
+    buttonPosTop = $("#changeLanguage_btn").offset().top;
+    buttonWidth = $("#changeLanguage_btn").width();
+    buttonHeight = $(langList).height();
+
+    const buttonTop = Math.floor(buttonPosTop - buttonHeight - 15);
+    $(langList).css({
+        left: buttonPosLeft - 11,
+        top: buttonTop
+    });
+};
+
+const importKanjiLib = () => {
+
+}

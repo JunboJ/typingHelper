@@ -1,19 +1,21 @@
 .helperDiv {
     position: absolute;
     display: flex;
+    overflow: hidden;
     justify-content: space-between;
     flex-wrap: wrap;
     border: none;
     box-shadow: 0px 0px 6px 2px rgb(0, 0, 0, 0.6);
     padding: 0;
     margin-left: -0.4rem;
-    width: auto;
+    width: min-content;
     min-height: 1.8rem;
     text-align: center;
     background-color: white;
     transition: left 0.15s, width 0.2s;
     -webkit-transition: left 0.15s, width 0.2s;
     z-index: 1000;
+    transition: height 0.15s, top 0.15s;
 }
 
 .helperDiv-top {
@@ -22,6 +24,14 @@
 
 .helperDiv-bottom {
     border-radius: 0 0.7rem 0.7rem 0.7rem;
+}
+
+.firstRowWrapper {
+    margin: 0;
+    padding: 0;
+    border: none;
+    display: inline-flex;
+    justify-content: space-between;
 }
 
 .settingMenuWrapper {
@@ -34,7 +44,9 @@
     -webkit-transition: width 0.2s;
 }
 
-.helperContent, .btnSet, .pageCtrl {
+.helperContent,
+.btnSet,
+.pageCtrl {
     height: 1.8rem;
     display: flex;
     flex: 0 0 auto;
@@ -63,7 +75,7 @@
     -webkit-transition: background-color 0.4s, color 0.4s;
 }
 
-.settingBtn {
+.moreOption {
     background-color: white;
     border: none;
     width: auto;
@@ -75,6 +87,42 @@
     font-size: 0.6rem;
     transition: background-color 0.1s, color 0.4s;
     -webkit-transition: background-color 0.1s, color 0.4s;
+}
+
+.moreOptionList {
+    max-width: 360px;
+    width: fit-content;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 5px;
+}
+
+.moreOptionMenuWrapper {
+    overflow-y: auto;
+    max-height: calc(7.5rem + 10px);
+}
+
+.moreOptionMenuWrapper::-webkit-scrollbar {
+    width: 0.3rem;
+    background-color: transparent;
+}
+
+.moreOptionMenuWrapper::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.moreOptionMenuWrapper::-webkit-scrollbar-track-piece {
+    background: transparent;
+}
+
+.moreOptionMenuWrapper::-webkit-scrollbar-track-piece:end {
+    background: transparent;
+    margin-bottom: 10px
+}
+
+.moreOptionMenuWrapper::-webkit-scrollbar-track-piece:start {
+    background: transparent;
+    margin-top: 10px
 }
 
 .pageCtrl {
@@ -169,6 +217,7 @@
     background-color: #ececec;
 }
 
+
 /* Customize the label (the container) */
 
 .check-container {
@@ -186,6 +235,7 @@
     user-select: none;
 }
 
+
 /* Hide the browser's default checkbox */
 
 .check-container input {
@@ -195,6 +245,7 @@
     height: 0;
     width: 0;
 }
+
 
 /* Create a custom checkbox */
 
@@ -207,17 +258,20 @@
     background-color: #eee;
 }
 
+
 /* On mouse-over, add a grey background color */
 
 .check-container:hover input~.checkmark {
     background-color: #ccc;
 }
 
+
 /* When the checkbox is checked, add a blue background */
 
 .check-container input:checked~.checkmark {
     background-color: #2196F3;
 }
+
 
 /* Create the checkmark/indicator (hidden when not checked) */
 
@@ -227,11 +281,13 @@
     display: none;
 }
 
+
 /* Show the checkmark when checked */
 
 .check-container input:checked~.checkmark:after {
     display: flex;
 }
+
 
 /* Style the checkmark/indicator */
 
