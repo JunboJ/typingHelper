@@ -81,6 +81,7 @@ const getKanji = input => {
             for (let i = 0; i < input.length; i++) {
                 // Get letter and calculate level
                 let letter = input[i];
+                console.log('letter', letter);
                 let level = input.length - i;
 
                 // Move into currentLevel if exists otherwise break

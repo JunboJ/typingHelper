@@ -38,11 +38,13 @@ let moreOption = null;
 let closeBtn = null;
 let firstRowWrapper = null;
 let options = null;
+let prev_options = null;
 let moreOptionMenuWrapper = null;
 let settingMenu = null;
 let settingMenuContent = null;
 let settingMenuContentText = null;
 let frHeight = 0;
+let frWidth = 0;
 
 let stringStart = 0;
 let cursorStart = null;
@@ -70,6 +72,7 @@ const CHARACTER_TYPE_LIST = ["latin", "kana", "romaji"];
 const TS_PLATFORM = ["Linux armv8l", "iPad", "iPhone"];
 
 export const writingHelper = (input, lang, isTyping = false, event = null) => {
+    console.log('//////////////////////////');
     language = lang;
     input_Jq = input;
     input_Html = input[0];
@@ -80,16 +83,16 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
     helperContent = $(".helperContent")[0] || null;
 
     resetVariables();
-    console.log('is typing ? ', isTyping);
+    // console.log('is typing ? ', isTyping);
     isTyping ? null : resetCaretStart();
     MULTIPLE_LETTER_LANGUAGE_LIST.includes(language) ? getCurrentCharacter = getInputML : getCurrentCharacter = getInputSL;
 
     inputValue ? currentCharacter = getCurrentCharacter() : currentCharacter = { 0: null, 1: null };
-
+    console.log('stringStart', stringStart);
     getOptionsByType(currentCharacter);
 };
 export const resetCaretStart = () => {
-    console.log('reset string start');
+    // console.log('reset string start');
     const { cursorStart: start } = getCaretPosition();
     stringStart = start;
 };
@@ -117,10 +120,10 @@ const getOptionsByType = currentCharacter => {
                         resetVariables();
                         inputValue = getInputValue();
                         inputValue.length > 0 ? currentCharacter = getCurrentCharacter() : currentCharacter = { 0: null, 1: null };
-                        console.log(currentCharacter, inputValue);
-                        if (currentCharacter[1] !== null) {
+                        console.log('currentCharacter', currentCharacter)
+                        if (currentCharacter[1] !== null)
                             getOptions(currentCharacter[1].string, createInterface, 'kana');
-                        }
+
                     });
             }, entry[0].type);
         }
@@ -135,10 +138,28 @@ const getOptionsByType = currentCharacter => {
     }
 };
 
+const compare = (arr1, arr2) => {
+    if (!Array.isArray(arr1) || !Array.isArray(arr2) || arr1.length !== arr2.length)
+        return false;
+    let _arr1 = [arr1.concat().sort()];
+    let _arr2 = [arr2.concat().sort()];
+    for (let i = 0; i < _arr1.length; i++) {
+        if (_arr1[i] !== _arr2[i])
+            return false;
+    }
+    return true;
+};
+
 const createInterface = result => {
     options = result;
-    // console.log('options: ', options);
+    let sameRes = false;
     if (options !== null && options.result !== null) {
+        if (!prev_options) {
+            prev_options = {...options };
+        } else {
+            sameRes = compare(prev_options.result, options.result);
+            sameRes ? null : prev_options = {...options };
+        }
         const copyStyle = getComputedStyle(input_Html);
         updatePageList(options.result.length);
         createAuxElement();
@@ -161,64 +182,91 @@ const createInterface = result => {
         inputParent_Html.appendChild(cloneField);
 
         // get position of wrapper of the rest of cloned content
-        const {
-            offsetLeft: spanX,
-            offsetTop: spanY,
-            offsetWidth: spanWidth,
-            offsetHeight: spanHeight
-        } = caretMarkSpan;
         const spany = $(caretMarkSpan).offset().top;
+        const spanX = $(caretMarkSpan).offset().left;
 
         // get position of clone div
         const {
-            offsetLeft: cloneFieldX,
-            offsetTop: cloneFieldY,
-            offsetWidth: cloneFieldWidth,
+            // offsetLeft: cloneFieldX,
+            // offsetTop: cloneFieldY,
+            // offsetWidth: cloneFieldWidth,
             offsetHeight: cloneFieldHeight
         } = cloneField;
 
         // get position of input_Jq fields
         const {
-            offsetLeft: inputX,
+            // offsetLeft: inputX,
             offsetTop: inputY,
             offsetWidth: inputWidth,
-            offsetHeight: inputHeight
+            // offsetHeight: inputHeight
         } = input_Html;
 
         // get position of the parent element of input_Jq fields
         const {
             offsetLeft: ipX,
-            offsetTop: ipY,
-            offsetWidth: ipWidth,
-            offsetHeight: ipHeight
+            // offsetTop: ipY,
+            // offsetWidth: ipWidth,
+            // offsetHeight: ipHeight
         } = inputParent_Html;
 
-        const ipy = $(inputParent_Html).offset().top;
+        // const ipy = $(inputParent_Html).offset().top;
 
         // remove clone
         cloneField.remove();
 
+        let helperHeight, topPosition;
+
         // if helperDiv does not exist
         if (helperDiv === null) {
+            // console.log('helperDiv === null', helperDiv === null);
             createUIElements();
-            togglePageControllers();
+            // togglePageControllers();
             basicKeyEventListener();
-            createOptions();
-        } else {
-            togglePageControllers();
-            createOptions();
-        }
+            createOptions().then(() => {
+                helperHeight = $('.firstRowWrapper').height();
+                // console.log('inputfield top', $(input_Html).offset().top);
 
-        const {
-            offsetWidth: helperWidth,
-            offsetHeight: helperHeight
-        } = helperDiv;
+                frHeight = $('.firstRowWrapper').height();
+                topPosition = $(input_Html).offset().top;
+                // console.log('topPosition', topPosition);
+                $(helperDiv).css({ 'height': `${frHeight}px`, 'top': `${topPosition - frHeight}px` });
+            });
+        } else {
+            // if ($('.moreOption').is('.open')) {
+            //     let moHeight = $('.moreOptionMenuWrapper').height();
+            //     closeMoreOption(moHeight);
+            // }
+            // togglePageControllers();
+            // console.log('sameRes', sameRes);
+            if (sameRes) {
+
+            } else {
+                let prev_moHeight = $('.moreOptionMenuWrapper')[0].offsetHeight;
+                createOptions().then(() => {
+                    if ($('button.moreOption').is('.open')) {
+                        let moHeight = $('.moreOptionMenuWrapper')[0].offsetHeight;
+                        let divTop = $(helperDiv).offset().top;
+                        // console.log('prev_moHeight', prev_moHeight, 'moHeight', moHeight);
+                        frHeight = $('.firstRowWrapper').height();
+                        // console.log('prev_moHeight - moHeight', `${prev_moHeight - moHeight}px`);
+                        $(helperDiv).css({ 'height': `${moHeight + frHeight}px`, 'top': `${divTop + (prev_moHeight - moHeight)}px` });
+                    }
+                });
+            }
+        }
+        // console.log('moreOptionMenuWrapper height', $('.moreOptionMenuWrapper').height());
+
+        // const {
+        //     offsetWidth: helperWidth,
+        //     offsetHeight: helperHeight
+        // } = helperDiv;
+        const helperWidth = $(helperDiv).width();
         const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
+        // const windowHeight = window.innerHeight;
         // styling and positioning
-        let leftPosition = spanX + 16;
+        // console.log('spanX', spanX);
+        let leftPosition = spanX + 20;
         let spanW = ipX + spanX + helperWidth;
-        let topPosition = cloneFieldHeight - helperHeight - spanHeight - 10;
         let topToWindow = Math.abs(spany);
         if (caretMarkSpan.textContent !== ".") {
             topToWindow = Math.abs(spany);
@@ -254,7 +302,6 @@ const createInterface = result => {
         }
 
         helperDiv.style.left = `${leftPosition}px`;
-        helperDiv.style.top = `${topPosition}px`;
 
     } else {
         // resetVariables();
@@ -273,7 +320,7 @@ const resetVariables = () => {
 };
 
 const createUIElements = () => {
-    console.log('createUIElements');
+    // console.log('createUIElements');
     helperDiv = document.createElement("div");
     helperDiv.className = "helperDiv";
     $(helperDiv).css({ 'z-index': '9999' });
@@ -282,23 +329,23 @@ const createUIElements = () => {
     // button set container
     btnSet = document.createElement("div");
     btnSet.className = "btnSet";
-    // page controller container
-    pageCtrl = document.createElement("div");
-    pageCtrl.className = "pageCtrl";
+    // // page controller container
+    // pageCtrl = document.createElement("div");
+    // pageCtrl.className = "pageCtrl";
     // first row wrapper
     firstRowWrapper = document.createElement("div");
     $(firstRowWrapper).addClass('firstRowWrapper');
-    // page up button
-    prevPage = document.createElement("button");
-    prevPage.className = "pageCtrl";
-    prevPage.id = "prevPageCtrl";
-    prevPage.innerHTML = '<i class="fas fa-caret-left"></i>';
+    // // page up button
+    // prevPage = document.createElement("button");
+    // prevPage.className = "pageCtrl";
+    // prevPage.id = "prevPageCtrl";
+    // prevPage.innerHTML = '<i class="fas fa-caret-left"></i>';
 
-    // page down button
-    nextPage = document.createElement("button");
-    nextPage.className = "pageCtrl";
-    nextPage.id = "nextPageCtrl";
-    nextPage.innerHTML = '<i class="fas fa-caret-right"></i>';
+    // // page down button
+    // nextPage = document.createElement("button");
+    // nextPage.className = "pageCtrl";
+    // nextPage.id = "nextPageCtrl";
+    // nextPage.innerHTML = '<i class="fas fa-caret-right"></i>';
 
     // closeBtn
     closeBtn = document.createElement("button");
@@ -322,16 +369,16 @@ const createUIElements = () => {
 
     // add eventlisteners
     input_Jq.on('focusout.keepFocus', e => {
-        console.log('focusout', e.target);
+        // console.log('focusout', e.target);
         $(e.target).focus();
     })
 
     // append elements
     firstRowWrapper.append(helperContent);
-    firstRowWrapper.append(pageCtrl);
+    // firstRowWrapper.append(pageCtrl);
     firstRowWrapper.append(btnSet);
-    pageCtrl.append(prevPage);
-    pageCtrl.append(nextPage);
+    // pageCtrl.append(prevPage);
+    // pageCtrl.append(nextPage);
     helperDiv.append(firstRowWrapper);
     // settingMenuContent.appendChild(settingMenuContentText);
     settingMenu.appendChild(settingMenuContent);
@@ -342,41 +389,46 @@ const createUIElements = () => {
 };
 
 export const helperDivMouseDownHandler = (e, input_el) => {
-    console.log('mouse down event ', $(e.target).closest('.helperDiv').length == 0);
-    if (input_Jq && helperDiv) {
-        if ($(e.target).closest('.helperDiv').length == 0) {
-            input_Jq.off('.keepFocus');
-            // if (!TS_PLATFORM.includes(navigator.platform)) {
-            //     input_Jq.off("blur");
-            // }
-        }
+    // if (input_Jq && helperDiv) {
+    //     if ($(e.target).closest('.helperDiv').length == 0) {
+    //         input_Jq.off('.keepFocus');
+    //         // if (!TS_PLATFORM.includes(navigator.platform)) {
+    //         //     input_Jq.off("blur");
+    //         // }
+    //     }
+    // }
+    if (!$(e.target).is('.writingHelper') && $(e.target).closest('.helperDiv').length == 0) {
+        console.log('2');
+        if (input_Jq) input_Jq.off('.keepFocus');
+        $('.writingHelper').blur();
+        if (helperDiv) removeHelper();
     }
 }
 
 export const helperDivMouseUpHandler = e => {
-    console.log('4', !$(e.target).is('.writingHelper'), $(e.target).closest('.helperDiv').length == 0);
+    // console.log('4', !$(e.target).is('.writingHelper'), $(e.target).closest('.helperDiv').length == 0);
     if ($('.writingHelper').length && helperDiv) {
-        console.log('5');
+        // console.log('5');
         e.stopPropagation();
         // if ($(e.target).closest('.helperDiv').length == 0 && !$(e.target).is(input_Jq)) {
         //     removeHelper();
         //     input_Jq.blur();
         //     console.log('removing');
         // }
-        if ($(e.target).is('#prevPageCtrl')) {
-            prevPageEventHandler(e, () => {
-                setFocus(input_Jq);
-                createOptions("pageChange");
-                optionStyling();
-            });
-        }
-        if ($(e.target).is('#nextPageCtrl')) {
-            nextPageEventHandler(e, () => {
-                setFocus(input_Jq);
-                createOptions("pageChange");
-                optionStyling();
-            });
-        }
+        // if ($(e.target).is('#prevPageCtrl')) {
+        //     prevPageEventHandler(e, () => {
+        //         setFocus(input_Jq);
+        //         createOptions("pageChange");
+        //         optionStyling();
+        //     });
+        // }
+        // if ($(e.target).is('#nextPageCtrl')) {
+        //     nextPageEventHandler(e, () => {
+        //         setFocus(input_Jq);
+        //         createOptions("pageChange");
+        //         optionStyling();
+        //     });
+        // }
         if ($(e.target).is('.helperOptions')) {
             mouseUpHandler(e);
             setFocus();
@@ -384,7 +436,7 @@ export const helperDivMouseUpHandler = e => {
             if (RESET_CARET_ON_SELECTING_LIST.includes(language)) {
                 resetCaretStart();
             } else {
-                console.log('run again');
+                // console.log('run again');
                 writingHelper(input_Jq, language, true);
             }
         }
@@ -394,11 +446,6 @@ export const helperDivMouseUpHandler = e => {
         if ($(e.target).is('.helperCloseBtn')) {
             closeBtnClickedHandler(e);
         }
-    }
-    if (!$(e.target).is('.writingHelper') && $(e.target).closest('.helperDiv').length == 0) {
-        console.log('2');
-        $('.writingHelper').blur();
-        if (helperDiv) removeHelper();
     }
 }
 
@@ -561,7 +608,7 @@ const getCaretPosition = () => {
             // console.log('selection: ', selection);
             if (selection.rangeCount) {
                 range = selection.getRangeAt(0);
-                // console.log('range: ', range, 'input_Jq', input_Jq);
+                console.log('range: ', range, 'input_Jq', input_Jq);
                 // console.log('range.commonAncestorContainer.parentNode == input_Html: ', $(range.commonAncestorContainer.parentNode).children(input_Jq).length > 0);
                 if ($(range.commonAncestorContainer.parentNode).is(input_Jq) || $(range.commonAncestorContainer.parentNode).children(input_Jq).length > 0) {
                     // console.log('range.endOffset: ', range.endOffset);
@@ -679,65 +726,73 @@ const updatePageList = resLength => {
 };
 
 const createOptions = (mode = "new") => {
-    $(helperContent).empty();
-    highlightOption = 49;
-    if (mode == "new") pageNum = 0;
-    // if (mode == "pageChange") {}
-    if (options.result !== null) {
-        mapOptionToBtn();
-    }
-};
+    return new Promise((res, rej) => {
+        $(helperContent).empty();
+        highlightOption = 49;
+        if (mode == "new") pageNum = 0;
+        // if (mode == "pageChange") {}
+        if (options.result !== null) {
+            // const start = pages[pageNum][0];
+            // const end = pages[pageNum][1] + 1;
+            // console.log(pageNum + "/" + start + "/" + end);
+            // console.log('options', options);
+            const start = 0;
+            const end = 7;
+            if (helperContent) {
+                options.result.slice(start, end).map((char, index) => {
+                    let key = index + 49;
+                    // console.log(index);
 
-const mapOptionToBtn = () => {
-    const start = pages[pageNum][0];
-    const end = pages[pageNum][1] + 1;
-    // console.log(pageNum + "/" + start + "/" + end);
+                    // create options as buttons
+                    let helperOptions = document.createElement("button");
+                    helperOptions.className = 'helperOptions';
+                    helperOptions.id = key;
+                    helperOptions.setAttribute('data', char);
+                    helperOptions.style.fontSize = "1rem";
 
-    if (helperContent) {
-        options.result.slice(start, end).map((char, index) => {
-            let key = index + 49;
-            // console.log(index);
+                    let text = document.createTextNode(char);
+                    helperOptions.appendChild(text);
+                    helperContent.appendChild(helperOptions);
+                    // create tip spans
+                    let tip = document.createElement("small");
+                    $(tip).css({ 'pointer-events': 'none' });
+                    tip.className = "tips_windows";
+                    tip.innerHTML = index + 1;
 
-            // create options as buttons
-            let helperOptions = document.createElement("button");
-            helperOptions.className = 'helperOptions';
-            helperOptions.id = key;
-            helperOptions.setAttribute('data', char);
-            helperOptions.style.fontSize = "1rem";
+                    helperOptions.prepend(tip);
 
-            let text = document.createTextNode(char);
-            helperOptions.appendChild(text);
-            helperContent.appendChild(helperOptions);
-            // create tip spans
-            let tip = document.createElement("small");
-            $(tip).css({ 'pointer-events': 'none' });
-            tip.className = "tips_windows";
-            tip.innerHTML = index + 1;
+                    // default option highlight
+                    setHighlight();
+                });
+            }
+            if (settingMenu) {
+                $(settingMenu).empty();
+                console.log('options.result', options.result);
+                options.result.map((char, index) => {
+                    let helperOptions = document.createElement("button");
+                    helperOptions.className = 'helperOptions';
+                    helperOptions.setAttribute('data', char);
+                    $(helperOptions).css({ 'font-size': '1rem', 'min-height': '2.5rem', 'min-width': '2.5rem' });
 
-            helperOptions.prepend(tip);
+                    let text = document.createTextNode(char);
+                    helperOptions.appendChild(text);
+                    settingMenu.appendChild(helperOptions);
+                });
+                let hcWidth = $('.helperContent').width();
+                let bsWidth = $('.btnSet').width();
+                $('.firstRowWrapper').css({ 'width': `${hcWidth + bsWidth}px` });
+            }
 
-            // default option highlight
-            setHighlight();
-        });
-    }
-    if (settingMenu) {
-        options.result.map((char, index) => {
-            let helperOptions = document.createElement("button");
-            helperOptions.className = 'helperOptions';
-            helperOptions.setAttribute('data', char);
-            $(helperOptions).css({ 'font-size': '1rem', 'min-height': '2.5rem', 'min-width': '2.5rem' });
-
-            let text = document.createTextNode(char);
-            helperOptions.appendChild(text);
-            settingMenu.appendChild(helperOptions);
-        });
-    }
-    resetHeights();
+            res();
+            // resetHeights();
+        }
+    })
 };
 
 const resetHeights = () => {
     frHeight = $('.firstRowWrapper').height();
-    console.log('frHeight', frHeight);
+    frWidth = $('.firstRowWrapper').width();
+    // console.log('frWidth', frWidth);
     $(helperDiv).css({ 'height': `${frHeight}px` });
 }
 
@@ -860,8 +915,10 @@ const keydownEventHandler = event => {
     }
 
     // other key check
-    const valid = keyValidityCheck(keycode);
-    if (valid) $("#49").mouseup();
+    if (autoSelect) {
+        const valid = keyValidityCheck(keycode);
+        if (valid) $("#49").mouseup();
+    }
 };
 
 // add key press event handler
@@ -932,16 +989,14 @@ const removeHelper = () => {
 
 const keyValidityCheck = keycode => {
     // console.log(keycode);
-    const inputKeys = [192, 219, 221, 220, 186, 222, 188, 190, 191];
-    if (
-        autoSelect &&
-        !(keycode >= 48 && keycode <= 57) &&
+    const inputKeys = [192, 219, 221, 220, 186, 222, 188, 190, 191, 111, 106, 109, 107, 110];
+    if (!(keycode >= 48 && keycode <= 57) &&
         !(keycode >= 65 && keycode <= 90)
     ) {
         const valid = inputKeys.includes(keycode);
         return valid;
     }
-    if (autoSelect && (keycode >= 65 && keycode <= 90)) {
+    if ((keycode >= 65 && keycode <= 90)) {
         return true;
     }
     return false;
@@ -969,23 +1024,35 @@ const moreOptionBtnClickedHandler = event => {
     //     $(".moreOptionMenuWrapper").css({ display: "none" });
     // }
     let moHeight = $('.moreOptionMenuWrapper').height();
-    const position = $(".helperDiv")[0].classList.contains("helperDiv-bottom");
     if ($(event.target).is('.close')) {
-        let helperY = $(".helperDiv").css("top").slice(0, -2);
-        helperY = parseInt(helperY);
-        const currentY = position ? helperY : helperY - moHeight;
-        $(helperDiv).css({ 'height': `${frHeight + moHeight}px`, top: currentY });
-        $(event.target).toggleClass('close', false);
-        $(event.target).toggleClass('open', true);
+        openMoreOption(moHeight);
     } else if ($(event.target).is('.open')) {
-        let helperY = $(".helperDiv").css("top").slice(0, -2);
-        helperY = parseInt(helperY);
-        const currentY = position ? helperY : helperY + moHeight;
-        $(helperDiv).css({ 'height': `${frHeight}px`, top: currentY });
-        $(event.target).toggleClass('close', true);
-        $(event.target).toggleClass('open', false);
+        closeMoreOption(moHeight);
     }
 };
+
+const openMoreOption = (moHeight) => {
+    // console.log('open frHeight', frHeight, $(".helperDiv").offset().top);
+    let helperY = $(".helperDiv").css("top").slice(0, -2);
+    helperY = parseInt(helperY);
+    const position = $(".helperDiv")[0].classList.contains("helperDiv-bottom");
+    const currentY = position ? helperY : helperY - moHeight;
+    $(helperDiv).css({ 'height': `${frHeight + moHeight}px`, top: currentY });
+    // console.log('$(helperDiv).height()', $(helperDiv).css('height'));
+    $('button.moreOption').toggleClass('close', false);
+    $('button.moreOption').toggleClass('open', true);
+}
+
+const closeMoreOption = (moHeight) => {
+    // console.log('close frHeight', frHeight);
+    let helperY = $(".helperDiv").css("top").slice(0, -2);
+    helperY = parseInt(helperY);
+    const position = $(".helperDiv")[0].classList.contains("helperDiv-bottom");
+    const currentY = position ? helperY : helperY + moHeight;
+    $(helperDiv).css({ 'height': `${frHeight}px`, top: currentY });
+    $('button.moreOption').toggleClass('close', true);
+    $('button.moreOption').toggleClass('open', false);
+}
 
 // selection highlight
 const setHighlight = (option = 49) => {

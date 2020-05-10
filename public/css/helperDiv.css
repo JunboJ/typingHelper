@@ -1,5 +1,5 @@
 .helperDiv {
-    position: absolute;
+    position: fixed;
     display: flex;
     overflow: hidden;
     justify-content: space-between;
@@ -9,6 +9,7 @@
     padding: 0;
     margin-left: -0.4rem;
     width: min-content;
+    /* min-width: 14rem; */
     min-height: 1.8rem;
     text-align: center;
     background-color: white;
@@ -27,7 +28,10 @@
 }
 
 .firstRowWrapper {
+    /* flex: 1 0 100%; */
     margin: 0;
+    /* width: fit-content; */
+    height: fit-content;
     padding: 0;
     border: none;
     display: inline-flex;
@@ -47,7 +51,7 @@
 .helperContent,
 .btnSet,
 .pageCtrl {
-    height: 1.8rem;
+    height: 2rem;
     display: flex;
     flex: 0 0 auto;
     align-items: center;
@@ -95,11 +99,13 @@
     display: flex;
     flex-wrap: wrap;
     margin: 5px;
+    height: auto;
 }
 
 .moreOptionMenuWrapper {
     overflow-y: auto;
     max-height: calc(7.5rem + 10px);
+    height: fit-content;
 }
 
 .moreOptionMenuWrapper::-webkit-scrollbar {
@@ -146,6 +152,7 @@
     border: none;
     width: auto;
     min-width: 1.8rem;
+    min-height: 2rem;
     transition: background-color 0.15s;
     -webkit-transition: background-color 0.15s;
 }
@@ -162,11 +169,11 @@
     }
 }
 
-.helperOptions-top:nth-child(1) {
+.firstRowWrapper .helperOptions-top:nth-child(1) {
     border-radius: 0.7rem 0 0 0;
 }
 
-.helperOptions-bottom:nth-child(1) {
+.firstRowWrapper .helperOptions-bottom:nth-child(1) {
     border-radius: 0 0 0 0.7rem;
 }
 

@@ -8,6 +8,7 @@ let buttonHeight;
 let langList;
 const listWrapper = document.createElement("div");
 const ARROWKEY_CODES = [37, 38, 39, 40];
+const inputKeys = [192, 219, 221, 220, 186, 222, 188, 190, 191, 111, 106, 109, 107, 110];
 const languages = {
     de: "German",
     el: "Greek",
@@ -32,24 +33,24 @@ $(document).ready(function() {
     $(langList).addClass("listWrapper_off");
     document.body.appendChild(langList);
 
-    // $(window).on("touchstart.helperMU mousedown.helperMU", e => {
-    //     console.log('lang list', e.target);
-    //     helperDivMouseDownHandler(e)
-    // });
+    $(window).on("touchstart.helperMU mousedown.helperMU", e => {
+        console.log('lang list', e.target);
+        helperDivMouseDownHandler(e)
+    });
     // $(window).on("touchend.helperMU mouseup.helperMU", e => {
 
     $('body').on("mouseup.helperMU touchend.helperMU ", e => {
         // e.preventDefault();
-        console.log(e);
+        // console.log(e);
         if (!e.target.matches('#changeLanguage_btn') && !e.target.matches('.check-container')) {
-            console.log('1');
+            // console.log('1');
 
             $(langList).addClass("listWrapper_off");
             $(langList).removeClass("listWrapper_on");
             $(".LanguageSwitchArrow").addClass("LanguageSwitchArrow_off");
             $(".LanguageSwitchArrow").removeClass("LanguageSwitchArrow_on");
         } else if (e.target.matches('.check-container')) {
-            console.log('2');
+            // console.log('2');
             // e.preventDefault();
             setTimeout(() => {
                 $('#changeLanguage_btn')[0].innerText = '';
@@ -64,7 +65,7 @@ $(document).ready(function() {
                 $('#changeLanguage_btn').append(x);
             }, 50);
         } else if (e.target.matches('#changeLanguage_btn')) {
-            console.log('3', langList);
+            // console.log('3', langList);
             e.preventDefault();
             $(langList).toggleClass("listWrapper_off");
             $(langList).toggleClass("listWrapper_on");
@@ -128,7 +129,7 @@ $(document).ready(function() {
 
         // element.on("click", e => eventHandler(e, true));
         element.on("keydown", event => {
-            console.log('key down event keycode', event.code);
+            // console.log('key down event keycode', event.code);
             // console.log(element[0].tagName);
 
             const helperdiv = getHelperDiv();
@@ -136,10 +137,12 @@ $(document).ready(function() {
                 if (helperdiv) {
                     // console.log("helperdiv on backspace");
                     setTimeout(() => {
+                        console.log('8 with helperDiv true');
                         eventHandler(event, true);
                     }, 50);
                 } else {
                     setTimeout(() => {
+                        console.log('8 with helperDiv false');
                         eventHandler(event);
                     }, 50);
                 }
@@ -171,12 +174,22 @@ $(document).ready(function() {
             }
         });
         element.on("keyup", event => {
-            if (ARROWKEY_CODES.includes(event.which)) {
+            let keycode = event.which;
+            const div = getHelperDiv();
+            if (ARROWKEY_CODES.includes(keycode)) {
                 arrowKeyEventHandler(event);
+            }
+            if ((keycode >= 48 && keycode <= 57 && !div) || (keycode >= 65 && keycode <= 90)) {
+                console.log('on keyup');
+                eventHandler(event, true);
+            }
+            if (inputKeys.includes(keycode)) {
+                resetCaretStart();
+                if (div) div.remove();
             }
         });
         element.on("input", () => {
-            eventHandler(event, true);
+            console.log('on input');
         });
     });
 
