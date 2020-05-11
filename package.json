@@ -11,7 +11,8 @@
         "pinyinlite": "^1.2.1",
         "request": "^2.88.0",
         "uuidv4": "^6.0.0",
-        "wanakana": "^4.0.2"
+        "wanakana": "^4.0.2",
+        "yuicompressor": "^2.4.8"
     },
     "devDependencies": {},
     "scripts": {

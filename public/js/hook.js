@@ -1,4 +1,5 @@
 import { writingHelper, resetCaretStart, setFocus, helperDivMouseDownHandler, helperDivMouseUpHandler } from "./ime.js";
+import { importKanjiLib } from "./lang/jaLib.js";
 
 let language = null;
 let buttonPosLeft;
@@ -6,6 +7,7 @@ let buttonPosTop;
 let buttonWidth;
 let buttonHeight;
 let langList;
+let isReady = false;
 const listWrapper = document.createElement("div");
 const ARROWKEY_CODES = [37, 38, 39, 40];
 const inputKeys = [192, 219, 221, 220, 186, 222, 188, 190, 191, 111, 106, 109, 107, 110];
@@ -23,6 +25,15 @@ const languages = {
     pinyin: "Chinese(Pinyin)"
 };
 
+importKanjiLib()
+    .then(() => {
+            $('.loadingMark.ja').remove();
+        },
+        (err) => {
+            $('.loadingMark.ja').remove();
+            alert(err);
+        });
+
 $(window).resize(function() {
     reposition(langList);
 });
@@ -32,6 +43,7 @@ $(document).ready(function() {
     langList = addLanguageCheckingList();
     $(langList).addClass("listWrapper_off");
     document.body.appendChild(langList);
+
 
     $(window).on("touchstart.helperMU mousedown.helperMU", e => {
         console.log('lang list', e.target);
@@ -221,7 +233,10 @@ const addLanguageCheckingList = textInput => {
         langSwitch.className = "langSwitch";
         langSwitch.name = "lang";
         langSwitch.type = "radio";
-        if (code === "en") langSwitch.checked = true;
+
+        const loadingMark = document.createElement("span");
+        $(loadingMark).addClass(`loadingMark ${code}`);
+        loadingMark.innerHTML = '<i class="fas fa-cog"></i>';
 
         const langCode = document.createElement("input");
         langCode.className = "langCode";
@@ -236,6 +251,15 @@ const addLanguageCheckingList = textInput => {
         langLabel.appendChild(langSwitch);
         langLabel.appendChild(langCode);
         langLabel.appendChild(mark);
+        switch (code) {
+            case "en":
+                langSwitch.checked = true;
+                break;
+            case "ja":
+                langLabel.appendChild(loadingMark);
+            default:
+                break;
+        }
         $(langLabel).children().css({ 'pointer-events': 'none' });
         listWrapper.appendChild(langLabel);
     });
@@ -254,7 +278,3 @@ const reposition = langList => {
         top: buttonTop
     });
 };
-
-const importKanjiLib = () => {
-
-}

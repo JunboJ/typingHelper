@@ -343,6 +343,44 @@
     transform: rotate(180deg);
 }
 
+.languageFullName {
+    margin-right: 0.5rem;
+}
+
+.loadingMark i {
+    color: rgb(78, 161, 216);
+    animation: spinner 3s linear infinite;
+    -moz-animation: spinner 3s linear infinite;
+    -webkit-animation: spinner 3s linear infinite;
+}
+
+@keyframes spinner {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@-moz-keyframes spinner {
+    from {
+        -moz-transform: rotate(0deg);
+    }
+    to {
+        -moz-transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes spinner {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
 .flagIcon {
     height: auto;
     margin-right: 3px;

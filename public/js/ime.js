@@ -688,7 +688,10 @@ const getOptions = (str, callback, type) => {
                 reset();
                 get_ja(str, type)
                     .then(res => callback(res))
-                    .catch(err => console.log(err));
+                    .catch(err => {
+                        console.log(err)
+                        alert('Loading Kanji input method...');
+                    });
                 break;
             case "romaji":
                 reset();

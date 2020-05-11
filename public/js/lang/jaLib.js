@@ -1,42 +1,59 @@
 let Dictionary = null;
 let levelsOfLenience = 1;
 
+export const importKanjiLib = () => {
+    return new Promise((res, rej) => {
+        import ('./kanji-compiled.js')
+        .then((m) => {
+                Dictionary = m.kanjiRaw$$module$kanji_out;
+                console.log(m);
+                res();
+            })
+            .catch(err => {
+                console.log(err);
+                rej('import kanji lib err')
+            });
+    })
+};
+
 export const get_ja = (str, type) => {
     let result = [];
-
     return new Promise((res, rej) => {
-        if (str.length > 0) {
-            if (type === 'romaji') {
-                convertToKana(str)
-                    .then(data => {
-                        result[0] = data || null;
-                        res({
-                            resultString: str,
-                            partEnd: str.length,
-                            result: result,
-                            strL: str.length
+        if (Dictionary !== null) {
+            if (str.length > 0) {
+                if (type === 'romaji') {
+                    convertToKana(str)
+                        .then(data => {
+                            result[0] = data || null;
+                            res({
+                                resultString: str,
+                                partEnd: str.length,
+                                result: result,
+                                strL: str.length
+                            });
                         });
-                    });
-            }
-            if (type === 'kana') {
-                convertToKanji(str)
-                    .then(data => {
-                        // console.log('converted: ', data);
-                        result = data || null;
-                        res({
-                            resultString: str,
-                            partEnd: str.length,
-                            result: result,
-                            strL: str.length
+                }
+                if (type === 'kana') {
+                    convertToKanji(str)
+                        .then(data => {
+                            // console.log('converted: ', data);
+                            result = data || null;
+                            res({
+                                resultString: str,
+                                partEnd: str.length,
+                                result: result,
+                                strL: str.length
+                            });
                         });
-                    });
+                }
+                // rej('input type error (not kana or romaji)');
+            } else {
+                rej(Error(err));
             }
-            // rej('input type error (not kana or romaji)');
         } else {
-            rej(Error(err));
+            rej('Library not ready');
         }
     });
-
 };
 
 const convertToKana = str => {
@@ -48,21 +65,15 @@ const convertToKana = str => {
 
 const convertToKanji = str => {
     return new Promise((res, rej) => {
-        import ('./kanji_out.js')
-        .then((m) => {
-                // console.log(m.kanjiRaw);
-                Dictionary = m.kanjiRaw;
-                getKanji(str)
-                    .then(kanjis => {
-                        // console.log('result: ', kanjis);
-                        // console.log('original string: ', str);
-                        if (kanjis.length > 0) {
-                            res(kanjis);
-                        } else {
-                            res(null);
-                        }
-                    })
-                    .catch(err => console.log(err));
+        getKanji(str)
+            .then(kanjis => {
+                // console.log('result: ', kanjis);
+                // console.log('original string: ', str);
+                if (kanjis.length > 0) {
+                    res(kanjis);
+                } else {
+                    res(null);
+                }
             })
             .catch(err => console.log(err));
     });
