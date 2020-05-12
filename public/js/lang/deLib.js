@@ -8,6 +8,7 @@ export const get_de = character => {
         u: ['u', 'ü'],
         s: ['s', 'ß'],
         S: ['S', 'ẞ'],
+        _ap: ['\'', '’'],
         _do: ['€'],
         _bml: ['«'],
         _bmr: ['»']
@@ -31,6 +32,8 @@ export const get_de = character => {
                 return de.s;
             case 'S':
                 return de.S;
+            case '’':
+                return de._ap;
             case '$':
                 return es._do;
             case '<':

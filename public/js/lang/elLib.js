@@ -3,7 +3,7 @@ export const get_el = character => {
         a: ['α', 'ά'],
         A: ['Α', 'Ά'],
         b: ['β'],
-        // B: ['Β'],
+        B: ['Β'],
         c: ['ψ'],
         C: ['Ψ'],
         d: ['δ'],
@@ -21,13 +21,13 @@ export const get_el = character => {
         j: ['ξ'],
         J: ['Ξ'],
         k: ['κ'],
-        // K: ['Κ'],
+        K: ['Κ'],
         l: ['λ'],
         L: ['Λ'],
         m: ['μ'],
-        // M: ['Μ'],
+        M: ['Μ'],
         n: ['ν'],
-        // N: ['Ν'],
+        N: ['Ν'],
         o: ['ο', 'ό'],
         O: ['Ο', 'Ό'],
         p: ['π'],
@@ -39,7 +39,7 @@ export const get_el = character => {
         s: ['σ', 'ς'],
         S: ['Σ'],
         t: ['τ'],
-        // T: ['Τ']
+        T: ['Τ'],
         u: ['θ'],
         U: ['Θ'],
         v: ['ω', 'ώ'],
@@ -47,11 +47,12 @@ export const get_el = character => {
         w: ['ς'],
         W: ['Σ'],
         x: ['χ'],
-        // X: ['Χ'],
+        X: ['Χ'],
         y: ['υ', 'ύ', 'ϋ', 'ΰ'],
         Y: ['Υ', 'Ύ', 'Ϋ'],
         z: ['ζ'],
         Z: ['Ζ'],
+        _ap: ['\'', '’'],
         _d: ['΄'],
         _ds: ['¨'],
         _do: ['€'],
@@ -67,8 +68,8 @@ export const get_el = character => {
                 return el.A;
             case 'b':
                 return el.b;
-            // case 'B':
-            //     return el.B
+            case 'B':
+                return el.B
             case 'c':
                 return el.c;
             case 'C':
@@ -103,20 +104,20 @@ export const get_el = character => {
                 return el.J;
             case 'k':
                 return el.k;
-            // case 'K':
-            //     return el.K;
+            case 'K':
+                return el.K;
             case 'l':
                 return el.l;
             case 'L':
                 return el.L;
             case 'm':
                 return el.m;
-            // case 'M':
-            //     return el.M;
+            case 'M':
+                return el.M;
             case 'n':
                 return el.n;
-            // case 'N':
-            //     return el.N;
+            case 'N':
+                return el.N;
             case 'o':
                 return el.o;
             case 'O':
@@ -139,8 +140,8 @@ export const get_el = character => {
                 return el.S;
             case 't':
                 return el.t;
-            // case 'T':
-            //     return el.T;
+            case 'T':
+                return el.T;
             case 'u':
                 return el.u;
             case 'U':
@@ -155,8 +156,8 @@ export const get_el = character => {
                 return el.W;
             case 'x':
                 return el.x;
-            // case 'X':
-            //     return el.X;
+            case 'X':
+                return el.X;
             case 'y':
                 return el.y;
             case 'Y':
@@ -165,6 +166,8 @@ export const get_el = character => {
                 return el.z;
             case 'Z':
                 return el.Z;
+            case '’':
+                return el._ap;
             case ';':
                 return el._d;
             case ':':

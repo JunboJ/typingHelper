@@ -12,6 +12,7 @@ export const get_es = character => {
         O: ['O', 'Ó'],
         u: ['u', 'ü', 'ú'],
         U: ['U', 'Ü', 'Ú'],
+        _ap: ['\'', '’'],
         _q: ['?', '¿'],
         _e: ['!', '¡'],
         _do: ['€'],
@@ -43,6 +44,8 @@ export const get_es = character => {
                 return es.u;
             case 'U':
                 return es.U;
+            case '’':
+                return es._ap;
             case '!':
                 return es._e;
             case '?':

@@ -1,6 +1,6 @@
 export const get_fr = character => {
     console.log(character);
-    
+
     const fr = {
         a: ['a', 'à', 'â', 'æ'],
         A: ['A', 'À', 'Â', 'Æ'],
@@ -15,7 +15,8 @@ export const get_fr = character => {
         u: ['u', 'ù', 'û', 'ü'],
         U: ['U', 'Ù', 'Û', 'Ü'],
         y: ['y', 'ÿ'],
-        Y: ['Y', 'Ÿ']
+        Y: ['Y', 'Ÿ'],
+        _ap: ['\'', '’']
     }
 
     const letterSet = character => {
@@ -48,6 +49,8 @@ export const get_fr = character => {
                 return fr.y;
             case 'Y':
                 return fr.Y;
+            case '’':
+                return fr._ap;
             default:
                 return null;
         }

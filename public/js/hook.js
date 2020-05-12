@@ -7,7 +7,6 @@ let buttonPosTop;
 let buttonWidth;
 let buttonHeight;
 let langList;
-let isReady = false;
 const listWrapper = document.createElement("div");
 const ARROWKEY_CODES = [37, 38, 39, 40];
 const inputKeys = [192, 219, 221, 220, 186, 222, 188, 190, 191, 111, 106, 109, 107, 110];
@@ -44,7 +43,6 @@ $(document).ready(function() {
     $(langList).addClass("listWrapper_off");
     document.body.appendChild(langList);
 
-
     $(window).on("touchstart.helperMU mousedown.helperMU", e => {
         console.log('lang list', e.target);
         helperDivMouseDownHandler(e)
@@ -53,7 +51,8 @@ $(document).ready(function() {
 
     $('body').on("mouseup.helperMU touchend.helperMU ", e => {
         // e.preventDefault();
-        // console.log(e);
+        console.log(e.type);
+
         if (!e.target.matches('#changeLanguage_btn') && !e.target.matches('.check-container')) {
             // console.log('1');
 
@@ -196,12 +195,9 @@ $(document).ready(function() {
                 eventHandler(event, true);
             }
             if (inputKeys.includes(keycode)) {
-                resetCaretStart();
-                if (div) div.remove();
+                console.log('symbol');
+                eventHandler(event, true);
             }
-        });
-        element.on("input", () => {
-            console.log('on input');
         });
     });
 

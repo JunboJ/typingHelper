@@ -1,5 +1,6 @@
 let Dictionary = null;
 let levelsOfLenience = 1;
+let jaNum = ['０', '１', '２', '３', '４', '５', '６', '７', '８', '９'];
 
 export const importKanjiLib = () => {
     return new Promise((res, rej) => {
@@ -55,6 +56,20 @@ export const get_ja = (str, type) => {
         }
     });
 };
+
+export const convertToJaNum = num => {
+    let finalNum = '';
+    let stringNum = num.toString();
+    for (const el of stringNum) {
+        finalNum += jaNum[el];
+    }
+    return {
+        resultString: num,
+        strL: finalNum.length,
+        partEnd: finalNum.length,
+        result: finalNum
+    };
+}
 
 const convertToKana = str => {
     return new Promise((res, rej) => {

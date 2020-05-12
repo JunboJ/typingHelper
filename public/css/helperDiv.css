@@ -17,6 +17,7 @@
     -webkit-transition: left 0.15s, width 0.2s;
     z-index: 1000;
     transition: height 0.15s, top 0.15s;
+    -webkit-transition: height 0.15s, top 0.15s;
 }
 
 .helperDiv-top {

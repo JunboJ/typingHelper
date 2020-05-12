@@ -4,7 +4,7 @@ import { get_de } from "./lang/deLib.js";
 import { get_es } from "./lang/esLib.js";
 import { get_it } from "./lang/itLib.js";
 import { get_el } from "./lang/elLib.js";
-import { get_ja } from "./lang/jaLib.js";
+import { get_ja, convertToJaNum } from "./lang/jaLib.js";
 import { get_pinyin } from "./lang/pinyinLib.js";
 import { get_romaji } from "./lang/romajiLib.js";
 
@@ -88,7 +88,7 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
     MULTIPLE_LETTER_LANGUAGE_LIST.includes(language) ? getCurrentCharacter = getInputML : getCurrentCharacter = getInputSL;
 
     inputValue ? currentCharacter = getCurrentCharacter() : currentCharacter = { 0: null, 1: null };
-    console.log('stringStart', stringStart);
+    console.log('currentCharacter', currentCharacter);
     getOptionsByType(currentCharacter);
 };
 export const resetCaretStart = () => {
@@ -123,9 +123,16 @@ const getOptionsByType = currentCharacter => {
                         console.log('currentCharacter', currentCharacter)
                         if (currentCharacter[1] !== null)
                             getOptions(currentCharacter[1].string, createInterface, 'kana');
-
                     });
             }, entry[0].type);
+        } else if (entry[0].type === 'num') {
+            options = convertToJaNum(entry[0].string);
+            console.log('options', options);
+            setInputValue(options.result)
+                .then(() => {
+                    setFocus();
+                    resetCaretStart();
+                });
         }
     } else if (entry[0] == null && entry[1] != null && entry[1].type === 'kana') {
         getOptions(entry[1].string, data => {
@@ -302,7 +309,6 @@ const createInterface = result => {
         }
 
         helperDiv.style.left = `${leftPosition}px`;
-
     } else {
         // resetVariables();
         if (helperDiv !== null) {
@@ -359,6 +365,7 @@ const createUIElements = () => {
     moreOption.innerHTML = '<i class="fas fa-chevron-down"></i>';
     btnSet.appendChild(moreOption);
     btnSet.appendChild(closeBtn);
+
     // setting menu container
     moreOptionMenuWrapper = document.createElement("div");
     moreOptionMenuWrapper.className = "moreOptionMenuWrapper";
@@ -406,6 +413,7 @@ export const helperDivMouseDownHandler = (e, input_el) => {
 }
 
 export const helperDivMouseUpHandler = e => {
+    console.log('helperDivMouseUpHandler', e);
     // console.log('4', !$(e.target).is('.writingHelper'), $(e.target).closest('.helperDiv').length == 0);
     if ($('.writingHelper').length && helperDiv) {
         // console.log('5');
@@ -441,12 +449,19 @@ export const helperDivMouseUpHandler = e => {
             }
         }
         if ($(e.target).is('.moreOption')) {
+            if (navigator.platform == 'iPad' || navigator.platform == 'iPhone') {
+                e.preventDefault();
+            }
             moreOptionBtnClickedHandler(e);
         }
         if ($(e.target).is('.helperCloseBtn')) {
             closeBtnClickedHandler(e);
         }
     }
+}
+
+export const moreOptionHandler = e => {
+
 }
 
 const createAuxElement = () => {
@@ -503,8 +518,7 @@ const getInputSL = () => {
     // get the character under caret
     if (cursorStart == cursorEnd)
         cursorStart = cursorEnd == 0 ? 0 : cursorStart - 1;
-    const inputString = getInputValue(input_Html);
-    const currentCharacter = inputString.slice(cursorStart, cursorEnd);
+    const currentCharacter = inputValue.slice(cursorStart, cursorEnd);
     let res = currentCharacter.length == 0 ? null : { string: currentCharacter, type: 'latin' };
     return {
         0: res,
@@ -516,6 +530,8 @@ const getInputML = () => {
     let start, end;
     let match_0;
     let match_1;
+    let patt_num = /^\d+$/;
+
     ({ cursorStart, cursorEnd } = getCaretPosition());
     // console.log('getInputML', cursorStart, cursorEnd, 'string start ', stringStart);
     if (cursorStart == cursorEnd) {
@@ -526,7 +542,6 @@ const getInputML = () => {
         end = cursorEnd;
     }
 
-    let inputValue = getInputValue(input_Html);
     const inputString = inputValue.slice(start, end);
 
     if (inputString.length > 0) {
@@ -536,9 +551,18 @@ const getInputML = () => {
             match_1 = null;
         }
         if (language == 'ja') {
-            // console.log('ja match');
-            match_0 = findMatch('romaji', inputString);
-            match_1 = findMatch('kana', inputString);
+            console.log('inputString', inputString);
+            // console.log('554', inputString.length == 1, patt_num.test(inputString));
+            if (patt_num.test(inputString)) {
+                match_0 = { string: inputString, type: 'num' };
+                console.log('match_0', match_0);
+
+                match_1 = null;
+            } else {
+                // console.log('ja match');
+                match_0 = findMatch('romaji', inputString);
+                match_1 = findMatch('kana', inputString);
+            }
         }
     } else {
         match_0 = match_1 = null
@@ -789,7 +813,7 @@ const createOptions = (mode = "new") => {
             res();
             // resetHeights();
         }
-    })
+    });
 };
 
 const resetHeights = () => {
@@ -1027,20 +1051,25 @@ const moreOptionBtnClickedHandler = event => {
     //     $(".moreOptionMenuWrapper").css({ display: "none" });
     // }
     let moHeight = $('.moreOptionMenuWrapper').height();
-    if ($(event.target).is('.close')) {
+    if ($(event.target).is('.moreOption.close')) {
+        console.log('is close');
         openMoreOption(moHeight);
-    } else if ($(event.target).is('.open')) {
+    } else if ($(event.target).is('.moreOption.open')) {
+        console.log('is open');
         closeMoreOption(moHeight);
     }
 };
 
 const openMoreOption = (moHeight) => {
     // console.log('open frHeight', frHeight, $(".helperDiv").offset().top);
-    let helperY = $(".helperDiv").css("top").slice(0, -2);
+    let helperY = $(".helperDiv").css("top");
     helperY = parseInt(helperY);
+    console.log('helperY', helperY);
     const position = $(".helperDiv")[0].classList.contains("helperDiv-bottom");
     const currentY = position ? helperY : helperY - moHeight;
-    $(helperDiv).css({ 'height': `${frHeight + moHeight}px`, top: currentY });
+    console.log(currentY);
+
+    $(helperDiv).css({ 'height': `${frHeight + moHeight}px`, top: `${currentY}px` });
     // console.log('$(helperDiv).height()', $(helperDiv).css('height'));
     $('button.moreOption').toggleClass('close', false);
     $('button.moreOption').toggleClass('open', true);

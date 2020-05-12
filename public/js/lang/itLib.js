@@ -6,7 +6,7 @@ export const get_it = character => {
         o: ['o', 'ò', 'ó'],
         u: ['u', 'ù', 'ú'],
         _og: ['ò'],
-        _ag: ['à'],
+        _ag: ['à', '\'', '’'],
         _eg: ['è'],
         _ea: ['é'],
         _ug: ['ù'],
@@ -31,6 +31,8 @@ export const get_it = character => {
                 return it.u;
             case ';':
                 return it._og;
+            case '’':
+                return it._ag;
             case '\'':
                 return it._ag;
             case '[':
