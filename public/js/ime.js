@@ -72,7 +72,7 @@ const CHARACTER_TYPE_LIST = ["latin", "kana", "romaji"];
 const TS_PLATFORM = ["Linux armv8l", "iPad", "iPhone"];
 
 export const writingHelper = (input, lang, isTyping = false, event = null) => {
-    console.log('//////////////////////////');
+    console.group('writingHelper');
     language = lang;
     input_Jq = input;
     input_Html = input[0];
@@ -88,16 +88,18 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
     MULTIPLE_LETTER_LANGUAGE_LIST.includes(language) ? getCurrentCharacter = getInputML : getCurrentCharacter = getInputSL;
 
     inputValue ? currentCharacter = getCurrentCharacter() : currentCharacter = { 0: null, 1: null };
-    console.log('currentCharacter', currentCharacter);
+    console.log('currentCharacter', currentCharacter, 'inputValue', inputValue);
     getOptionsByType(currentCharacter);
+    console.groupEnd();
 };
-export const resetCaretStart = () => {
-    // console.log('reset string start');
-    const { cursorStart: start } = getCaretPosition();
+export const resetCaretStart = (el = input_Html) => {
+    const { cursorStart: start } = getCaretPosition(el);
     stringStart = start;
+    console.log('reset string start', stringStart);
 };
 
 const getOptionsByType = currentCharacter => {
+    console.group('getOptionsByType');
     let resultCounter = 0;
     let entry = currentCharacter;
     Object.values(currentCharacter).forEach(entry => {
@@ -107,16 +109,18 @@ const getOptionsByType = currentCharacter => {
     });
     if (entry[0] != null) {
         if (entry[0].type === 'latin') {
+            console.log('latin');
             getOptions(entry[0].string, data => {
                 createInterface(data);
             }, entry[0].type);
         } else if (entry[0].type === 'romaji') {
-            // console.log('romaji');
+            console.group('romaji');
             getOptions(entry[0].string, data => {
                 options = data;
+                console.log('data', data);
                 setInputValue(data.result[0])
                     .then(() => {
-                        setFocus();
+                        // setFocus(data.result[0].length);
                         resetVariables();
                         inputValue = getInputValue();
                         inputValue.length > 0 ? currentCharacter = getCurrentCharacter() : currentCharacter = { 0: null, 1: null };
@@ -125,7 +129,9 @@ const getOptionsByType = currentCharacter => {
                             getOptions(currentCharacter[1].string, createInterface, 'kana');
                     });
             }, entry[0].type);
+            console.groupEnd('romaji');
         } else if (entry[0].type === 'num') {
+            console.log('num');
             options = convertToJaNum(entry[0].string);
             console.log('options', options);
             setInputValue(options.result)
@@ -135,6 +141,7 @@ const getOptionsByType = currentCharacter => {
                 });
         }
     } else if (entry[0] == null && entry[1] != null && entry[1].type === 'kana') {
+        console.log('kana');
         getOptions(entry[1].string, data => {
             createInterface(data);
         }, entry[1].type);
@@ -143,6 +150,7 @@ const getOptionsByType = currentCharacter => {
     if (resultCounter === 0 && helperDiv !== null) {
         removeHelper();
     }
+    console.groupEnd();
 };
 
 const compare = (arr1, arr2) => {
@@ -235,8 +243,9 @@ const createInterface = result => {
 
                 frHeight = $('.firstRowWrapper').height();
                 topPosition = $(input_Html).offset().top;
-                // console.log('topPosition', topPosition);
-                $(helperDiv).css({ 'height': `${frHeight}px`, 'top': `${topPosition - frHeight}px` });
+                let scrollTop = $(window).scrollTop();
+                console.log('topPosition', topPosition, 'scrollTop', scrollTop, $(document).scrollTop(), $('body').scrollTop());
+                $(helperDiv).css({ 'height': `${frHeight}px`, 'top': `${topPosition - scrollTop - frHeight}px` });
             });
         } else {
             // if ($('.moreOption').is('.open')) {
@@ -413,7 +422,6 @@ export const helperDivMouseDownHandler = (e, input_el) => {
 }
 
 export const helperDivMouseUpHandler = e => {
-    console.log('helperDivMouseUpHandler', e);
     // console.log('4', !$(e.target).is('.writingHelper'), $(e.target).closest('.helperDiv').length == 0);
     if ($('.writingHelper').length && helperDiv) {
         // console.log('5');
@@ -527,6 +535,7 @@ const getInputSL = () => {
 };
 
 const getInputML = () => {
+    console.group('getInputML');
     let start, end;
     let match_0;
     let match_1;
@@ -541,17 +550,14 @@ const getInputML = () => {
         start = cursorStart;
         end = cursorEnd;
     }
-
+    console.log('stringStart', stringStart, 'end', end, 'language', language);
     const inputString = inputValue.slice(start, end);
-
+    console.log('inputString', inputString);
     if (inputString.length > 0) {
-        if (language == 'zh') {
-            match_0 = findMatch('latin', inputString);
-            // console.log('zh match');
-            match_1 = null;
-        }
+        console.log('@1');
+
+
         if (language == 'ja') {
-            console.log('inputString', inputString);
             // console.log('554', inputString.length == 1, patt_num.test(inputString));
             if (patt_num.test(inputString)) {
                 match_0 = { string: inputString, type: 'num' };
@@ -563,15 +569,27 @@ const getInputML = () => {
                 match_0 = findMatch('romaji', inputString);
                 match_1 = findMatch('kana', inputString);
             }
+        } else if (language == 'zh') {
+            console.log('@2');
+            match_0 = findMatch('latin', inputString);
+            match_1 = null;
+        } else {
+            console.log('@3');
+            match_0 = match_1 = null
         }
-    } else {
-        match_0 = match_1 = null
-    }
 
-    return {
-        0: match_0,
-        1: match_1
-    };
+        console.groupEnd();
+        return {
+            0: match_0,
+            1: match_1
+        };
+    } else {
+        console.groupEnd();
+        return {
+            0: null,
+            1: null
+        }
+    }
 };
 
 const findMatch = (type, str) => {
@@ -621,21 +639,25 @@ const findMatch = (type, str) => {
     }
 }
 
-const getCaretPosition = () => {
+const getCaretPosition = (el = input_Html) => {
     var caretStartPos = 0,
         caretEndPos = 0,
         selection,
         range;
-    if (input_Html.tagName == "DIV") {
+    console.group('getCaretPosition');
+    if (el.tagName == "DIV") {
         if (window.getSelection) {
             selection = window.getSelection();
-            // console.log('selection: ', selection);
+            console.log('selection: ', selection);
+            for (let i = 0; i < selection.rangeCount; i++) {
+                let ranges = selection.getRangeAt(i);
+                console.log('range ' + i, ranges);
+            }
             if (selection.rangeCount) {
                 range = selection.getRangeAt(0);
-                console.log('range: ', range, 'input_Jq', input_Jq);
-                // console.log('range.commonAncestorContainer.parentNode == input_Html: ', $(range.commonAncestorContainer.parentNode).children(input_Jq).length > 0);
-                if ($(range.commonAncestorContainer.parentNode).is(input_Jq) || $(range.commonAncestorContainer.parentNode).children(input_Jq).length > 0) {
-                    // console.log('range.endOffset: ', range.endOffset);
+                console.log('range', range);
+                if ($(range.commonAncestorContainer.parentNode).is($(el)) || $(range.commonAncestorContainer.parentNode).children($(el)).length > 0) {
+                    console.log('getCaretPosition', range);
                     caretStartPos = range.endOffset;
                     if (range.startOffset) caretStartPos = range.startOffset;
                     // console.log('range.endOffset: ', range.endOffset);
@@ -645,29 +667,38 @@ const getCaretPosition = () => {
         }
     } else {
         ({ caretStartPos, caretEndPos } = {
-            caretStartPos: input_Html.selectionStart,
-            caretEndPos: input_Html.selectionEnd
+            caretStartPos: el.selectionStart,
+            caretEndPos: el.selectionEnd
         });
     }
+    console.groupEnd();
     return { cursorStart: caretStartPos, cursorEnd: caretEndPos };
 };
 
 // focus on element function
-export const setFocus = () => {
+export const setFocus = (le = null) => {
+    console.group('setFocus');
     let element = input_Html;
-    if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {} else {
+    if (element.tagName === "DIV") {
         // console.log(element, element.childNodes[0]);
         let stringNode = element.childNodes[0];
         let range = document.createRange();
-        range.selectNodeContents(stringNode);
-        // console.log('setFocus', range, stringNode.nodeType);
-        range.collapse();
+        let caretPos = stringStart + le;
+        if (le !== null) {
+            console.log('le', le, 'stringNode', stringNode, typeof stringNode);
+            range.setStart(stringNode, caretPos);
+        } else {
+            console.log('le', le);
+            range.selectNodeContents(stringNode);
+            range.collapse();
+        }
         let selection = window.getSelection();
         if (selection.rangeCount > 0) {
             selection.removeAllRanges();
         }
         selection.addRange(range);
     }
+    console.groupEnd();
 };
 
 // get options from library
@@ -1099,6 +1130,7 @@ const mouseUpHandler = event => {
 
 // set input value
 const setInputValue = val => {
+    console.group('setInputValue');
     return new Promise((res, rej) => {
         let wordStart, wordEnd, newString;
         // console.log('cursorStart', cursorStart, 'cursorEnd', cursorEnd);
@@ -1128,7 +1160,11 @@ const setInputValue = val => {
         }
 
         if (input_Html.tagName === "DIV") {
-            input_Html.innerText = newString;
+            console.log(newString);
+            let newText = document.createTextNode(newString);
+            $(input_Html).empty();
+            input_Html.append(newText);
+            console.groupEnd();
             res();
         } else {
             if (input_Html.tagName === "INPUT" || input_Html.tagName === "TEXTAREA") {

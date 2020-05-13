@@ -44,24 +44,23 @@ $(document).ready(function() {
     document.body.appendChild(langList);
 
     $(window).on("touchstart.helperMU mousedown.helperMU", e => {
-        console.log('lang list', e.target);
         helperDivMouseDownHandler(e)
     });
     // $(window).on("touchend.helperMU mouseup.helperMU", e => {
 
     $('body').on("mouseup.helperMU touchend.helperMU ", e => {
         // e.preventDefault();
-        console.log(e.type);
+        console.log(e.type, $(e.target).is('.writingHelper'));
 
         if (!e.target.matches('#changeLanguage_btn') && !e.target.matches('.check-container')) {
-            // console.log('1');
+            console.log('1');
 
             $(langList).addClass("listWrapper_off");
             $(langList).removeClass("listWrapper_on");
             $(".LanguageSwitchArrow").addClass("LanguageSwitchArrow_off");
             $(".LanguageSwitchArrow").removeClass("LanguageSwitchArrow_on");
         } else if (e.target.matches('.check-container')) {
-            // console.log('2');
+            console.log('2');
             // e.preventDefault();
             setTimeout(() => {
                 $('#changeLanguage_btn')[0].innerText = '';
@@ -76,13 +75,17 @@ $(document).ready(function() {
                 $('#changeLanguage_btn').append(x);
             }, 50);
         } else if (e.target.matches('#changeLanguage_btn')) {
-            // console.log('3', langList);
+            console.log('3', langList);
             e.preventDefault();
             $(langList).toggleClass("listWrapper_off");
             $(langList).toggleClass("listWrapper_on");
             $(".LanguageSwitchArrow").toggleClass("LanguageSwitchArrow_off");
             $(".LanguageSwitchArrow").toggleClass("LanguageSwitchArrow_on");
             reposition(langList);
+        }
+        if ($(e.target).is('.writingHelper')) {
+            console.log('reset on click', e.target);
+            resetCaretStart(e.target);
         }
         helperDivMouseUpHandler(e)
     });
