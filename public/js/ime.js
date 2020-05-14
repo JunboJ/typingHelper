@@ -22,6 +22,9 @@ let inputParent_Html = null;
 let inputParent_Jq = null;
 let inputValue = null;
 let getCurrentCharacter = null;
+let newNode;
+let endNode;
+let convertDone = false;
 
 let currentCharacter = null;
 let pages = [];
@@ -89,12 +92,60 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
 
     inputValue ? currentCharacter = getCurrentCharacter() : currentCharacter = { 0: null, 1: null };
     console.log('currentCharacter', currentCharacter, 'inputValue', inputValue);
-    getOptionsByType(currentCharacter);
+    if (currentCharacter[0] != null || currentCharacter[1] != null) {
+        convertDone = false;
+        getOptionsByType(currentCharacter);
+    } else if (currentCharacter[0] == null && currentCharacter[0] == null) {
+        convertDone = true;
+        resetCaretStart();
+    }
     console.groupEnd();
 };
 export const resetCaretStart = (el = input_Html) => {
     const { cursorStart: start } = getCaretPosition(el);
     stringStart = start;
+    if (input_Html) {
+        // let zwspValue = input_Html.innerText.replace(/\u200B/g, '');
+        // input_Html.innerText = zwspValue;
+        for (let i = 0; i < input_Html.childNodes.length; i++) {
+            if (input_Html.childNodes[i].nodeValue == "\u200b") {
+                $(input_Html.childNodes[i]).remove();
+            }
+        }
+        input_Html.childNodes
+        input_Html.normalize();
+        // console.log('zwspValue', zwspValue);
+        let selection = window.getSelection();
+        let range = selection.getRangeAt(0);
+        let node = range.startContainer
+        console.log('input_Html.firstChild', input_Html.firstChild, 'node', node);
+
+        if ($(input_Html.firstChild).is($(node))) {
+            // if (range.startOffset < node.nodeValue.length) {
+            let endNode = node.splitText(range.startOffset);
+            let newNode = document.createTextNode("\u200b");
+            input_Html.insertBefore(newNode, endNode);
+            console.log('newNode', newNode);
+            let newRange = document.createRange();
+            newRange.selectNodeContents(newNode);
+            newRange.collapse();
+            if (selection.rangeCount > 0) {
+                selection.removeAllRanges();
+            }
+            selection.addRange(newRange);
+            // }
+        } else if ($(node).is('.writingHelper')) {
+            let newNode = document.createTextNode("\u200b");
+            input_Html.append(newNode);
+            let newRange = document.createRange();
+            newRange.selectNodeContents(newNode);
+            newRange.collapse();
+            if (selection.rangeCount > 0) {
+                selection.removeAllRanges();
+            }
+            selection.addRange(newRange);
+        }
+    }
     console.log('reset string start', stringStart);
 };
 
@@ -108,6 +159,7 @@ const getOptionsByType = currentCharacter => {
         }
     });
     if (entry[0] != null) {
+        convertDone = false;
         if (entry[0].type === 'latin') {
             console.log('latin');
             getOptions(entry[0].string, data => {
@@ -121,6 +173,7 @@ const getOptionsByType = currentCharacter => {
                 setInputValue(data.result[0])
                     .then(() => {
                         // setFocus(data.result[0].length);
+                        setFocus();
                         resetVariables();
                         inputValue = getInputValue();
                         inputValue.length > 0 ? currentCharacter = getCurrentCharacter() : currentCharacter = { 0: null, 1: null };
@@ -141,10 +194,13 @@ const getOptionsByType = currentCharacter => {
                 });
         }
     } else if (entry[0] == null && entry[1] != null && entry[1].type === 'kana') {
+        convertDone = false;
         console.log('kana');
         getOptions(entry[1].string, data => {
             createInterface(data);
         }, entry[1].type);
+    } else if (entry[0] == null && entry[1] == null) {
+        convertDone = true;
     }
 
     if (resultCounter === 0 && helperDiv !== null) {
@@ -446,15 +502,17 @@ export const helperDivMouseUpHandler = e => {
         //     });
         // }
         if ($(e.target).is('.helperOptions')) {
-            mouseUpHandler(e);
-            setFocus();
-            removeHelper();
-            if (RESET_CARET_ON_SELECTING_LIST.includes(language)) {
-                resetCaretStart();
-            } else {
-                // console.log('run again');
-                writingHelper(input_Jq, language, true);
-            }
+            let char = $(e.target).attr('data');
+            setInputValue(char)
+                .then(() => {
+                    removeHelper();
+                    if (RESET_CARET_ON_SELECTING_LIST.includes(language)) {
+                        resetCaretStart();
+                    } else {
+                        console.log('run again');
+                        writingHelper(input_Jq, language, true);
+                    }
+                })
         }
         if ($(e.target).is('.moreOption')) {
             if (navigator.platform == 'iPad' || navigator.platform == 'iPhone') {
@@ -520,6 +578,7 @@ const getInputValue = () => {
 };
 
 const getInputSL = () => {
+    console.group('getInputSL');
     // let cursorStart, cursorEnd;
     ({ cursorStart, cursorEnd } = getCaretPosition());
     // console.log('getInputSL', cursorStart, cursorEnd);
@@ -528,6 +587,8 @@ const getInputSL = () => {
         cursorStart = cursorEnd == 0 ? 0 : cursorStart - 1;
     const currentCharacter = inputValue.slice(cursorStart, cursorEnd);
     let res = currentCharacter.length == 0 ? null : { string: currentCharacter, type: 'latin' };
+    console.log('res', res)
+    console.groupEnd();
     return {
         0: res,
         1: null
@@ -540,8 +601,10 @@ const getInputML = () => {
     let match_0;
     let match_1;
     let patt_num = /^\d+$/;
+    let inputString;
+    let node;
 
-    ({ cursorStart, cursorEnd } = getCaretPosition());
+    ({ cursorStart, cursorEnd, node } = getCaretPosition());
     // console.log('getInputML', cursorStart, cursorEnd, 'string start ', stringStart);
     if (cursorStart == cursorEnd) {
         start = stringStart;
@@ -551,7 +614,12 @@ const getInputML = () => {
         end = cursorEnd;
     }
     console.log('stringStart', stringStart, 'end', end, 'language', language);
-    const inputString = inputValue.slice(start, end);
+    if (node) {
+        // node.nodeValue = node.nodeValue.replace(/\u200B/g, '');
+        inputString = node.nodeValue.slice(0, end);
+    } else {
+        inputString = inputValue.slice(start, end);
+    }
     console.log('inputString', inputString);
     if (inputString.length > 0) {
         console.log('@1');
@@ -648,16 +716,16 @@ const getCaretPosition = (el = input_Html) => {
     if (el.tagName == "DIV") {
         if (window.getSelection) {
             selection = window.getSelection();
-            console.log('selection: ', selection);
-            for (let i = 0; i < selection.rangeCount; i++) {
-                let ranges = selection.getRangeAt(i);
-                console.log('range ' + i, ranges);
-            }
+            // console.log('selection: ', selection);
+            // for (let i = 0; i < selection.rangeCount; i++) {
+            //     let ranges = selection.getRangeAt(i);
+            //     console.log('range ' + i, ranges);
+            // }
             if (selection.rangeCount) {
                 range = selection.getRangeAt(0);
-                console.log('range', range);
+                console.log('range', range, 'range.startContainer', range.startContainer);
                 if ($(range.commonAncestorContainer.parentNode).is($(el)) || $(range.commonAncestorContainer.parentNode).children($(el)).length > 0) {
-                    console.log('getCaretPosition', range);
+                    // console.log('getCaretPosition', range);
                     caretStartPos = range.endOffset;
                     if (range.startOffset) caretStartPos = range.startOffset;
                     // console.log('range.endOffset: ', range.endOffset);
@@ -672,24 +740,23 @@ const getCaretPosition = (el = input_Html) => {
         });
     }
     console.groupEnd();
-    return { cursorStart: caretStartPos, cursorEnd: caretEndPos };
+    return { cursorStart: caretStartPos, cursorEnd: caretEndPos, node: range.startContainer };
 };
 
 // focus on element function
-export const setFocus = (le = null) => {
+export const setFocus = (node = null) => {
     console.group('setFocus');
     let element = input_Html;
+    let lastNode = element.childNodes.length - 1;
     if (element.tagName === "DIV") {
-        // console.log(element, element.childNodes[0]);
-        let stringNode = element.childNodes[0];
         let range = document.createRange();
-        let caretPos = stringStart + le;
-        if (le !== null) {
-            console.log('le', le, 'stringNode', stringNode, typeof stringNode);
-            range.setStart(stringNode, caretPos);
+        if (node !== null) {
+            console.log('node', node);
+            range.selectNodeContents(node);
+            range.collapse();
         } else {
-            console.log('le', le);
-            range.selectNodeContents(stringNode);
+            console.log('node', node);
+            range.selectNodeContents(element.childNodes[lastNode]);
             range.collapse();
         }
         let selection = window.getSelection();
@@ -1132,38 +1199,63 @@ const mouseUpHandler = event => {
 const setInputValue = val => {
     console.group('setInputValue');
     return new Promise((res, rej) => {
-        let wordStart, wordEnd, newString;
+        let wordStart, wordEnd, newString, existNode;
+        // const { cursorStart: start } = getCaretPosition();
         // console.log('cursorStart', cursorStart, 'cursorEnd', cursorEnd);
-        if (cursorStart == cursorEnd) {
-            // only japanese and Chinese have strL
-            let strLength = options.strL || 0;
-            wordStart = cursorStart - strLength;
-            wordEnd = wordStart + options.partEnd;
+        // if (cursorStart == cursorEnd) {
+        //     // only japanese and Chinese have strL
+        //     let strLength = options.strL || 0;
+        //     wordStart = cursorStart - strLength;
+        //     wordEnd = wordStart + options.partEnd;
 
-            newString =
-                inputValue.slice(0, wordStart) +
-                val +
-                inputValue.slice(wordEnd);
-        } else {
-            let selectedString = inputValue.slice(
-                cursorStart,
-                cursorEnd
-            );
-            let modifiedSelectedString = selectedString.replace(
-                options.resultString,
-                val
-            );
-            newString =
-                inputValue.slice(0, cursorStart) +
-                modifiedSelectedString +
-                inputValue.slice(cursorEnd);
-        }
-
+        //     newString =
+        //         inputValue.slice(0, wordStart) +
+        //         val +
+        //         inputValue.slice(wordEnd);
+        // } else {
+        //     let selectedString = inputValue.slice(
+        //         cursorStart,
+        //         cursorEnd
+        //     );
+        //     let modifiedSelectedString = selectedString.replace(
+        //         options.resultString,
+        //         val
+        //     );
+        //     newString =
+        //         inputValue.slice(0, cursorStart) +
+        //         modifiedSelectedString +
+        //         inputValue.slice(cursorEnd);
+        // }
         if (input_Html.tagName === "DIV") {
-            console.log(newString);
-            let newText = document.createTextNode(newString);
-            $(input_Html).empty();
-            input_Html.append(newText);
+            console.log('l1');
+            // if (cursorStart == cursorEnd) {
+            console.log('l2')
+            console.log('options', options);
+            existNode = input_Html.firstChild;
+            if (language !== 'ja' && language !== 'zh') {
+                console.log('l3')
+                endNode = existNode.splitText(existNode.nodeValue.length - 1);
+                endNode.nodeValue = val;
+                input_Html.normalize();
+            } else {
+                let optionLength = options.partEnd;
+                existNode = window.getSelection().anchorNode;
+                console.log('l4');
+                console.log('existNode', existNode);
+                console.log('has zwsp', existNode.nodeValue.includes("\u200b"));
+                if (existNode.nodeValue.includes("\u200b")) {
+                    optionLength = optionLength + 1;
+                }
+                endNode = existNode.splitText(optionLength);
+                let newText = document.createTextNode(val);
+                console.log('endNode', endNode, 'options.partEnd', options.partEnd);
+                $(endNode.previousSibling).remove();
+                let waitingChar = endNode.nodeValue;
+                // endNode.nodeValue = waitingChar;
+                newNode = input_Html.insertBefore(newText, endNode);
+                setFocus(endNode);
+            }
+            // }
             console.groupEnd();
             res();
         } else {

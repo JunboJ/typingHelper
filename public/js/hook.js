@@ -9,7 +9,7 @@ let buttonHeight;
 let langList;
 const listWrapper = document.createElement("div");
 const ARROWKEY_CODES = [37, 38, 39, 40];
-const inputKeys = [192, 219, 221, 220, 186, 222, 188, 190, 191, 111, 106, 109, 107, 110];
+const inputKeys = [192, 219, 221, 220, 186, 222, 189, 188, 187, 190, 191, 111, 106, 109, 107, 110, 32];
 const languages = {
     de: "German",
     el: "Greek",
@@ -148,17 +148,21 @@ $(document).ready(function() {
 
             const helperdiv = getHelperDiv();
             if (event.which == 8 || event.which == 46) {
+                // if (helperdiv) {
+                //     // console.log("helperdiv on backspace");
+                //     setTimeout(() => {
+                //         console.log('8 with helperDiv true');
+                //         eventHandler(event, true);
+                //     }, 50);
+                // } else {
+                //     setTimeout(() => {
+                //         console.log('8 with helperDiv false');
+                //         eventHandler(event);
+                //     }, 50);
+                // }
                 if (helperdiv) {
-                    // console.log("helperdiv on backspace");
-                    setTimeout(() => {
-                        console.log('8 with helperDiv true');
-                        eventHandler(event, true);
-                    }, 50);
-                } else {
-                    setTimeout(() => {
-                        console.log('8 with helperDiv false');
-                        eventHandler(event);
-                    }, 50);
+                    helperdiv.remove();
+                    resetCaretStart();
                 }
             }
             if (event.which == 27) {
