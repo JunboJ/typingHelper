@@ -239,15 +239,19 @@ const createInterface = result => {
             createUIElements();
             // togglePageControllers();
             basicKeyEventListener();
-            createOptions().then(() => {
-                helperHeight = $('.firstRowWrapper').height();
-                // console.log('inputfield top', $(input_Html).offset().top);
+            createOptions()
+                .then(() => {
+                    // helperHeight = $('.firstRowWrapper').height();
+                    // console.log('inputfield top', $(input_Html).offset().top);
 
-                frHeight = $('.firstRowWrapper').height();
-                topPosition = $(input_Html).offset().top;
-                // console.log('topPosition', topPosition);
-                $(helperDiv).css({ 'height': `${frHeight}px`, 'top': `${topPosition - frHeight}px` });
-            });
+                    frHeight = $('.firstRowWrapper').height();
+                    topPosition = $(input_Html).offset().top;
+                    let scrollTopPosition = $('html').scrollTop();
+                    console.log('input_Html topPosition', topPosition);
+                    console.log('input_Html frHeight', frHeight);
+                    console.log('input_Html scrollTopPosition', scrollTopPosition);
+                    $(helperDiv).css({ 'height': `${frHeight}px`, 'top': `${topPosition - frHeight - scrollTopPosition}px` });
+                });
         } else {
             // if ($('.moreOption').is('.open')) {
             //     let moHeight = $('.moreOptionMenuWrapper').height();
@@ -255,9 +259,7 @@ const createInterface = result => {
             // }
             // togglePageControllers();
             // console.log('sameRes', sameRes);
-            if (sameRes) {
-
-            } else {
+            if (!sameRes) {
                 let prev_moHeight = $('.moreOptionMenuWrapper')[0].offsetHeight;
                 createOptions().then(() => {
                     if ($('button.moreOption').is('.open')) {
@@ -288,7 +290,7 @@ const createInterface = result => {
         if (caretMarkSpan.textContent !== ".") {
             topToWindow = Math.abs(spany);
         }
-        optionStyling(topToWindow, helperHeight);
+        optionStyling(topToWindow, frHeight);
 
         if (input_Html.tagName === "INPUT") {
             // input field with full length string
@@ -642,7 +644,7 @@ const getCaretPosition = (el = input_Html) => {
             // console.log('selection: ', selection);
             if (selection.rangeCount) {
                 range = selection.getRangeAt(0);
-                console.log('range: ', range, 'input_Jq', $(el));
+                // console.log('range: ', range, 'input_Jq', $(el));
                 // console.log('range.commonAncestorContainer.parentNode == input_Html: ', $(range.commonAncestorContainer.parentNode).children(input_Jq).length > 0);
                 if ($(range.commonAncestorContainer.parentNode).is($(el)) || $(range.commonAncestorContainer.parentNode).children($(el)).length > 0) {
                     // console.log('range.endOffset: ', range.endOffset);
@@ -814,6 +816,7 @@ const createOptions = (mode = "new") => {
                     let helperOptions = document.createElement("button");
                     helperOptions.className = 'helperOptions';
                     helperOptions.setAttribute('data', char);
+                    helperOptions.id = 'm' + index;
                     $(helperOptions).css({ 'font-size': '1rem', 'min-height': '2.5rem', 'min-width': '2.5rem' });
 
                     let text = document.createTextNode(char);
@@ -950,7 +953,8 @@ const keydownEventHandler = event => {
             // console.log('nextable');
         } else {
             // event.preventDefault();
-            $("#nextPageCtrl").mouseup();
+            $(".moreOption.close").mouseup();
+            setHighlight('m0');
             // console.log('end');
         }
         return;
