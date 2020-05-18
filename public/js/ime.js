@@ -46,8 +46,8 @@ let settingMenuContentText = null;
 let frHeight = 0;
 let frWidth = 0;
 
-let stringStart = null;
-let caretPos = 0;
+let stringStart = 0;
+let caretPos = null;
 let cursorStart = null;
 let cursorEnd = null;
 
@@ -105,7 +105,7 @@ export const recordCaretPos = (el = input_Html) => {
 
     caretPos = el.innerText.length - posObj.cursorStart;
     console.log('record caretPos', caretPos);
-}
+};
 
 const getOptionsByType = currentCharacter => {
     let resultCounter = 0;
@@ -470,10 +470,6 @@ export const helperDivMouseUpHandler = e => {
             closeBtnClickedHandler(e);
         }
     }
-}
-
-export const moreOptionHandler = e => {
-
 }
 
 const createAuxElement = () => {
@@ -954,7 +950,6 @@ const keydownEventHandler = event => {
         } else {
             // event.preventDefault();
             $(".moreOption.close").mouseup();
-            setHighlight('m0');
             // console.log('end');
         }
         return;
