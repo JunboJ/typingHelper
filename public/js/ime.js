@@ -92,9 +92,9 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
     getOptionsByType(currentCharacter);
 };
 export const resetCaretStart = () => {
-    // console.log('reset string start');
     const { cursorStart: start } = getCaretPosition();
     stringStart = start;
+    console.log('reset string start', stringStart);
 };
 
 const getOptionsByType = currentCharacter => {
