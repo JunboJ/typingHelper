@@ -46,7 +46,8 @@ let settingMenuContentText = null;
 let frHeight = 0;
 let frWidth = 0;
 
-let stringStart = 0;
+let stringStart = null;
+let caretPos = 0;
 let cursorStart = null;
 let cursorEnd = null;
 
@@ -91,11 +92,20 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
     console.log('currentCharacter', currentCharacter);
     getOptionsByType(currentCharacter);
 };
-export const resetCaretStart = () => {
-    const { cursorStart: start } = getCaretPosition();
+export const resetCaretStart = (el = input_Html) => {
+    const { cursorStart: start } = getCaretPosition(el);
     stringStart = start;
-    console.log('reset string start', stringStart);
+    console.log('reset string start', el);
+    recordCaretPos(el);
 };
+
+export const recordCaretPos = (el = input_Html) => {
+    let posObj = getCaretPosition(el);
+    console.log(el.firstChild);
+
+    caretPos = el.innerText.length - posObj.cursorStart;
+    console.log('record caretPos', caretPos);
+}
 
 const getOptionsByType = currentCharacter => {
     let resultCounter = 0;
@@ -413,7 +423,7 @@ export const helperDivMouseDownHandler = (e, input_el) => {
 }
 
 export const helperDivMouseUpHandler = e => {
-    console.log('helperDivMouseUpHandler', e);
+    // console.log('helperDivMouseUpHandler', e);
     // console.log('4', !$(e.target).is('.writingHelper'), $(e.target).closest('.helperDiv').length == 0);
     if ($('.writingHelper').length && helperDiv) {
         // console.log('5');
@@ -621,20 +631,20 @@ const findMatch = (type, str) => {
     }
 }
 
-const getCaretPosition = () => {
+const getCaretPosition = (el = input_Html) => {
     var caretStartPos = 0,
         caretEndPos = 0,
         selection,
         range;
-    if (input_Html.tagName == "DIV") {
+    if (el.tagName == "DIV") {
         if (window.getSelection) {
             selection = window.getSelection();
             // console.log('selection: ', selection);
             if (selection.rangeCount) {
                 range = selection.getRangeAt(0);
-                console.log('range: ', range, 'input_Jq', input_Jq);
+                console.log('range: ', range, 'input_Jq', $(el));
                 // console.log('range.commonAncestorContainer.parentNode == input_Html: ', $(range.commonAncestorContainer.parentNode).children(input_Jq).length > 0);
-                if ($(range.commonAncestorContainer.parentNode).is(input_Jq) || $(range.commonAncestorContainer.parentNode).children(input_Jq).length > 0) {
+                if ($(range.commonAncestorContainer.parentNode).is($(el)) || $(range.commonAncestorContainer.parentNode).children($(el)).length > 0) {
                     // console.log('range.endOffset: ', range.endOffset);
                     caretStartPos = range.endOffset;
                     if (range.startOffset) caretStartPos = range.startOffset;
@@ -645,8 +655,8 @@ const getCaretPosition = () => {
         }
     } else {
         ({ caretStartPos, caretEndPos } = {
-            caretStartPos: input_Html.selectionStart,
-            caretEndPos: input_Html.selectionEnd
+            caretStartPos: el.selectionStart,
+            caretEndPos: el.selectionEnd
         });
     }
     return { cursorStart: caretStartPos, cursorEnd: caretEndPos };
@@ -659,7 +669,12 @@ export const setFocus = () => {
         // console.log(element, element.childNodes[0]);
         let stringNode = element.childNodes[0];
         let range = document.createRange();
-        range.selectNodeContents(stringNode);
+        if (caretPos !== null) {
+            let pos = input_Html.innerText.length - caretPos;
+            range.setStart(stringNode, pos);
+        } else {
+            range.selectNodeContents(stringNode);
+        }
         // console.log('setFocus', range, stringNode.nodeType);
         range.collapse();
         let selection = window.getSelection();

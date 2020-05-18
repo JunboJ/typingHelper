@@ -1,4 +1,4 @@
-import { writingHelper, resetCaretStart, setFocus, helperDivMouseDownHandler, helperDivMouseUpHandler } from "./ime.js";
+import { writingHelper, resetCaretStart, recordCaretPos, setFocus, helperDivMouseDownHandler, helperDivMouseUpHandler } from "./ime.js";
 import { importKanjiLib } from "./lang/jaLib.js";
 
 let language = null;
@@ -84,6 +84,10 @@ $(document).ready(function() {
             $(".LanguageSwitchArrow").toggleClass("LanguageSwitchArrow_on");
             reposition(langList);
         }
+        if ($(e.target).is('.writingHelper')) {
+            console.log('reset on click', e.target);
+            resetCaretStart(e.target);
+        }
         helperDivMouseUpHandler(e)
     });
 
@@ -158,10 +162,21 @@ $(document).ready(function() {
                     }, 50);
                 }
             }
+            if (helperdiv) {
+                if (event.which == 37 || event.which == 39) {
+                    resetCaretStart(this);
+                    run();
+                }
+            } else {
+                if (ARROWKEY_CODES.includes(event.which)) {
+                    resetCaretStart(this);
+                    run();
+                }
+            }
             if (event.which == 27) {
                 if (helperdiv) {
                     helperdiv.remove();
-                    resetCaretStart();
+                    resetCaretStart(this);
                 }
             }
             if (event.which == 13) {
@@ -192,10 +207,12 @@ $(document).ready(function() {
             }
             if ((keycode >= 48 && keycode <= 57 && !div) || (keycode >= 65 && keycode <= 90)) {
                 console.log('on keyup');
+                recordCaretPos(this);
                 eventHandler(event, true);
             }
             if (inputKeys.includes(keycode)) {
                 console.log('symbol');
+                recordCaretPos(this);
                 eventHandler(event, true);
             }
         });
