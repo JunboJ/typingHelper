@@ -200,14 +200,13 @@ const createInterface = result => {
 
         // get position of wrapper of the rest of cloned content
         const spany = $(caretMarkSpan).offset().top;
-        const spanX = $(caretMarkSpan).offset().left;
+        const spanX = $(caretMarkSpan).offset().left - $(input_Html).offset().left + 40;
+        console.log('$(caretMarkSpan).offset().left', $(caretMarkSpan).offset().left, '$(input_Html).offset().left', $(input_Html).offset().left);
 
         // get position of clone div
         const {
-            // offsetLeft: cloneFieldX,
-            // offsetTop: cloneFieldY,
-            // offsetWidth: cloneFieldWidth,
-            offsetHeight: cloneFieldHeight
+            offsetTop: cfOffsetTop,
+            offsetHeight: cfOffsetHeight
         } = cloneField;
 
         // get position of input_Jq fields
@@ -246,11 +245,12 @@ const createInterface = result => {
 
                     frHeight = $('.firstRowWrapper').height();
                     topPosition = $(input_Html).offset().top;
-                    let scrollTopPosition = $('html').scrollTop();
+                    // let scrollTopPosition = $('html').scrollTop();
                     console.log('input_Html topPosition', topPosition);
-                    console.log('input_Html frHeight', frHeight);
-                    console.log('input_Html scrollTopPosition', scrollTopPosition);
-                    $(helperDiv).css({ 'height': `${frHeight}px`, 'top': `${topPosition - frHeight - scrollTopPosition}px` });
+                    console.log('clonefield cfOffsetTop', cfOffsetTop);
+                    console.log('frHeight firstRowWrapper', frHeight);
+                    // console.log('input_Html scrollTopPosition', scrollTopPosition);
+                    $(helperDiv).css({ 'height': `${frHeight}px`, 'top': `${cfOffsetTop - frHeight - 40}px` });
                 });
         } else {
             // if ($('.moreOption').is('.open')) {
@@ -264,11 +264,12 @@ const createInterface = result => {
                 createOptions().then(() => {
                     if ($('button.moreOption').is('.open')) {
                         let moHeight = $('.moreOptionMenuWrapper')[0].offsetHeight;
-                        let divTop = $(helperDiv).offset().top;
-                        // console.log('prev_moHeight', prev_moHeight, 'moHeight', moHeight);
+                        let divTop = $(helperDiv).css('top');
+                        console.log('divTop', divTop);
+                        console.log('prev_moHeight', prev_moHeight, 'moHeight', moHeight);
                         frHeight = $('.firstRowWrapper').height();
                         // console.log('prev_moHeight - moHeight', `${prev_moHeight - moHeight}px`);
-                        $(helperDiv).css({ 'height': `${moHeight + frHeight}px`, 'top': `${divTop + (prev_moHeight - moHeight)}px` });
+                        $(helperDiv).css({ 'height': `${moHeight + frHeight}px`, 'top': `${parseInt(divTop) + (prev_moHeight - moHeight)}px` });
                     }
                 });
             }
@@ -461,7 +462,8 @@ export const helperDivMouseUpHandler = e => {
             }
         }
         if ($(e.target).is('.moreOption')) {
-            if (navigator.platform == 'iPad' || navigator.platform == 'iPhone') {
+            console.log('navigator.platform', navigator.platform);
+            if (navigator.platform == 'iPad' || navigator.platform == 'iPhone' || navigator.platform == 'MacIntel') {
                 e.preventDefault();
             }
             moreOptionBtnClickedHandler(e);

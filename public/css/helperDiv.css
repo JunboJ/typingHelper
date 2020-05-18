@@ -1,5 +1,5 @@
 .helperDiv {
-    position: fixed;
+    position: absolute;
     display: flex;
     overflow: hidden;
     justify-content: space-between;
