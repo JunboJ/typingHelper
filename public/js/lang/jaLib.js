@@ -73,8 +73,43 @@ export const convertToJaNum = num => {
 
 const convertToKana = str => {
     return new Promise((res, rej) => {
-        // let data = ;
-        res(wanakana.toKana(str, { customKanaMapping: { n: 'n', nn: 'ん' } }));
+        console.log('str', str);
+        let result = [];
+        let convertedResult = '';
+        let patt = /([a-z]+|[A-Z]+)/g;
+        let groupedStr = str.match(patt);
+        let i = 0;
+        while (i < groupedStr.length) {
+            let lcPatt = /^[a-z]+$/g;
+            let ucPatt = /^[A-Z]+$/g;
+            let v = groupedStr[i];
+            if (lcPatt.test(v)) {
+                result.push(wanakana.toHiragana(v, { customKanaMapping: { n: 'n', nn: 'ん' } }));
+                console.log('lower case');
+                i++
+                continue;
+            }
+            if (ucPatt.test(v)) {
+                let partRes = wanakana.toKatakana(v);
+                for (let i = 0; i < partRes.length; i++) {
+                    if (wanakana.isJapanese(partRes[i])) {
+                        result.push(partRes[i]);
+                    } else {
+                        let converted = partRes[i].toUpperCase();
+                        result.push(converted);
+                        console.log('converted', converted);
+                    }
+                }
+                console.log('upper case');
+                i++
+                continue;
+            }
+        }
+        result.forEach(v => {
+            convertedResult += v;
+        })
+        console.log('convertedResult', convertedResult);
+        res(convertedResult);
     })
 };
 
