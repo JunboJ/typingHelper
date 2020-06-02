@@ -92,7 +92,7 @@ const convertToKana = str => {
                 continue;
             }
             if (ucPatt.test(v)) {
-                let partRes = wanakana.toKatakana(v);
+                let partRes = wanakana.toKatakana(v, { customKanaMapping: { N: 'N', NN: 'ン' } });
                 for (let i = 0; i < partRes.length; i++) {
                     if (wanakana.isJapanese(partRes[i])) {
                         result.push(partRes[i]);

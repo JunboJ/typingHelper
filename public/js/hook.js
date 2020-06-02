@@ -9,7 +9,7 @@ let buttonHeight;
 let langList;
 const listWrapper = document.createElement("div");
 const ARROWKEY_CODES = [37, 38, 39, 40];
-const inputKeys = [192, 219, 221, 220, 186, 222, 188, 190, 191, 111, 106, 109, 107, 110];
+const inputKeys = [192, 219, 221, 220, 186, 222, 188, 190, 191, 111, 106, 109, 107, 110, 189, 187];
 const languages = {
     de: "German",
     el: "Greek",

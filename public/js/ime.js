@@ -124,6 +124,7 @@ const getOptionsByType = currentCharacter => {
             // console.log('romaji');
             getOptions(entry[0].string, data => {
                 options = data;
+                console.log('data', data);
                 setInputValue(data.result[0])
                     .then(() => {
                         setFocus();
@@ -585,8 +586,10 @@ const getInputML = () => {
 };
 
 const findMatch = (type, str) => {
-    const patt = /([a-zA-Z.,!?$;:\\()\'\"<>\s]+)/gi;
-    const kanaPatt = /([\u3040-\u30ff.,!?$;:\\()\'\"<>\s]+)/g;
+    const patt = /([a-zA-Z.,!?$;:\\~\-\()\[\]{}\'\"<>\s]+)/gi;
+    const kanaPatt = /([\u3040-\u30ff.,!?$;:\\~\-\()\[\]{}\'\"<>\s]+)/g;
+    console.log('patt', patt.toString(), 'kanaPatt', kanaPatt.toString());
+
     let match;
     let charArray = [];
     let count = 0;
