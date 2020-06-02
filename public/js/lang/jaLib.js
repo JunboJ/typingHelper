@@ -73,9 +73,58 @@ export const convertToJaNum = num => {
 
 const convertToKana = str => {
     return new Promise((res, rej) => {
-        // let data = ;
-        res(wanakana.toKana(str, { customKanaMapping: { n: 'n', nn: 'ん' } }));
-    })
+        console.log('str', str);
+        let result = [];
+        let convertedResult = '';
+        let patt = /([A-Z]+|[a-z]+|\W+)/g;
+        let groupedStr = str.match(patt);
+        console.log(groupedStr, groupedStr.length);
+        let i = 0;
+        while (i < groupedStr.length) {
+            let lcPatt = /^[a-z]+$/g;
+            let ucPatt = /^[A-Z]+$/g;
+            let nwPatt = /^\W+$/g;
+            let v = groupedStr[i];
+            if (lcPatt.test(v)) {
+                result.push(wanakana.toHiragana(v, { customKanaMapping: { n: 'n', nn: 'ん' } }));
+                console.log('lower case');
+                i++
+                continue;
+            }
+            if (ucPatt.test(v)) {
+                let partRes = wanakana.toKatakana(v, { customKanaMapping: { N: 'N', NN: 'ン' } });
+                for (let i = 0; i < partRes.length; i++) {
+                    if (wanakana.isJapanese(partRes[i])) {
+                        result.push(partRes[i]);
+                    } else {
+                        let converted = partRes[i].toUpperCase();
+                        result.push(converted);
+                        console.log('converted', converted);
+                    }
+                }
+                console.log('upper case');
+                i++
+                continue;
+            }
+            if (nwPatt.test(v)) {
+                result.push(wanakana.toHiragana(v));
+                console.log('non word');
+                i++
+                continue;
+            }
+            result.push(v);
+            continue;
+        }
+        if (result.length > 0) {
+            result.forEach(v => {
+                convertedResult += v;
+            })
+        } else {
+            convertedResult = null;
+        }
+        console.log('convertedResult', convertedResult);
+        res(convertedResult);
+    });
 };
 
 const convertToKanji = str => {

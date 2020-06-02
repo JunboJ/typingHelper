@@ -1,4 +1,4 @@
-import { writingHelper, resetCaretStart, setFocus, helperDivMouseDownHandler, helperDivMouseUpHandler } from "./ime.js";
+import { writingHelper, resetCaretStart, recordCaretPos, setFocus, helperDivMouseDownHandler, helperDivMouseUpHandler } from "./ime.js";
 import { importKanjiLib } from "./lang/jaLib.js";
 
 let language = null;
@@ -9,7 +9,7 @@ let buttonHeight;
 let langList;
 const listWrapper = document.createElement("div");
 const ARROWKEY_CODES = [37, 38, 39, 40];
-const inputKeys = [192, 219, 221, 220, 186, 222, 188, 190, 191, 111, 106, 109, 107, 110];
+const inputKeys = [192, 219, 221, 220, 186, 222, 188, 190, 191, 111, 106, 109, 107, 110, 189, 187];
 const languages = {
     de: "German",
     el: "Greek",
@@ -38,6 +38,9 @@ $(window).resize(function() {
 });
 
 $(document).ready(function() {
+    let testStr = ',RE,ao,ZE,';
+    let testPatt = /([A-Z]+|[a-z]+|[,]+)/g;
+    console.log('testStr.match(testPatt)', testStr.match(testPatt));
     console.log(navigator);
     langList = addLanguageCheckingList();
     $(langList).addClass("listWrapper_off");
@@ -161,10 +164,21 @@ $(document).ready(function() {
                     }, 50);
                 }
             }
+            if (helperdiv) {
+                if (event.which == 37 || event.which == 39) {
+                    resetCaretStart(this);
+                    run();
+                }
+            } else {
+                if (ARROWKEY_CODES.includes(event.which)) {
+                    resetCaretStart(this);
+                    run();
+                }
+            }
             if (event.which == 27) {
                 if (helperdiv) {
                     helperdiv.remove();
-                    resetCaretStart();
+                    resetCaretStart(this);
                 }
             }
             if (event.which == 13) {
@@ -195,10 +209,12 @@ $(document).ready(function() {
             }
             if ((keycode >= 48 && keycode <= 57 && !div) || (keycode >= 65 && keycode <= 90)) {
                 console.log('on keyup');
+                recordCaretPos(this);
                 eventHandler(event, true);
             }
             if (inputKeys.includes(keycode)) {
                 console.log('symbol');
+                recordCaretPos(this);
                 eventHandler(event, true);
             }
         });

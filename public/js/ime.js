@@ -47,6 +47,7 @@ let frHeight = 0;
 let frWidth = 0;
 
 let stringStart = 0;
+let caretPos = null;
 let cursorStart = null;
 let cursorEnd = null;
 
@@ -95,7 +96,16 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
 export const resetCaretStart = (el = input_Html) => {
     const { cursorStart: start } = getCaretPosition(el);
     stringStart = start;
-    console.log('reset string start', stringStart);
+    console.log('reset string start', el);
+    recordCaretPos(el);
+};
+
+export const recordCaretPos = (el = input_Html) => {
+    let posObj = getCaretPosition(el);
+    console.log(el.firstChild);
+
+    caretPos = el.innerText.length - posObj.cursorStart;
+    console.log('record caretPos', caretPos);
 };
 
 const getOptionsByType = currentCharacter => {
@@ -198,14 +208,13 @@ const createInterface = result => {
 
         // get position of wrapper of the rest of cloned content
         const spany = $(caretMarkSpan).offset().top;
-        const spanX = $(caretMarkSpan).offset().left;
+        const spanX = $(caretMarkSpan).offset().left - $(input_Html).offset().left + 40;
+        console.log('$(caretMarkSpan).offset().left', $(caretMarkSpan).offset().left, '$(input_Html).offset().left', $(input_Html).offset().left);
 
         // get position of clone div
         const {
-            // offsetLeft: cloneFieldX,
-            // offsetTop: cloneFieldY,
-            // offsetWidth: cloneFieldWidth,
-            offsetHeight: cloneFieldHeight
+            offsetTop: cfOffsetTop,
+            offsetHeight: cfOffsetHeight
         } = cloneField;
 
         // get position of input_Jq fields
@@ -237,16 +246,20 @@ const createInterface = result => {
             createUIElements();
             // togglePageControllers();
             basicKeyEventListener();
-            createOptions().then(() => {
-                helperHeight = $('.firstRowWrapper').height();
-                // console.log('inputfield top', $(input_Html).offset().top);
+            createOptions()
+                .then(() => {
+                    // helperHeight = $('.firstRowWrapper').height();
+                    // console.log('inputfield top', $(input_Html).offset().top);
 
-                frHeight = $('.firstRowWrapper').height();
-                topPosition = $(input_Html).offset().top;
-                let scrollTop = $(window).scrollTop();
-                console.log('topPosition', topPosition, 'scrollTop', scrollTop, $(document).scrollTop(), $('body').scrollTop());
-                $(helperDiv).css({ 'height': `${frHeight}px`, 'top': `${topPosition - scrollTop - frHeight}px` });
-            });
+                    frHeight = $('.firstRowWrapper').height();
+                    topPosition = $(input_Html).offset().top;
+                    // let scrollTopPosition = $('html').scrollTop();
+                    console.log('input_Html topPosition', topPosition);
+                    console.log('clonefield cfOffsetTop', cfOffsetTop);
+                    console.log('frHeight firstRowWrapper', frHeight);
+                    // console.log('input_Html scrollTopPosition', scrollTopPosition);
+                    $(helperDiv).css({ 'height': `${frHeight}px`, 'top': `${cfOffsetTop - frHeight - 40}px` });
+                });
         } else {
             // if ($('.moreOption').is('.open')) {
             //     let moHeight = $('.moreOptionMenuWrapper').height();
@@ -254,18 +267,17 @@ const createInterface = result => {
             // }
             // togglePageControllers();
             // console.log('sameRes', sameRes);
-            if (sameRes) {
-
-            } else {
+            if (!sameRes) {
                 let prev_moHeight = $('.moreOptionMenuWrapper')[0].offsetHeight;
                 createOptions().then(() => {
                     if ($('button.moreOption').is('.open')) {
                         let moHeight = $('.moreOptionMenuWrapper')[0].offsetHeight;
-                        let divTop = $(helperDiv).offset().top;
-                        // console.log('prev_moHeight', prev_moHeight, 'moHeight', moHeight);
+                        let divTop = $(helperDiv).css('top');
+                        console.log('divTop', divTop);
+                        console.log('prev_moHeight', prev_moHeight, 'moHeight', moHeight);
                         frHeight = $('.firstRowWrapper').height();
                         // console.log('prev_moHeight - moHeight', `${prev_moHeight - moHeight}px`);
-                        $(helperDiv).css({ 'height': `${moHeight + frHeight}px`, 'top': `${divTop + (prev_moHeight - moHeight)}px` });
+                        $(helperDiv).css({ 'height': `${moHeight + frHeight}px`, 'top': `${parseInt(divTop) + (prev_moHeight - moHeight)}px` });
                     }
                 });
             }
@@ -287,7 +299,7 @@ const createInterface = result => {
         if (caretMarkSpan.textContent !== ".") {
             topToWindow = Math.abs(spany);
         }
-        optionStyling(topToWindow, helperHeight);
+        optionStyling(topToWindow, frHeight);
 
         if (input_Html.tagName === "INPUT") {
             // input field with full length string
@@ -422,6 +434,7 @@ export const helperDivMouseDownHandler = (e, input_el) => {
 }
 
 export const helperDivMouseUpHandler = e => {
+    // console.log('helperDivMouseUpHandler', e);
     // console.log('4', !$(e.target).is('.writingHelper'), $(e.target).closest('.helperDiv').length == 0);
     if ($('.writingHelper').length && helperDiv) {
         // console.log('5');
@@ -457,7 +470,8 @@ export const helperDivMouseUpHandler = e => {
             }
         }
         if ($(e.target).is('.moreOption')) {
-            if (navigator.platform == 'iPad' || navigator.platform == 'iPhone') {
+            console.log('navigator.platform', navigator.platform);
+            if (navigator.platform == 'iPad' || navigator.platform == 'iPhone' || navigator.platform == 'MacIntel') {
                 e.preventDefault();
             }
             moreOptionBtnClickedHandler(e);
@@ -466,10 +480,6 @@ export const helperDivMouseUpHandler = e => {
             closeBtnClickedHandler(e);
         }
     }
-}
-
-export const moreOptionHandler = e => {
-
 }
 
 const createAuxElement = () => {
@@ -593,8 +603,10 @@ const getInputML = () => {
 };
 
 const findMatch = (type, str) => {
-    const patt = /([a-zA-Z.,!?$;:\\()\'\"<>\s]+)/gi;
-    const kanaPatt = /([\u3040-\u30ff.,!?$;:\\()\'\"<>\s]+)/g;
+    const patt = /([a-zA-Z.,!?$;:\\~\-\()\[\]{}\'\"<>\s]+)/gi;
+    const kanaPatt = /([\u3040-\u30ff.,!?$;:\\~\-\()\[\]{}\'\"<>\s]+)/g;
+    console.log('patt', patt.toString(), 'kanaPatt', kanaPatt.toString());
+
     let match;
     let charArray = [];
     let count = 0;
@@ -644,7 +656,6 @@ const getCaretPosition = (el = input_Html) => {
         caretEndPos = 0,
         selection,
         range;
-    console.group('getCaretPosition');
     if (el.tagName == "DIV") {
         if (window.getSelection) {
             selection = window.getSelection();
@@ -655,9 +666,10 @@ const getCaretPosition = (el = input_Html) => {
             }
             if (selection.rangeCount) {
                 range = selection.getRangeAt(0);
-                console.log('range', range);
+                // console.log('range: ', range, 'input_Jq', $(el));
+                // console.log('range.commonAncestorContainer.parentNode == input_Html: ', $(range.commonAncestorContainer.parentNode).children(input_Jq).length > 0);
                 if ($(range.commonAncestorContainer.parentNode).is($(el)) || $(range.commonAncestorContainer.parentNode).children($(el)).length > 0) {
-                    console.log('getCaretPosition', range);
+                    // console.log('range.endOffset: ', range.endOffset);
                     caretStartPos = range.endOffset;
                     if (range.startOffset) caretStartPos = range.startOffset;
                     // console.log('range.endOffset: ', range.endOffset);
@@ -683,15 +695,14 @@ export const setFocus = (le = null) => {
         // console.log(element, element.childNodes[0]);
         let stringNode = element.childNodes[0];
         let range = document.createRange();
-        let caretPos = stringStart + le;
-        if (le !== null) {
-            console.log('le', le, 'stringNode', stringNode, typeof stringNode);
-            range.setStart(stringNode, caretPos);
+        if (caretPos !== null) {
+            let pos = input_Html.innerText.length - caretPos;
+            range.setStart(stringNode, pos);
         } else {
-            console.log('le', le);
             range.selectNodeContents(stringNode);
-            range.collapse();
         }
+        // console.log('setFocus', range, stringNode.nodeType);
+        range.collapse();
         let selection = window.getSelection();
         if (selection.rangeCount > 0) {
             selection.removeAllRanges();
@@ -830,6 +841,7 @@ const createOptions = (mode = "new") => {
                     let helperOptions = document.createElement("button");
                     helperOptions.className = 'helperOptions';
                     helperOptions.setAttribute('data', char);
+                    helperOptions.id = 'm' + index;
                     $(helperOptions).css({ 'font-size': '1rem', 'min-height': '2.5rem', 'min-width': '2.5rem' });
 
                     let text = document.createTextNode(char);
@@ -943,6 +955,8 @@ const keydownEventHandler = event => {
 
     if (keycode == 38) {
         event.preventDefault();
+        console.log('up arrow');
+
         if (highlightOption - 49 > 0) {
             // event.preventDefault();
             highlightOption = highlightOption - 1;
@@ -959,6 +973,7 @@ const keydownEventHandler = event => {
 
     if (keycode == 40) {
         event.preventDefault();
+        console.log('down arrow');
         if ((highlightOption - 49) < (pages[pageNum][1] - pages[pageNum][0])) {
             // event.preventDefault();
             highlightOption = highlightOption + 1;
@@ -966,7 +981,7 @@ const keydownEventHandler = event => {
             // console.log('nextable');
         } else {
             // event.preventDefault();
-            $("#nextPageCtrl").mouseup();
+            $(".moreOption.close").mouseup();
             // console.log('end');
         }
         return;
