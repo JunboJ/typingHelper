@@ -38,23 +38,20 @@ $(window).resize(function() {
 });
 
 $(document).ready(function() {
-    let testStr = ',RE,ao,ZE,';
-    let testPatt = /([A-Z]+|[a-z]+|[,]+)/g;
-    console.log('testStr.match(testPatt)', testStr.match(testPatt));
-    console.log(navigator);
+    console.log('hook is running');
     langList = addLanguageCheckingList();
     $(langList).addClass("listWrapper_off");
     document.body.appendChild(langList);
 
     $(window).on("touchstart.helperMU mousedown.helperMU", e => {
+        console.log('lang list', e.target);
         helperDivMouseDownHandler(e)
     });
     // $(window).on("touchend.helperMU mouseup.helperMU", e => {
 
     $('body').on("mouseup.helperMU touchend.helperMU ", e => {
         // e.preventDefault();
-        console.log(e.type, $(e.target).is('.writingHelper'));
-
+        console.log(e);
         if (!e.target.matches('#changeLanguage_btn') && !e.target.matches('.check-container')) {
             console.log('1');
 
@@ -65,18 +62,18 @@ $(document).ready(function() {
         } else if (e.target.matches('.check-container')) {
             console.log('2');
             // e.preventDefault();
-            setTimeout(() => {
-                $('#changeLanguage_btn')[0].innerText = '';
-                $('#changeLanguage_btn')[0].innerHtml = '';
-                let code = $(".langSwitch:checked + .langCode").val();
-                const x = document.createElement("IMG");
-                x.className = "flagIcon";
-                x.style.pointerEvents = "none";
-                x.setAttribute("src", "/images/icons/" + code + '.png');
-                x.setAttribute("alt", code);
-                $('#changeLanguage_btn')[0].innerText = languages[code].toUpperCase() + ' ';
-                $('#changeLanguage_btn').append(x);
-            }, 50);
+            // setTimeout(() => {
+            // $('#changeLanguage_btn')[0].innerText = '';
+            // $('#changeLanguage_btn')[0].innerHtml = '';
+            // let code = $(".langSwitch:checked + .langCode").val();
+            // const x = document.createElement("IMG");
+            // x.className = "flagIcon";
+            // x.style.pointerEvents = "none";
+            // x.setAttribute("src", "/images/icons/" + code + '.png');
+            // x.setAttribute("alt", code);
+            // $('#changeLanguage_btn')[0].innerText = languages[code].toUpperCase() + ' ';
+            // $('#changeLanguage_btn').append(x);
+            // }, 50);
         } else if (e.target.matches('#changeLanguage_btn')) {
             console.log('3', langList);
             e.preventDefault();
@@ -146,20 +143,17 @@ $(document).ready(function() {
 
         // element.on("click", e => eventHandler(e, true));
         element.on("keydown", event => {
-            // console.log('key down event keycode', event.code);
+            console.log('key down event keycode', event.code);
             // console.log(element[0].tagName);
-
             const helperdiv = getHelperDiv();
             if (event.which == 8 || event.which == 46) {
                 if (helperdiv) {
                     // console.log("helperdiv on backspace");
                     setTimeout(() => {
-                        console.log('8 with helperDiv true');
                         eventHandler(event, true);
                     }, 50);
                 } else {
                     setTimeout(() => {
-                        console.log('8 with helperDiv false');
                         eventHandler(event);
                     }, 50);
                 }
@@ -222,6 +216,7 @@ $(document).ready(function() {
 
     $(".langSwitch").on("change", event => {
         language = $(".langSwitch:checked + .langCode").val();
+        console.log('on("change")', language);
     });
 });
 
@@ -248,6 +243,8 @@ const addLanguageCheckingList = textInput => {
         langSwitch.className = "langSwitch";
         langSwitch.name = "lang";
         langSwitch.type = "radio";
+        console.log('code === langId', code === 'en');
+        if (code === 'en') langSwitch.checked = true;
 
         const loadingMark = document.createElement("span");
         $(loadingMark).addClass(`loadingMark ${code}`);
@@ -267,9 +264,6 @@ const addLanguageCheckingList = textInput => {
         langLabel.appendChild(langCode);
         langLabel.appendChild(mark);
         switch (code) {
-            case "en":
-                langSwitch.checked = true;
-                break;
             case "ja":
                 langLabel.appendChild(loadingMark);
             default:

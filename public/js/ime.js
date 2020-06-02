@@ -44,7 +44,6 @@ let settingMenu = null;
 let settingMenuContent = null;
 let settingMenuContentText = null;
 let frHeight = 0;
-let frWidth = 0;
 
 let stringStart = 0;
 let caretPos = null;
@@ -73,7 +72,8 @@ const CHARACTER_TYPE_LIST = ["latin", "kana", "romaji"];
 const TS_PLATFORM = ["Linux armv8l", "iPad", "iPhone"];
 
 export const writingHelper = (input, lang, isTyping = false, event = null) => {
-    console.group('writingHelper');
+    console.log('//////////////////////////');
+
     language = lang;
     input_Jq = input;
     input_Html = input[0];
@@ -84,14 +84,14 @@ export const writingHelper = (input, lang, isTyping = false, event = null) => {
     helperContent = $(".helperContent")[0] || null;
 
     resetVariables();
-    // console.log('is typing ? ', isTyping);
     isTyping ? null : resetCaretStart();
     MULTIPLE_LETTER_LANGUAGE_LIST.includes(language) ? getCurrentCharacter = getInputML : getCurrentCharacter = getInputSL;
 
     inputValue ? currentCharacter = getCurrentCharacter() : currentCharacter = { 0: null, 1: null };
-    console.log('currentCharacter', currentCharacter, 'inputValue', inputValue);
+    // console.log('getCurrentCharacter()', getCurrentCharacter());
+    console.log('currentCharacter', currentCharacter, 'inputValue', inputValue, 'stringStart', stringStart);
+
     getOptionsByType(currentCharacter);
-    console.groupEnd();
 };
 export const resetCaretStart = (el = input_Html) => {
     const { cursorStart: start } = getCaretPosition(el);
@@ -109,7 +109,6 @@ export const recordCaretPos = (el = input_Html) => {
 };
 
 const getOptionsByType = currentCharacter => {
-    console.group('getOptionsByType');
     let resultCounter = 0;
     let entry = currentCharacter;
     Object.values(currentCharacter).forEach(entry => {
@@ -119,18 +118,16 @@ const getOptionsByType = currentCharacter => {
     });
     if (entry[0] != null) {
         if (entry[0].type === 'latin') {
-            console.log('latin');
             getOptions(entry[0].string, data => {
                 createInterface(data);
             }, entry[0].type);
         } else if (entry[0].type === 'romaji') {
-            console.group('romaji');
+            // console.log('romaji');
             getOptions(entry[0].string, data => {
                 options = data;
-                console.log('data', data);
                 setInputValue(data.result[0])
                     .then(() => {
-                        // setFocus(data.result[0].length);
+                        setFocus();
                         resetVariables();
                         inputValue = getInputValue();
                         inputValue.length > 0 ? currentCharacter = getCurrentCharacter() : currentCharacter = { 0: null, 1: null };
@@ -139,9 +136,7 @@ const getOptionsByType = currentCharacter => {
                             getOptions(currentCharacter[1].string, createInterface, 'kana');
                     });
             }, entry[0].type);
-            console.groupEnd('romaji');
         } else if (entry[0].type === 'num') {
-            console.log('num');
             options = convertToJaNum(entry[0].string);
             console.log('options', options);
             setInputValue(options.result)
@@ -151,7 +146,6 @@ const getOptionsByType = currentCharacter => {
                 });
         }
     } else if (entry[0] == null && entry[1] != null && entry[1].type === 'kana') {
-        console.log('kana');
         getOptions(entry[1].string, data => {
             createInterface(data);
         }, entry[1].type);
@@ -160,7 +154,6 @@ const getOptionsByType = currentCharacter => {
     if (resultCounter === 0 && helperDiv !== null) {
         removeHelper();
     }
-    console.groupEnd();
 };
 
 const compare = (arr1, arr2) => {
@@ -178,6 +171,7 @@ const compare = (arr1, arr2) => {
 const createInterface = result => {
     options = result;
     let sameRes = false;
+    console.log('options: ', options);
     if (options !== null && options.result !== null) {
         if (!prev_options) {
             prev_options = {...options };
@@ -186,7 +180,7 @@ const createInterface = result => {
             sameRes ? null : prev_options = {...options };
         }
         const copyStyle = getComputedStyle(input_Html);
-        updatePageList(options.result.length);
+        // updatePageList(options.result.length);
         createAuxElement();
         for (const prop of copyStyle) {
             cloneField.style[prop] = copyStyle[prop];
@@ -208,8 +202,8 @@ const createInterface = result => {
 
         // get position of wrapper of the rest of cloned content
         const spany = $(caretMarkSpan).offset().top;
-        const spanX = $(caretMarkSpan).offset().left - $(input_Html).offset().left + 40;
-        console.log('$(caretMarkSpan).offset().left', $(caretMarkSpan).offset().left, '$(input_Html).offset().left', $(input_Html).offset().left);
+        // const spanX = $(caretMarkSpan).offset().left;
+        const spanX = $(caretMarkSpan).offset().left - $(input_Html).offset().left;
 
         // get position of clone div
         const {
@@ -219,30 +213,21 @@ const createInterface = result => {
 
         // get position of input_Jq fields
         const {
-            // offsetLeft: inputX,
             offsetTop: inputY,
             offsetWidth: inputWidth,
-            // offsetHeight: inputHeight
         } = input_Html;
 
         // get position of the parent element of input_Jq fields
         const {
             offsetLeft: ipX,
-            // offsetTop: ipY,
-            // offsetWidth: ipWidth,
-            // offsetHeight: ipHeight
         } = inputParent_Html;
-
-        // const ipy = $(inputParent_Html).offset().top;
 
         // remove clone
         cloneField.remove();
 
         let helperHeight, topPosition;
-
         // if helperDiv does not exist
         if (helperDiv === null) {
-            // console.log('helperDiv === null', helperDiv === null);
             createUIElements();
             // togglePageControllers();
             basicKeyEventListener();
@@ -258,7 +243,7 @@ const createInterface = result => {
                     console.log('clonefield cfOffsetTop', cfOffsetTop);
                     console.log('frHeight firstRowWrapper', frHeight);
                     // console.log('input_Html scrollTopPosition', scrollTopPosition);
-                    $(helperDiv).css({ 'height': `${frHeight}px`, 'top': `${cfOffsetTop - frHeight - 40}px` });
+                    $(helperDiv).css({ 'height': `${frHeight}px`, 'top': `${cfOffsetTop - frHeight - 30}px` });
                 });
         } else {
             // if ($('.moreOption').is('.open')) {
@@ -282,7 +267,6 @@ const createInterface = result => {
                 });
             }
         }
-        // console.log('moreOptionMenuWrapper height', $('.moreOptionMenuWrapper').height());
 
         // const {
         //     offsetWidth: helperWidth,
@@ -292,8 +276,7 @@ const createInterface = result => {
         const windowWidth = window.innerWidth;
         // const windowHeight = window.innerHeight;
         // styling and positioning
-        // console.log('spanX', spanX);
-        let leftPosition = spanX + 20;
+        let leftPosition = spanX + 16;
         let spanW = ipX + spanX + helperWidth;
         let topToWindow = Math.abs(spany);
         if (caretMarkSpan.textContent !== ".") {
@@ -339,7 +322,6 @@ const createInterface = result => {
 }
 
 const resetVariables = () => {
-    // console.log('reset pages list');
     currentCharacter = { 0: null, 1: null };
     pages = [];
     pageNum = 0;
@@ -347,7 +329,6 @@ const resetVariables = () => {
 };
 
 const createUIElements = () => {
-    // console.log('createUIElements');
     helperDiv = document.createElement("div");
     helperDiv.className = "helperDiv";
     $(helperDiv).css({ 'z-index': '9999' });
@@ -397,7 +378,6 @@ const createUIElements = () => {
 
     // add eventlisteners
     input_Jq.on('focusout.keepFocus', e => {
-        // console.log('focusout', e.target);
         $(e.target).focus();
     })
 
@@ -434,12 +414,10 @@ export const helperDivMouseDownHandler = (e, input_el) => {
 }
 
 export const helperDivMouseUpHandler = e => {
-    // console.log('helperDivMouseUpHandler', e);
-    // console.log('4', !$(e.target).is('.writingHelper'), $(e.target).closest('.helperDiv').length == 0);
     if ($('.writingHelper').length && helperDiv) {
-        // console.log('5');
+        console.log('5');
         e.stopPropagation();
-        // if ($(e.target).closest('.helperDiv').length == 0 && !$(e.target).is(input_Jq)) {
+        // if ($(e.target).closest('.helperDiv').length == 0 && !$(e.target).is('.writingHelper')) {
         //     removeHelper();
         //     input_Jq.blur();
         //     console.log('removing');
@@ -459,6 +437,9 @@ export const helperDivMouseUpHandler = e => {
         //     });
         // }
         if ($(e.target).is('.helperOptions')) {
+            if (navigator.platform == 'iPad' || navigator.platform == 'iPhone' || navigator.platform == 'MacIntel') {
+                e.preventDefault();
+            }
             mouseUpHandler(e);
             setFocus();
             removeHelper();
@@ -532,7 +513,7 @@ const getInputValue = () => {
 const getInputSL = () => {
     // let cursorStart, cursorEnd;
     ({ cursorStart, cursorEnd } = getCaretPosition());
-    // console.log('getInputSL', cursorStart, cursorEnd);
+
     // get the character under caret
     if (cursorStart == cursorEnd)
         cursorStart = cursorEnd == 0 ? 0 : cursorStart - 1;
@@ -545,14 +526,13 @@ const getInputSL = () => {
 };
 
 const getInputML = () => {
-    console.group('getInputML');
     let start, end;
     let match_0;
     let match_1;
     let patt_num = /^\d+$/;
 
     ({ cursorStart, cursorEnd } = getCaretPosition());
-    // console.log('getInputML', cursorStart, cursorEnd, 'string start ', stringStart);
+
     if (cursorStart == cursorEnd) {
         start = stringStart;
         end = cursorEnd;
@@ -564,10 +544,13 @@ const getInputML = () => {
     const inputString = inputValue.slice(start, end);
     console.log('inputString', inputString);
     if (inputString.length > 0) {
-        console.log('@1');
-
-
+        if (language == 'zh') {
+            match_0 = findMatch('latin', inputString);
+            // console.log('zh match');
+            match_1 = null;
+        }
         if (language == 'ja') {
+            console.log('inputString', inputString);
             // console.log('554', inputString.length == 1, patt_num.test(inputString));
             if (patt_num.test(inputString)) {
                 match_0 = { string: inputString, type: 'num' };
@@ -579,34 +562,20 @@ const getInputML = () => {
                 match_0 = findMatch('romaji', inputString);
                 match_1 = findMatch('kana', inputString);
             }
-        } else if (language == 'zh') {
-            console.log('@2');
-            match_0 = findMatch('latin', inputString);
-            match_1 = null;
-        } else {
-            console.log('@3');
-            match_0 = match_1 = null
         }
-
-        console.groupEnd();
-        return {
-            0: match_0,
-            1: match_1
-        };
     } else {
-        console.groupEnd();
-        return {
-            0: null,
-            1: null
-        }
+        match_0 = match_1 = null
     }
-};
+
+    return {
+        0: match_0,
+        1: match_1
+    };
+}
 
 const findMatch = (type, str) => {
     const patt = /([a-zA-Z.,!?$;:\\~\-\()\[\]{}\'\"<>\s]+)/gi;
     const kanaPatt = /([\u3040-\u30ff.,!?$;:\\~\-\()\[\]{}\'\"<>\s]+)/g;
-    console.log('patt', patt.toString(), 'kanaPatt', kanaPatt.toString());
-
     let match;
     let charArray = [];
     let count = 0;
@@ -659,11 +628,7 @@ const getCaretPosition = (el = input_Html) => {
     if (el.tagName == "DIV") {
         if (window.getSelection) {
             selection = window.getSelection();
-            console.log('selection: ', selection);
-            for (let i = 0; i < selection.rangeCount; i++) {
-                let ranges = selection.getRangeAt(i);
-                console.log('range ' + i, ranges);
-            }
+            // console.log('selection: ', selection);
             if (selection.rangeCount) {
                 range = selection.getRangeAt(0);
                 // console.log('range: ', range, 'input_Jq', $(el));
@@ -683,15 +648,13 @@ const getCaretPosition = (el = input_Html) => {
             caretEndPos: el.selectionEnd
         });
     }
-    console.groupEnd();
     return { cursorStart: caretStartPos, cursorEnd: caretEndPos };
 };
 
 // focus on element function
-export const setFocus = (le = null) => {
-    console.group('setFocus');
+export const setFocus = () => {
     let element = input_Html;
-    if (element.tagName === "DIV") {
+    if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {} else {
         // console.log(element, element.childNodes[0]);
         let stringNode = element.childNodes[0];
         let range = document.createRange();
@@ -709,7 +672,6 @@ export const setFocus = (le = null) => {
         }
         selection.addRange(range);
     }
-    console.groupEnd();
 };
 
 // get options from library
@@ -806,7 +768,10 @@ const createOptions = (mode = "new") => {
             // console.log(pageNum + "/" + start + "/" + end);
             // console.log('options', options);
             const start = 0;
-            const end = 7;
+            let end = 7;
+            if (language == 'ja' && navigator.platform == 'iPhone') {
+                end = 4;
+            }
             if (helperContent) {
                 options.result.slice(start, end).map((char, index) => {
                     let key = index + 49;
@@ -859,34 +824,6 @@ const createOptions = (mode = "new") => {
     });
 };
 
-const resetHeights = () => {
-    frHeight = $('.firstRowWrapper').height();
-    frWidth = $('.firstRowWrapper').width();
-    // console.log('frWidth', frWidth);
-    $(helperDiv).css({ 'height': `${frHeight}px` });
-}
-
-// pagination event handlers
-const prevPageEventHandler = (event, callback) => {
-    // event.stopPropagation();
-    if (pages.length > 1) {
-        if (pageNum - 1 >= 0) {
-            pageNum = pageNum - 1;
-            callback();
-        }
-    }
-};
-
-const nextPageEventHandler = (event, callback) => {
-    // event.stopPropagation();
-    if (pages.length > 1) {
-        if (pageNum + 1 <= pages.length - 1) {
-            pageNum = pageNum + 1;
-            callback();
-        }
-    }
-};
-
 const closeBtnClickedHandler = event => {
     removeHelper();
 };
@@ -928,7 +865,7 @@ const keydownEventHandler = event => {
         }
     }
 
-    // space key and enter key pressed
+    // SPACE key and enter key pressed
     if (keycode == 32) {
         // console.log(language);
         if (SPACE_KEY_SPACE_LANGUAGE_LIST.includes(language) &&
@@ -973,8 +910,11 @@ const keydownEventHandler = event => {
 
     if (keycode == 40) {
         event.preventDefault();
-        console.log('down arrow');
-        if ((highlightOption - 49) < (pages[pageNum][1] - pages[pageNum][0])) {
+        console.log('up arrow');
+        // console.log(pages[pageNum][1], pages[pageNum][0], highlightOption);
+        // console.log(pageNum);
+        let firstRowOptions = options.result.length > 7 ? 6 : options.result.length - 1;
+        if ((highlightOption - 49) < firstRowOptions) {
             // event.preventDefault();
             highlightOption = highlightOption + 1;
             setHighlight(highlightOption);
@@ -984,6 +924,8 @@ const keydownEventHandler = event => {
             $(".moreOption.close").mouseup();
             // console.log('end');
         }
+        // console.log("highlight option: ", highlightOption);
+        // console.log(event.pages + '/' + pageNum + '/' + event.pages[pageNum][1] + '/' + highlightOption);
         return;
     }
 
@@ -1021,7 +963,6 @@ const keyupEventHandler = event => {
             if (RESET_CARET_ON_SELECTING_LIST.includes(language)) {
                 resetCaretStart();
             } else {
-                console.log('run again');
                 writingHelper(input_Jq, language, true);
             }
         }
@@ -1077,24 +1018,24 @@ const keyValidityCheck = keycode => {
 
 // more option onclick handler
 const moreOptionBtnClickedHandler = event => {
-    // let display = $(".moreOptionMenuWrapper").css("display");
+    // let display = $(".settingMenuWrapper").css("display");
     // const position = $(".helperDiv")[0].classList.contains("helperDiv-bottom");
 
     // if (display == "none") {
-    //     const menuHeight = $(".moreOptionMenuWrapper").outerHeight();
+    //     const menuHeight = $(".settingMenuWrapper").outerHeight();
     //     let helperY = $(".helperDiv").css("top").slice(0, -2);
     //     helperY = parseInt(helperY);
-    //     $(".moreOptionMenuWrapper").css({ display: "flex" });
+    //     $(".settingMenuWrapper").css({ display: "flex" });
     //     const currentY = position ? helperY : helperY - menuHeight;
     //     $(".helperDiv").css({ top: currentY });
     // }
     // if (display == "flex") {
-    //     const menuHeight = $(".moreOptionMenuWrapper").outerHeight();
+    //     const menuHeight = $(".settingMenuWrapper").outerHeight();
     //     let helperY = $(".helperDiv").css("top").slice(0, -2);
     //     helperY = parseInt(helperY);
     //     const currentY = position ? helperY : helperY + menuHeight;
     //     $(".helperDiv").css({ top: currentY });
-    //     $(".moreOptionMenuWrapper").css({ display: "none" });
+    //     $(".settingMenuWrapper").css({ display: "none" });
     // }
     let moHeight = $('.moreOptionMenuWrapper').height();
     if ($(event.target).is('.moreOption.close')) {
@@ -1145,7 +1086,6 @@ const mouseUpHandler = event => {
 
 // set input value
 const setInputValue = val => {
-    console.group('setInputValue');
     return new Promise((res, rej) => {
         let wordStart, wordEnd, newString;
         // console.log('cursorStart', cursorStart, 'cursorEnd', cursorEnd);
@@ -1175,11 +1115,7 @@ const setInputValue = val => {
         }
 
         if (input_Html.tagName === "DIV") {
-            console.log(newString);
-            let newText = document.createTextNode(newString);
-            $(input_Html).empty();
-            input_Html.append(newText);
-            console.groupEnd();
+            input_Html.innerText = newString;
             res();
         } else {
             if (input_Html.tagName === "INPUT" || input_Html.tagName === "TEXTAREA") {
