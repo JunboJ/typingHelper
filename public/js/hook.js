@@ -38,6 +38,9 @@ $(window).resize(function() {
 });
 
 $(document).ready(function() {
+    let testStr = ',RE,ao,ZE,';
+    let testPatt = /([A-Z]+|[a-z]+|[,]+)/g;
+    console.log('testStr.match(testPatt)', testStr.match(testPatt));
     console.log(navigator);
     langList = addLanguageCheckingList();
     $(langList).addClass("listWrapper_off");

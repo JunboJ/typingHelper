@@ -1,24 +1,44 @@
 export const get_romaji = character => {
-    const pinyin = {
+    const romaji = {
         a: ['ā'],
         o: ['ō'],
         u: ['ū'],
         i: ['ī'],
-        e: ['ē']
+        e: ['ē'],
+        A: ['Ā'],
+        O: ['Ō'],
+        U: ['Ū'],
+        I: ['Ī'],
+        E: ['Ē'],
+        _ap: ['\'', '’', '「', '」']
     }
 
     const letterSet = character => {
         switch (character) {
             case 'a':
-                return pinyin.a;
+                return romaji.a;
             case 'o':
-                return pinyin.o;
+                return romaji.o;
             case 'u':
-                return pinyin.u;
+                return romaji.u;
             case 'i':
-                return pinyin.i;
+                return romaji.i;
             case 'e':
-                return pinyin.e;
+                return romaji.e;
+            case 'A':
+                return romaji.A;
+            case 'O':
+                return romaji.O;
+            case 'U':
+                return romaji.U;
+            case 'I':
+                return romaji.I;
+            case 'E':
+                return romaji.E;
+            case '’':
+                return romaji._ap;
+            case '\'':
+                return romaji._ap;
             default:
                 return null;
         }

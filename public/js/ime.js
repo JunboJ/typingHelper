@@ -928,6 +928,8 @@ const keydownEventHandler = event => {
 
     if (keycode == 38) {
         event.preventDefault();
+        console.log('up arrow');
+
         if (highlightOption - 49 > 0) {
             // event.preventDefault();
             highlightOption = highlightOption - 1;
@@ -944,6 +946,7 @@ const keydownEventHandler = event => {
 
     if (keycode == 40) {
         event.preventDefault();
+        console.log('down arrow');
         if ((highlightOption - 49) < (pages[pageNum][1] - pages[pageNum][0])) {
             // event.preventDefault();
             highlightOption = highlightOption + 1;
